@@ -22,6 +22,36 @@ export const ParserOverlay: React.FC<Props> = ({ onAddCharacter }) => {
     const [htmlSource, setHtmlSource] = useState('');
     const [result, setResult] = useState<ParsedCharacterData | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [isDragging, setIsDragging] = useState(false);
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+    };
+
+    const handleDrop = async (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const file = files[0];
+            try {
+                const text = await file.text();
+                setHtmlSource(text);
+                // Optional: Auto-parse
+                // const data = parseCharacterData(text);
+                // setResult(data);
+            } catch (err) {
+                setError('Failed to read file: ' + (err instanceof Error ? err.message : String(err)));
+            }
+        }
+    };
 
     const handleParse = () => {
         setError(null);
@@ -60,18 +90,58 @@ export const ParserOverlay: React.FC<Props> = ({ onAddCharacter }) => {
                     </Typography>
                 </Box>
 
-                <TextField
-                    label="HTML Source"
-                    multiline
-                    rows={4}
-                    fullWidth
-                    variant="outlined"
-                    value={htmlSource}
-                    onChange={(e) => setHtmlSource(e.target.value)}
-                    placeholder="<html..."
-                    sx={{ mb: 2, fontFamily: 'monospace' }}
-                    InputProps={{ sx: { fontFamily: 'monospace', fontSize: '0.8rem' } }}
-                />
+                <Box
+                    sx={{
+                        mb: 2,
+                        position: 'relative',
+                        borderRadius: 1,
+                        ...(isDragging && {
+                            outline: '2px dashed',
+                            outlineColor: 'primary.main',
+                            bgcolor: 'action.hover'
+                        })
+                    }}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                >
+                    <TextField
+                        label="HTML Source"
+                        multiline
+                        rows={4}
+                        fullWidth
+                        variant="outlined"
+                        value={htmlSource}
+                        onChange={(e) => setHtmlSource(e.target.value)}
+                        placeholder="Paste HTML source here or Drag & Drop a file..."
+                        sx={{
+                            fontFamily: 'monospace',
+                            '& .MuiInputBase-root': {
+                                pointerEvents: isDragging ? 'none' : 'auto' // Prevent text selection while dragging
+                            }
+                        }}
+                        InputProps={{ sx: { fontFamily: 'monospace', fontSize: '0.8rem' } }}
+                    />
+                    {isDragging && (
+                        <Box sx={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            bgcolor: 'rgba(25, 118, 210, 0.1)',
+                            pointerEvents: 'none',
+                            zIndex: 1
+                        }}>
+                            <Typography variant="h6" color="primary" fontWeight="bold">
+                                Drop HTML file here
+                            </Typography>
+                        </Box>
+                    )}
+                </Box>
 
                 <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
                     <Button

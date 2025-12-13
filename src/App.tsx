@@ -85,10 +85,14 @@ function App() {
     setCharacters(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleImportCharacters = (data: ParsedCharacterData[]) => {
+    setCharacters(data);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <Box sx={{ height: '100vh', width: '80vw', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <AppBar position="static">
           <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
@@ -97,17 +101,19 @@ function App() {
           </Toolbar>
         </AppBar>
 
-        <Box sx={{ flex: 1, overflow: 'hidden', bgcolor: 'background.default' }}>
-          <Box sx={{ height: '100%', p: 3 }}>
-            <Grid container spacing={3} sx={{ height: '100%', width: '100%' }}>
-              <Grid size={{ xs: 12, md: 5 }} sx={{ height: { xs: 'auto', md: '100%' }, minWidth: 0 }}>
-                <CharacterList characters={characters} onDelete={handleDeleteCharacter} />
-              </Grid>
-              <Grid size={{ xs: 12, md: 7 }} sx={{ height: { xs: 'auto', md: '100%' }, minWidth: 0 }}>
-                <ParserOverlay onAddCharacter={handleAddCharacter} />
-              </Grid>
+        <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', bgcolor: 'background.default' }}>
+          <Grid container spacing={2} sx={{ flexGrow: 1, p: 2, height: '100%', boxSizing: 'border-box', m: 0, width: '100%' }}>
+            <Grid size={{ xs: 12, md: 6 }} sx={{ height: '100%', minHeight: 0 }}>
+              <CharacterList
+                characters={characters}
+                onDelete={handleDeleteCharacter}
+                onImport={handleImportCharacters}
+              />
             </Grid>
-          </Box>
+            <Grid size={{ xs: 12, md: 6 }} sx={{ height: '100%', minHeight: 0 }}>
+              <ParserOverlay onAddCharacter={handleAddCharacter} />
+            </Grid>
+          </Grid>
         </Box>
       </Box>
     </ThemeProvider>

@@ -12,18 +12,63 @@ import {
     ListItemIcon,
     Box,
     IconButton,
-    Chip
+    Chip,
+    Button,
+    Stack
 } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import DeleteIcon from '@mui/icons-material/Delete';
+import DownloadIcon from '@mui/icons-material/Download';
+import UploadIcon from '@mui/icons-material/Upload';
 
 interface Props {
     characters: ParsedCharacterData[];
     onDelete?: (index: number) => void;
+    onImport?: (data: ParsedCharacterData[]) => void;
 }
 
-export const CharacterList: React.FC<Props> = ({ characters, onDelete }) => {
+export const CharacterList: React.FC<Props> = ({ characters, onDelete, onImport }) => {
     const [selectedCharacter, setSelectedCharacter] = useState<ParsedCharacterData | null>(null);
+
+    const handleExport = () => {
+        const dataStr = JSON.stringify(characters, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'hazreverb_characters.json';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
+    const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const content = e.target?.result as string;
+                    const parsed = JSON.parse(content);
+                    if (Array.isArray(parsed) && onImport) {
+                        onImport(parsed);
+                    } else if (onImport) {
+                        // Graceful fallback for single object or invalid array check
+                        // If it's a single object, maybe wrap in array? 
+                        // For now, strict array check is safer.
+                        alert('Invalid format: Expected an array of characters.');
+                    }
+                } catch (error) {
+                    console.error('Import failed:', error);
+                    alert('Failed to parse JSON file.');
+                }
+            };
+            reader.readAsText(file);
+        }
+        // Reset value so same file can be selected again
+        event.target.value = '';
+    };
 
     return (
         <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', border: 'none' }}>
@@ -34,6 +79,32 @@ export const CharacterList: React.FC<Props> = ({ characters, onDelete }) => {
                     </Typography>
                 }
                 subheader={`${characters.length} characters loaded`}
+                action={
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            variant="outlined"
+                            size="small"
+                            startIcon={<UploadIcon />}
+                            component="label"
+                        >
+                            Import
+                            <input
+                                type="hidden"
+                                accept=".json"
+                                onChange={handleImport}
+                            />
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            size="small"
+                            startIcon={<DownloadIcon />}
+                            onClick={handleExport}
+                            disabled={characters.length === 0}
+                        >
+                            Export
+                        </Button>
+                    </Stack>
+                }
                 sx={{
                     borderBottom: '1px solid',
                     borderColor: 'divider',

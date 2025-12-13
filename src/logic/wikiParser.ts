@@ -1,7 +1,7 @@
 
 export interface SkillData {
     name: string;
-    levels: { level: string; description: string }[];
+    levels: { level: string; description: string | null }[];
 }
 
 export interface CharacterStats {
@@ -111,15 +111,20 @@ const parseSkills = (doc: Document): SkillData[] => {
                 let skillName = skillNameHeader.textContent?.trim() || 'Unknown Skill';
                 skillName = skillName.replace(/<!--.*?-->/g, '').trim();
 
-                const levels: { level: string; description: string }[] = [];
+                const levels: { level: string; description: string | null }[] = [];
                 const rows = tbody.querySelectorAll('tr');
 
                 rows.forEach(row => {
                     const cells = row.querySelectorAll('td');
                     if (cells.length === 1) {
-                        const description = cells[0].textContent?.trim() || '';
-                        if (description) {
-                            const levelObj = { level: skillName.includes('Ex') ? 'Ex' : '1', description };
+                        const content = cells[0].textContent?.trim() || '';
+                        // If content is just digits, treat it as a level
+                        if (/^\d+$/.test(content)) {
+                            levels.push({ level: content, description: null });
+                        } else if (content) {
+                            // Fallback for "legacy" description parsing or Ex skill special cases
+                            // Only add if it looks like a description (not a number)
+                            const levelObj = { level: skillName.includes('Ex') ? 'Ex' : '1', description: content };
                             levels.push(levelObj);
                         }
                     } else if (cells.length >= 2) {
