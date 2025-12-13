@@ -1,0 +1,10 @@
+services:
+  app:
+    build: .
+    volumes:
+      - .:/app
+    # Override command to ensure install happens on container start (populating the mount)
+    # This is slower but ensures host gets node_modules for IDE support without local node.
+    command: sh -c "npm install && npm run dev -- --host"
+    ports:
+      - "5173:5173"
