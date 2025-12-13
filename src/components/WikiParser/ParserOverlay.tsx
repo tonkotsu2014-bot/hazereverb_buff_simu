@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import type { ParsedCharacterData } from '../../logic/wikiParser';
 import { parseCharacterData } from '../../logic/wikiParser';
 import {
@@ -23,20 +23,37 @@ export const ParserOverlay: React.FC<Props> = ({ onAddCharacter }) => {
     const [result, setResult] = useState<ParsedCharacterData | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isDragging, setIsDragging] = useState(false);
+    const dragCounter = useRef(0);
+
+    const handleDragEnter = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dragCounter.current += 1;
+        if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+            setIsDragging(true);
+        }
+    };
 
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault();
-        setIsDragging(true);
+        e.stopPropagation();
+        // Necessary to allow dropping
     };
 
     const handleDragLeave = (e: React.DragEvent) => {
         e.preventDefault();
-        setIsDragging(false);
+        e.stopPropagation();
+        dragCounter.current -= 1;
+        if (dragCounter.current === 0) {
+            setIsDragging(false);
+        }
     };
 
     const handleDrop = async (e: React.DragEvent) => {
         e.preventDefault();
+        e.stopPropagation();
         setIsDragging(false);
+        dragCounter.current = 0;
 
         const files = e.dataTransfer.files;
         if (files.length > 0) {
@@ -101,6 +118,7 @@ export const ParserOverlay: React.FC<Props> = ({ onAddCharacter }) => {
                             bgcolor: 'action.hover'
                         })
                     }}
+                    onDragEnter={handleDragEnter}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
