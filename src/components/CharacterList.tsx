@@ -8,7 +8,6 @@ import {
     ListItemButton,
     ListItemText,
     Typography,
-    Paper,
     ListItemIcon,
     Box,
     IconButton,
@@ -25,10 +24,23 @@ interface Props {
     characters: ParsedCharacterData[];
     onDelete?: (index: number) => void;
     onImport?: (data: ParsedCharacterData[]) => void;
+    onSelect?: (index: number) => void;
+    selectedIndex?: number | null;
 }
 
-export const CharacterList: React.FC<Props> = ({ characters, onDelete, onImport }) => {
-    const [selectedCharacter, setSelectedCharacter] = useState<ParsedCharacterData | null>(null);
+export const CharacterList: React.FC<Props> = ({ characters, onDelete, onImport, onSelect, selectedIndex }) => {
+    // We lift the state up if onSelect is provided, otherwise local state (though mostly unused currently without onSelect in parent)
+    const [localSelected, setLocalSelected] = useState<number | null>(null);
+
+    const handleSelect = (index: number) => {
+        if (onSelect) {
+            onSelect(index);
+        } else {
+            setLocalSelected(index);
+        }
+    };
+
+    const currentSelected = onSelect ? selectedIndex : localSelected;
 
     const handleExport = () => {
         const dataStr = JSON.stringify(characters, null, 2);
@@ -54,9 +66,6 @@ export const CharacterList: React.FC<Props> = ({ characters, onDelete, onImport 
                     if (Array.isArray(parsed) && onImport) {
                         onImport(parsed);
                     } else if (onImport) {
-                        // Graceful fallback for single object or invalid array check
-                        // If it's a single object, maybe wrap in array? 
-                        // For now, strict array check is safer.
                         alert('Invalid format: Expected an array of characters.');
                     }
                 } catch (error) {
@@ -66,19 +75,18 @@ export const CharacterList: React.FC<Props> = ({ characters, onDelete, onImport 
             };
             reader.readAsText(file);
         }
-        // Reset value so same file can be selected again
         event.target.value = '';
     };
 
     return (
-        <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', border: 'none' }}>
+        <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', border: 'none', boxShadow: 0 }}>
             <CardHeader
                 title={
                     <Typography variant="h6" fontWeight={700} color="text.primary">
-                        Character List
+                        キャラ一覧
                     </Typography>
                 }
-                subheader={`${characters.length} characters loaded`}
+                subheader={`${characters.length} 名`}
                 action={
                     <Stack direction="row" spacing={1}>
                         <Button
@@ -87,7 +95,7 @@ export const CharacterList: React.FC<Props> = ({ characters, onDelete, onImport 
                             startIcon={<UploadIcon />}
                             component="label"
                         >
-                            Import
+                            インポート
                             <input
                                 type="hidden"
                                 accept=".json"
@@ -101,7 +109,7 @@ export const CharacterList: React.FC<Props> = ({ characters, onDelete, onImport 
                             onClick={handleExport}
                             disabled={characters.length === 0}
                         >
-                            Export
+                            エクスポート
                         </Button>
                     </Stack>
                 }
@@ -115,9 +123,9 @@ export const CharacterList: React.FC<Props> = ({ characters, onDelete, onImport 
             <CardContent sx={{ flex: 1, overflow: 'auto', p: 0 }}>
                 {characters.length === 0 ? (
                     <Box sx={{ p: 4, textAlign: 'center', opacity: 0.7 }}>
-                        <Typography variant="body1" fontWeight={500}>No characters yet</Typography>
+                        <Typography variant="body1" fontWeight={500}>キャラクターがいません</Typography>
                         <Typography variant="body2" sx={{ mt: 1 }}>
-                            Add characters from the parser panel.
+                            インポートまたは追加してください。
                         </Typography>
                     </Box>
                 ) : (
@@ -125,8 +133,8 @@ export const CharacterList: React.FC<Props> = ({ characters, onDelete, onImport 
                         {characters.map((char, index) => (
                             <ListItemButton
                                 key={index}
-                                selected={selectedCharacter === char}
-                                onClick={() => setSelectedCharacter(char)}
+                                selected={currentSelected === index}
+                                onClick={() => handleSelect(index)}
                                 sx={{
                                     py: 1.5,
                                     px: 3,
@@ -143,15 +151,15 @@ export const CharacterList: React.FC<Props> = ({ characters, onDelete, onImport 
                                     }
                                 }}
                             >
-                                <ListItemIcon sx={{ minWidth: 36, color: selectedCharacter === char ? 'primary.main' : 'text.secondary' }}>
+                                <ListItemIcon sx={{ minWidth: 36, color: currentSelected === index ? 'primary.main' : 'text.secondary' }}>
                                     <PersonIcon />
                                 </ListItemIcon>
                                 <Box sx={{ flex: 1 }}>
                                     <ListItemText
-                                        primary={char.name || 'Unknown Character'}
+                                        primary={char.name || '名称不明'}
                                         primaryTypographyProps={{
-                                            fontWeight: selectedCharacter === char ? 600 : 400,
-                                            color: selectedCharacter === char ? 'primary.main' : 'text.primary'
+                                            fontWeight: currentSelected === index ? 600 : 400,
+                                            color: currentSelected === index ? 'primary.main' : 'text.primary'
                                         }}
                                     />
                                     {char.type && (
@@ -172,7 +180,7 @@ export const CharacterList: React.FC<Props> = ({ characters, onDelete, onImport 
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             onDelete(index);
-                                            if (selectedCharacter === char) setSelectedCharacter(null); // Clear selection if deleted
+                                            if (currentSelected === index) handleSelect(-1); // Deselect if deleted
                                         }}
                                         sx={{
                                             opacity: 0.5,
@@ -187,40 +195,7 @@ export const CharacterList: React.FC<Props> = ({ characters, onDelete, onImport 
                     </List>
                 )}
             </CardContent>
-
-            {selectedCharacter && (
-                <Paper
-                    elevation={0}
-                    square
-                    sx={{
-                        p: 0,
-                        borderTop: '1px solid',
-                        borderColor: 'divider',
-                        height: '45%',
-                        minHeight: 200,
-                        display: 'flex',
-                        flexDirection: 'column'
-                    }}
-                >
-                    <Box sx={{ p: 2, bgcolor: 'background.default', borderBottom: '1px solid', borderColor: 'divider' }}>
-                        <Typography variant="subtitle2" fontWeight="bold" color="primary">
-                            DETAILS: {selectedCharacter.name}
-                        </Typography>
-                    </Box>
-                    <Box sx={{ flex: 1, overflow: 'auto', p: 2, bgcolor: '#f8fafc' }}>
-                        <pre style={{
-                            margin: 0,
-                            fontSize: '0.75rem',
-                            fontFamily: 'Consolas, monospace',
-                            whiteSpace: 'pre-wrap',
-                            wordBreak: 'break-all',
-                            color: '#334155'
-                        }}>
-                            {JSON.stringify(selectedCharacter, null, 2)}
-                        </pre>
-                    </Box>
-                </Paper>
-            )}
+            {/* Replaced Preview with Detail Form in parent, so removing preview pane here */}
         </Card>
     );
 };

@@ -1,20 +1,27 @@
+
 export interface SkillEffect {
-    type: 'Buff' | 'Debuff';
-    calculationType: 'Fixed' | 'SupportScaling' | 'Scaling';
-    attribute: string; // Internal key (e.g. 'Attack', 'CritDamage')
+    type: string; // 'Buff' | 'Debuff'
+    attribute: string;
     value: number;
     duration?: number;
+    calculationType?: string; // Made optional to fit existing usage or ensure alignment
     scalingFactor?: string;
+}
+
+export interface SkillLevel {
+    level: string;
+    description: string | null;
+    effects: SkillEffect[];
 }
 
 export interface SkillData {
     name: string;
-    levels: { level: string; description: string | null; effects: SkillEffect[] }[];
+    levels: SkillLevel[];
 }
 
 export interface CharacterStats {
     hp: string;
-    attack: string; // 攻撃力/支援力
+    attack: string;
     defense: string;
     critRate: string;
     critDamage: string;
@@ -24,8 +31,10 @@ export interface CharacterStats {
 export interface ParsedCharacterData {
     name?: string;
     type?: string;
+    role?: string; // Added for edit form
+    attackRange?: { row: number; col: number }; // Added for edit form
     skills: SkillData[];
-    stats?: CharacterStats;
+    stats?: CharacterStats | { [key: string]: number }; // Allow number stats for editing
 }
 
 const parseStats = (doc: Document): CharacterStats | undefined => {
@@ -412,5 +421,45 @@ export const parseCharacterData = (html: string): ParsedCharacterData => {
     const stats = parseStats(doc);
     const { name, type } = parseBasicInfo(doc);
 
-    return { skills, stats, name, type };
+    // Map Type to Role
+    let role: string | undefined;
+    if (type) {
+        if (type.includes('攻撃')) role = 'Attacker';
+        else if (type.includes('支援')) role = 'Supporter';
+        else if (type.includes('防御')) role = 'Defender';
+        else if (type.includes('超越')) role = 'Transcendence';
+        else if (type.includes('火力')) role = 'Firepower';
+    }
+
+    // Clean Stats for consumption by Numeric Inputs
+    // We keep the original string stats if needed, but for the form we want clean numbers in the 'stats' object if possible.
+    // However, the interface defines stats as CharacterStats (strings) OR {[key:string]: number}.
+    // Let's iterate and convert to numbers where possible for the 'stats' object we return, 
+    // OR we can add a new step here to normalize stats.
+
+    // For now, let's just make sure we strip '%' when parsing in the form OR do it here.
+    // Doing it here is safer for "Import" consistency.
+    const numericStats: { [key: string]: number } = {};
+    if (stats) {
+        Object.entries(stats).forEach(([key, val]) => {
+            if (typeof val === 'string') {
+                // Remove commas, %, and handle other potential artifacts
+                // Some stats might be like "1000" or "20%" or "150 (+10)"
+                // Just extracting the first number found seems safe for basic stats.
+                const match = val.replace(/,/g, '').match(/(\d+(\.\d+)?)/);
+                if (match) {
+                    numericStats[key] = parseFloat(match[1]);
+                } else {
+                    numericStats[key] = 0;
+                }
+            } else {
+                numericStats[key] = val;
+            }
+        });
+    }
+
+    // We can cast numericStats to any to satisfy the union type or update the interface to prefer numbers.
+    // The current interface allows `stats` to be `CharacterStats | { [key: string]: number }`.
+
+    return { skills, stats: numericStats, name, type, role };
 };

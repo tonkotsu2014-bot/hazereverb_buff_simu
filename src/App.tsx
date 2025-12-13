@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react';
-import { ParserOverlay } from './components/WikiParser/ParserOverlay';
-import { CharacterList } from './components/CharacterList';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { MainLayout } from './components/Layout/MainLayout';
+import { ParserPage } from './pages/ParserPage';
+import { CharacterEditPage } from './pages/CharacterEditPage';
 import type { ParsedCharacterData } from './logic/wikiParser';
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Grid,
-  Box,
   CssBaseline,
   createTheme,
   ThemeProvider
@@ -85,6 +82,14 @@ function App() {
     setCharacters(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleUpdateCharacter = (index: number, updated: ParsedCharacterData) => {
+    setCharacters(prev => {
+      const newChars = [...prev];
+      newChars[index] = updated;
+      return newChars;
+    });
+  };
+
   const handleImportCharacters = (data: ParsedCharacterData[]) => {
     setCharacters(data);
   };
@@ -92,30 +97,34 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ height: '100vh', width: '80vw', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <AppBar position="static">
-          <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Haze Reverb Battle Sim
-            </Typography>
-          </Toolbar>
-        </AppBar>
-
-        <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', bgcolor: 'background.default' }}>
-          <Grid container spacing={2} sx={{ flexGrow: 1, p: 2, height: '100%', boxSizing: 'border-box', m: 0, width: '100%' }}>
-            <Grid size={{ xs: 12, md: 6 }} sx={{ height: '100%', minHeight: 0 }}>
-              <CharacterList
-                characters={characters}
-                onDelete={handleDeleteCharacter}
-                onImport={handleImportCharacters}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, md: 6 }} sx={{ height: '100%', minHeight: 0 }}>
-              <ParserOverlay onAddCharacter={handleAddCharacter} />
-            </Grid>
-          </Grid>
-        </Box>
-      </Box>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<MainLayout />}>
+            <Route index element={<Navigate to="/edit" replace />} />
+            <Route
+              path="edit"
+              element={
+                <CharacterEditPage
+                  characters={characters}
+                  onDelete={handleDeleteCharacter}
+                  onImport={handleImportCharacters}
+                  onUpdate={handleUpdateCharacter}
+                />
+              }
+            />
+            <Route
+              path="import"
+              element={
+                <ParserPage
+                  characters={characters}
+                  onAddCharacter={handleAddCharacter}
+                  onDelete={handleDeleteCharacter}
+                />
+              }
+            />
+          </Route>
+        </Routes>
+      </BrowserRouter>
     </ThemeProvider>
   );
 }

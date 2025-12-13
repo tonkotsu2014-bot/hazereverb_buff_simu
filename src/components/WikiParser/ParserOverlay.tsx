@@ -65,7 +65,7 @@ export const ParserOverlay: React.FC<Props> = ({ onAddCharacter }) => {
                 // const data = parseCharacterData(text);
                 // setResult(data);
             } catch (err) {
-                setError('Failed to read file: ' + (err instanceof Error ? err.message : String(err)));
+                setError('ファイルの読み込みに失敗しました: ' + (err instanceof Error ? err.message : String(err)));
             }
         }
     };
@@ -76,14 +76,14 @@ export const ParserOverlay: React.FC<Props> = ({ onAddCharacter }) => {
 
         try {
             if (!htmlSource.trim()) {
-                throw new Error('Please paste HTML source first.');
+                throw new Error('HTMLソースを貼り付けてください');
             }
 
             const data = parseCharacterData(htmlSource);
             setResult(data);
 
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Unknown error');
+            setError(err instanceof Error ? err.message : '不明なエラー');
         }
     };
 
@@ -100,10 +100,10 @@ export const ParserOverlay: React.FC<Props> = ({ onAddCharacter }) => {
             <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
                 <Box sx={{ mb: 2 }}>
                     <Typography variant="h5" component="div" gutterBottom fontWeight="bold" color="primary">
-                        Import from Wiki
+                        Wikiからインポート
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                        Paste the full HTML source from the wiki page to extract character data.
+                        WikiページのHTMLソースを貼り付けてデータを抽出します。
                     </Typography>
                 </Box>
 
@@ -124,14 +124,14 @@ export const ParserOverlay: React.FC<Props> = ({ onAddCharacter }) => {
                     onDrop={handleDrop}
                 >
                     <TextField
-                        label="HTML Source"
+                        label="HTMLソース"
                         multiline
                         rows={4}
                         fullWidth
                         variant="outlined"
                         value={htmlSource}
                         onChange={(e) => setHtmlSource(e.target.value)}
-                        placeholder="Paste HTML source here or Drag & Drop a file..."
+                        placeholder="ここにHTMLソースを貼り付けるか、ファイルをドラッグ＆ドロップしてください..."
                         sx={{
                             fontFamily: 'monospace',
                             '& .MuiInputBase-root': {
@@ -155,7 +155,7 @@ export const ParserOverlay: React.FC<Props> = ({ onAddCharacter }) => {
                             zIndex: 1
                         }}>
                             <Typography variant="h6" color="primary" fontWeight="bold">
-                                Drop HTML file here
+                                HTMLファイルをドロップ
                             </Typography>
                         </Box>
                     )}
@@ -170,7 +170,7 @@ export const ParserOverlay: React.FC<Props> = ({ onAddCharacter }) => {
                         disabled={!htmlSource}
                         sx={{ flex: 1 }}
                     >
-                        Parse HTML
+                        HTMLを解析
                     </Button>
 
                     {result && onAddCharacter && (
@@ -182,7 +182,7 @@ export const ParserOverlay: React.FC<Props> = ({ onAddCharacter }) => {
                             onClick={handleAdd}
                             sx={{ flex: 1 }}
                         >
-                            Add to List
+                            リストに追加
                         </Button>
                     )}
                 </Stack>
@@ -202,7 +202,7 @@ export const ParserOverlay: React.FC<Props> = ({ onAddCharacter }) => {
                         mt: 1
                     }}>
                         <Typography variant="subtitle2" sx={{ mb: 1, color: 'text.secondary', fontWeight: 'bold' }}>
-                            Parsed Result Preview:
+                            解析結果プレビュー:
                         </Typography>
                         <Box sx={{
                             flex: 1,
