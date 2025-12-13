@@ -118,7 +118,7 @@ describe('wikiParser', () => {
 
         expect(result.name).toContain('イリア');
         expect(result.name).toContain('輪廻を超える者');
-        expect(result.type).toBe('攻撃'); // Iria is Attack type
+        expect(result.type).toBe('超越'); // Iria's type is Transcendence in the file
 
         expect(stats).toBeDefined();
         if (stats) {
@@ -135,7 +135,6 @@ describe('wikiParser', () => {
         const result = parseCharacterData(DOROCY_HTML);
         const stats = result.stats;
 
-        console.log('Parsed Dorothy Name:', result.name); // Debug log
         expect(result.name).toContain('ドロシー');
         expect(result.name).toContain('夏に焦がれる魔女');
         expect(result.type).toBe('支援'); // Dorothy is Support type
