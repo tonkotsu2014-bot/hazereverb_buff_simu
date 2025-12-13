@@ -8,3 +8,4 @@ function loadHtml(filename: string): string {
 export const TEST_HTML = loadHtml('mock_character.html');
 export const IRIA_HTML = loadHtml('iria.html');
 export const DOROCY_HTML = loadHtml('dorocy.html');
+export const MONIKA_HTML = loadHtml('monika.html');

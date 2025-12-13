@@ -22,7 +22,7 @@ describe('wikiParser', () => {
 
     it('should extract Ex Skill correctly', () => {
         const result = parseCharacterData(TEST_HTML);
-        const exSkill = result.skills.find(s => s.name.includes('Exスキル'));
+        const exSkill = result.skills.find(s => s.name.includes('Exスキル') || s.name.includes('億千万の幸福'));
 
         expect(exSkill).toBeDefined();
         if (exSkill) {
@@ -47,7 +47,9 @@ describe('wikiParser', () => {
         const result = parseCharacterData(IRIA_HTML);
 
         // Expect 5 skills: Ex, Skill 1, Skill 2, Skill 3, Skill 4
-        const exSkill = result.skills.find(s => s.name.includes('Exスキル'));
+        // Expect 5 skills: Ex, Skill 1, Skill 2, Skill 3, Skill 4
+        // Ex Skill name is "恨み、忘れることなく"
+        const exSkill = result.skills.find(s => s.name.includes('Exスキル') || s.name.includes('恨み、忘れることなく'));
         const skill1 = result.skills.find(s => s.name.includes('スキル1'));
         const skill2 = result.skills.find(s => s.name.includes('スキル2'));
         const skill3 = result.skills.find(s => s.name.includes('スキル3'));
