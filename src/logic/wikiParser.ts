@@ -291,13 +291,23 @@ export const parseEffectType = (verb: string): 'Buff' | 'Debuff' => {
     return ['低下', '減少', 'ダウン'].includes(verb) ? 'Debuff' : 'Buff';
 };
 
+export const splitSkillDescription = (description: string): string[] => {
+    return description.split(/(?=♦)|[\r\n]+/).map(s => s.trim()).filter(s => s.length > 0);
+};
+
 export const parseSkillDescription = (description: string): SkillEffect[] => {
     let effects: SkillEffect[] = [];
 
     // Stateful Sentence Parsing
-    // Split by period or newline. DO NOT split by comma as strictly as before, 
-    // because comma is used to list effects sharing a verb.
-    const sentences = description.split(/[。\n]+/);
+    // Split by period or newline using helper
+    const chunks = splitSkillDescription(description);
+
+    // Flatten chunks into sentences for processing
+    // splitSkillDescription handles high-level grouping (e.g. by '♦'), but for logic we likely need 
+    // sentence-level granularity (splitting by '。') to handle sequential effects/durations correctly.
+    const sentences = chunks.flatMap(chunk =>
+        chunk.split(/[。\n]+/).map(s => s.trim()).filter(s => s.length > 0)
+    );
 
     // Buffer to hold effects found in the current "thought unit" until a duration is found
     let pendingEffects: SkillEffect[] = [];
@@ -307,7 +317,8 @@ export const parseSkillDescription = (description: string): SkillEffect[] => {
     let lastTarget: string = 'Default'; // Default target for this sentence
 
     sentences.forEach((sentence) => {
-        if (!sentence.trim()) return;
+        // Empty check is handled by split/filter above, but safety check doesn't hurt
+        if (!sentence) return;
 
         // Helper to flush verb pending effects
         const flushVerbPending = (isDecrease: boolean) => {
