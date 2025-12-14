@@ -179,7 +179,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                 <Typography variant="subtitle2" gutterBottom>効果</Typography>
                                 {level.effects.map((effect, eIdx) => (
                                     <Grid container spacing={1} key={eIdx} sx={{ mb: 2, alignItems: 'center', bgcolor: 'action.hover', p: 1, borderRadius: 1 }}>
-                                        <Grid size={{ xs: 12, sm: 3 }}>
+                                        <Grid size={{ xs: 12, sm: 2 }}>
                                             <FormControl fullWidth size="small">
                                                 <InputLabel>タイプ</InputLabel>
                                                 <Select
@@ -192,7 +192,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                 </Select>
                                             </FormControl>
                                         </Grid>
-                                        <Grid size={{ xs: 12, sm: 3 }}>
+                                        <Grid size={{ xs: 12, sm: 2 }}>
                                             <FormControl fullWidth size="small">
                                                 <InputLabel>対象</InputLabel>
                                                 <Select
@@ -211,6 +211,20 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                 </Select>
                                             </FormControl>
                                         </Grid>
+                                        <Grid size={{ xs: 6, sm: 2 }}>
+                                            <FormControl fullWidth size="small">
+                                                <InputLabel>対象</InputLabel>
+                                                <Select
+                                                    value={effect.target || 'Default'}
+                                                    label="対象"
+                                                    onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'target', e.target.value)}
+                                                >
+                                                    <MenuItem value="Default">標準</MenuItem>
+                                                    <MenuItem value="Self">自身</MenuItem>
+                                                    <MenuItem value="AllAllies">味方全員</MenuItem>
+                                                </Select>
+                                            </FormControl>
+                                        </Grid>
                                         <Grid size={{ xs: 6, sm: 3 }}>
                                             <TextField
                                                 fullWidth
@@ -221,7 +235,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                 onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'value', parseFloat(e.target.value))}
                                             />
                                         </Grid>
-                                        <Grid size={{ xs: 6, sm: 3 }}>
+                                        <Grid size={{ xs: 6, sm: 2 }}>
                                             <TextField
                                                 fullWidth
                                                 size="small"
