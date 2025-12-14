@@ -242,6 +242,55 @@ const ATTRIBUTE_MAP: { [key: string]: string } = {
     // '効果抵抗': 'EffectResist', // Excluded
 };
 
+export const parseAttribute = (raw: string): string | undefined => {
+    // 1. Try to clean up known prefixes/separators
+    let clean = raw.split(/[、,♦]/).pop()?.trim() || raw;
+    clean = clean.replace(/\s+/g, ''); // Remove internal spaces (handling noise like "クリ  ティカル")
+    clean = clean.replace(/^(?:永続的に|敵の|自身の|味方の|ターゲットの|すべての味方の)+/, '');
+    clean = clean.replace(/[【】\[\]]/g, ''); // Strip brackets
+
+    // 2. Direct lookup
+    if (ATTRIBUTE_MAP[clean]) return ATTRIBUTE_MAP[clean];
+
+    // 3. Suffix lookup (Iterate over all keys and see if 'clean' ends with one of them)
+    // Sort keys by length descending to match longest possible attribute first (e.g. "会心ダメージ" before "ダメージ")
+    const sortedKeys = Object.keys(ATTRIBUTE_MAP).sort((a, b) => b.length - a.length);
+    for (const key of sortedKeys) {
+        if (clean.endsWith(key)) {
+            return ATTRIBUTE_MAP[key];
+        }
+    }
+    return undefined;
+};
+
+export const parseTarget = (sentence: string): string | undefined => {
+    if (sentence.includes('自身')) {
+        return 'Self';
+    } else if (sentence.includes('味方全員') || sentence.includes('すべての味方')) {
+        return 'AllAllies';
+    } else if (sentence.includes('敵') || sentence.includes('ターゲット')) {
+        return 'Default';
+    }
+    return undefined;
+};
+
+export const parseDuration = (sentence: string): number | undefined => {
+    // Check for permanent first
+    if (sentence.includes('永続')) {
+        return -1;
+    } else {
+        const dMatch = sentence.match(/(\d+)ターン(?:持続|の間)/);
+        if (dMatch) {
+            return parseInt(dMatch[1], 10);
+        }
+    }
+    return undefined;
+};
+
+export const parseEffectType = (verb: string): 'Buff' | 'Debuff' => {
+    return ['低下', '減少', 'ダウン'].includes(verb) ? 'Debuff' : 'Buff';
+};
+
 export const parseSkillDescription = (description: string): SkillEffect[] => {
     let effects: SkillEffect[] = [];
 
@@ -256,27 +305,6 @@ export const parseSkillDescription = (description: string): SkillEffect[] => {
     let verbPendingEffects: Partial<SkillEffect>[] = [];
     let lastDuration: number | undefined;
     let lastTarget: string = 'Default'; // Default target for this sentence
-
-    // Helper to identify attribute from raw string
-    const extractAttribute = (raw: string): string | undefined => {
-        // 1. Try to clean up known prefixes/separators
-        let clean = raw.split(/[、,♦]/).pop()?.trim() || raw;
-        clean = clean.replace(/^(?:永続的に|敵の|自身の|味方の|ターゲットの|すべての味方の)+/, '');
-        clean = clean.replace(/[【】\[\]]/g, ''); // Strip brackets
-
-        // 2. Direct lookup
-        if (ATTRIBUTE_MAP[clean]) return ATTRIBUTE_MAP[clean];
-
-        // 3. Suffix lookup (Iterate over all keys and see if 'clean' ends with one of them)
-        // Sort keys by length descending to match longest possible attribute first (e.g. "会心ダメージ" before "ダメージ")
-        const sortedKeys = Object.keys(ATTRIBUTE_MAP).sort((a, b) => b.length - a.length);
-        for (const key of sortedKeys) {
-            if (clean.endsWith(key)) {
-                return ATTRIBUTE_MAP[key];
-            }
-        }
-        return undefined;
-    };
 
     sentences.forEach((sentence) => {
         if (!sentence.trim()) return;
@@ -295,23 +323,24 @@ export const parseSkillDescription = (description: string): SkillEffect[] => {
         // 1. Extract Effects in this sentence
         // Pattern allows generic verb OR comma/connective
         // Updated to allow [がを]
-        const fixedPattern = /([^\x00-\x7F]+?)(?:が|を)(\d+)%(?:(増加|上昇|アップ|低下|減少|ダウン)|([、,]))/g;
+        const fixedPattern = /((?:[^\x00-\x7F]|\s)+?)(?:が|を)(\d+)%(?:(増加|上昇|アップ|低下|減少|ダウン)|([、,]))/g;
         const fixedMatches = [...sentence.matchAll(fixedPattern)];
         fixedMatches.forEach(m => {
             const attrRaw = m[1];
             const value = parseInt(m[2], 10);
-            const attrKey = extractAttribute(attrRaw);
+            const attrKey = parseAttribute(attrRaw);
 
             if (attrKey) {
                 const verb = m[3];
 
                 if (verb) {
-                    const isDecrease = ['低下', '減少', 'ダウン'].includes(verb);
+                    const type = parseEffectType(verb);
+                    const isDecrease = type === 'Debuff';
                     // Resolve any pending verb-less effects
                     flushVerbPending(isDecrease);
 
                     pendingEffects.push({
-                        type: isDecrease ? 'Debuff' : 'Buff',
+                        type,
                         calculationType: 'Fixed',
                         attribute: attrKey,
                         value: value
@@ -327,25 +356,26 @@ export const parseSkillDescription = (description: string): SkillEffect[] => {
             }
         });
 
-        const genericScalingPattern = /([^\x00-\x7F]+?)(?:が|を)([^\x00-\x7F]*?)\s*[x×]\s*(\d+)%?(?:分)?(?:(増加|上昇|アップ|低下|減少|ダウン|獲得)|([、,]))/g;
+        const genericScalingPattern = /((?:[^\x00-\x7F]|\s)+?)(?:が|を)((?:[^\x00-\x7F]|\s)*?)\s*[x×]\s*(\d+)%?(?:分)?(?:(増加|上昇|アップ|低下|減少|ダウン|獲得)|([、,]))/g;
         const genericScalingMatches = [...sentence.matchAll(genericScalingPattern)];
         genericScalingMatches.forEach(m => {
             const attrRaw = m[1];
             const scalingFactor = m[2];
             const value = parseInt(m[3], 10);
-            const attrKey = extractAttribute(attrRaw);
+            const attrKey = parseAttribute(attrRaw);
 
             if (attrKey) {
                 const verb = m[4];
 
                 if (verb) {
-                    const isDecrease = ['低下', '減少', 'ダウン'].includes(verb);
+                    const type = parseEffectType(verb);
+                    const isDecrease = type === 'Debuff';
                     // Resolve any pending verb-less effects
                     flushVerbPending(isDecrease);
 
                     const isSupport = scalingFactor.includes('支援力');
                     pendingEffects.push({
-                        type: isDecrease ? 'Debuff' : 'Buff',
+                        type,
                         calculationType: isSupport ? 'SupportScaling' : 'Scaling',
                         attribute: attrKey,
                         value: value,
@@ -365,35 +395,11 @@ export const parseSkillDescription = (description: string): SkillEffect[] => {
         });
 
         // 2. Extract Duration & Target in this sentence
-        // Look for "Xターン持続" or "永続"
-        let duration: number | undefined;
-        // Check for permanent first
-        if (sentence.includes('永続')) {
-            duration = -1;
-        } else {
-            const dMatch = sentence.match(/(\d+)ターン(?:持続|の間)/);
-            if (dMatch) {
-                duration = parseInt(dMatch[1], 10);
-            }
-        }
-
-        // Target detection
-        let target = 'Default';
-        let foundTarget = false;
-
-        if (sentence.includes('自身')) {
-            target = 'Self';
-            foundTarget = true;
-        } else if (sentence.includes('味方全員') || sentence.includes('すべての味方')) {
-            target = 'AllAllies';
-            foundTarget = true;
-        } else if (sentence.includes('敵') || sentence.includes('ターゲット')) {
-            target = 'Default';
-            foundTarget = true;
-        }
+        const duration = parseDuration(sentence);
+        const target = parseTarget(sentence);
 
         // If a specific target is found for this sentence, update lastTarget
-        if (foundTarget) {
+        if (target) {
             lastTarget = target;
         }
 
@@ -444,193 +450,7 @@ export const processSkillAttributes = (skills: SkillData[]): SkillData[] => {
             let effects: SkillEffect[] = [];
 
             if (description) {
-                // Stateful Sentence Parsing
-                // Split by period or newline. DO NOT split by comma as strictly as before, 
-                // because comma is used to list effects sharing a verb.
-                const sentences = description.split(/[。\n]+/);
-
-                // Buffer to hold effects found in the current "thought unit" until a duration is found
-                let pendingEffects: SkillEffect[] = [];
-                // Buffer to hold effects that are waiting for a verb (e.g. "A is 10%, B is 20% UP")
-                let verbPendingEffects: Partial<SkillEffect>[] = [];
-                let lastDuration: number | undefined;
-                let lastTarget: string = 'Default'; // Default target for this sentence
-
-                // Helper to identify attribute from raw string
-                const extractAttribute = (raw: string): string | undefined => {
-                    // 1. Try to clean up known prefixes/separators
-                    let clean = raw.split(/[、,♦]/).pop()?.trim() || raw;
-                    clean = clean.replace(/^(?:永続的に|敵の|自身の|味方の|ターゲットの|すべての味方の)+/, '');
-                    clean = clean.replace(/[【】\[\]]/g, ''); // Strip brackets
-
-                    // 2. Direct lookup
-                    if (ATTRIBUTE_MAP[clean]) return ATTRIBUTE_MAP[clean];
-
-                    // 3. Suffix lookup (Iterate over all keys and see if 'clean' ends with one of them)
-                    // Sort keys by length descending to match longest possible attribute first (e.g. "会心ダメージ" before "ダメージ")
-                    const sortedKeys = Object.keys(ATTRIBUTE_MAP).sort((a, b) => b.length - a.length);
-                    for (const key of sortedKeys) {
-                        if (clean.endsWith(key)) {
-                            return ATTRIBUTE_MAP[key];
-                        }
-                    }
-                    return undefined;
-                };
-
-                sentences.forEach((sentence) => {
-                    if (!sentence.trim()) return;
-
-                    // Helper to flush verb pending effects
-                    const flushVerbPending = (isDecrease: boolean) => {
-                        verbPendingEffects.forEach(partial => {
-                            pendingEffects.push({
-                                ...partial,
-                                type: isDecrease ? 'Debuff' : 'Buff',
-                            } as SkillEffect);
-                        });
-                        verbPendingEffects = [];
-                    };
-
-                    // 1. Extract Effects in this sentence
-                    // Pattern allows generic verb OR comma/connective
-                    // Updated to allow [がを]
-                    const fixedPattern = /([^\x00-\x7F]+?)(?:が|を)(\d+)%(?:(増加|上昇|アップ|低下|減少|ダウン)|([、,]))/g;
-                    const fixedMatches = [...sentence.matchAll(fixedPattern)];
-                    fixedMatches.forEach(m => {
-                        const attrRaw = m[1];
-                        const value = parseInt(m[2], 10);
-                        const attrKey = extractAttribute(attrRaw);
-
-                        if (attrKey) {
-                            const verb = m[3];
-
-                            if (verb) {
-                                const isDecrease = ['低下', '減少', 'ダウン'].includes(verb);
-                                // Resolve any pending verb-less effects
-                                flushVerbPending(isDecrease);
-
-                                pendingEffects.push({
-                                    type: isDecrease ? 'Debuff' : 'Buff',
-                                    calculationType: 'Fixed',
-                                    attribute: attrKey,
-                                    value: value
-                                });
-                            } else {
-                                // It's a comma-separated list item, wait for verb
-                                verbPendingEffects.push({
-                                    calculationType: 'Fixed',
-                                    attribute: attrKey,
-                                    value: value
-                                });
-                            }
-                        }
-                    });
-
-                    const genericScalingPattern = /([^\x00-\x7F]+?)(?:が|を)([^\x00-\x7F]*?)\s*[x×]\s*(\d+)%?(?:分)?(?:(増加|上昇|アップ|低下|減少|ダウン|獲得)|([、,]))/g;
-                    const genericScalingMatches = [...sentence.matchAll(genericScalingPattern)];
-                    genericScalingMatches.forEach(m => {
-                        const attrRaw = m[1];
-                        const scalingFactor = m[2];
-                        const value = parseInt(m[3], 10);
-                        const attrKey = extractAttribute(attrRaw);
-
-                        if (attrKey) {
-                            const verb = m[4];
-
-                            if (verb) {
-                                const isDecrease = ['低下', '減少', 'ダウン'].includes(verb);
-                                // Resolve any pending verb-less effects
-                                flushVerbPending(isDecrease);
-
-                                const isSupport = scalingFactor.includes('支援力');
-                                pendingEffects.push({
-                                    type: isDecrease ? 'Debuff' : 'Buff',
-                                    calculationType: isSupport ? 'SupportScaling' : 'Scaling',
-                                    attribute: attrKey,
-                                    value: value,
-                                    scalingFactor: isSupport ? undefined : scalingFactor
-                                });
-                            } else {
-                                // It's a comma-separated list item, wait for verb
-                                const isSupport = scalingFactor.includes('支援力');
-                                verbPendingEffects.push({
-                                    calculationType: isSupport ? 'SupportScaling' : 'Scaling',
-                                    attribute: attrKey,
-                                    value: value,
-                                    scalingFactor: isSupport ? undefined : scalingFactor
-                                });
-                            }
-                        }
-                    });
-
-                    // 2. Extract Duration & Target in this sentence
-                    // Look for "Xターン持続" or "永続"
-                    let duration: number | undefined;
-                    // Check for permanent first
-                    if (sentence.includes('永続')) {
-                        duration = -1;
-                    } else {
-                        const dMatch = sentence.match(/(\d+)ターン(?:持続|の間)/);
-                        if (dMatch) {
-                            duration = parseInt(dMatch[1], 10);
-                        }
-                    }
-
-                    // Target detection
-                    let target = 'Default';
-                    let foundTarget = false;
-
-                    if (sentence.includes('自身')) {
-                        target = 'Self';
-                        foundTarget = true;
-                    } else if (sentence.includes('味方全員') || sentence.includes('すべての味方')) {
-                        target = 'AllAllies';
-                        foundTarget = true;
-                    } else if (sentence.includes('敵') || sentence.includes('ターゲット')) {
-                        target = 'Default';
-                        foundTarget = true;
-                    }
-
-                    // If a specific target is found for this sentence, update lastTarget
-                    if (foundTarget) {
-                        lastTarget = target;
-                    }
-
-                    // 3. Resolution
-                    // If we found a duration in this sentence, assign it to ALL pending effects 
-                    // (including those from previous sentences that haven't been resolved yet).
-                    if (duration !== undefined) {
-                        pendingEffects.forEach(e => {
-                            e.duration = duration;
-                            if (lastTarget !== 'Default' && !e.target) e.target = lastTarget;
-                            if (!e.target) e.target = 'Default';
-                        });
-                        effects.push(...pendingEffects);
-                        pendingEffects = [];
-                        lastDuration = duration;
-                    } else {
-                        // Apply target even if duration not found yet
-                        pendingEffects.forEach(e => {
-                            if (lastTarget !== 'Default' && !e.target) e.target = lastTarget;
-                        });
-                    }
-                    // If no duration is found, the effects remain pending. 
-                    // They might be resolved by a subsequent sentence (e.g. "Effect A. Effect B. This lasts 3 turns.")
-                });
-
-
-                // Cleanup: If there are any pending effects left after processing all sentences,
-                // push them without a duration (or undefined duration).
-                if (pendingEffects.length > 0) {
-                    if (lastDuration !== undefined) {
-                        pendingEffects.forEach(e => e.duration = lastDuration);
-                    }
-                    // Final pass to ensure target is set
-                    pendingEffects.forEach(e => {
-                        if (!e.target) e.target = lastTarget !== 'Default' ? lastTarget : 'Default';
-                    });
-                    effects.push(...pendingEffects);
-                }
+                effects = parseSkillDescription(description);
             }
 
             return {

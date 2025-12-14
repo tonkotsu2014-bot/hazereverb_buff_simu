@@ -228,7 +228,8 @@ describe('WikiParser Skill Level Issue', () => {
                 type: 'Buff',
                 calculationType: 'SupportScaling',
                 attribute: 'CritDamage',
-                value: 33
+                value: 33,
+                target: 'Default'
             });
         });
 

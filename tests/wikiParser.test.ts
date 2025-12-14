@@ -124,12 +124,12 @@ describe('wikiParser', () => {
 
         expect(stats).toBeDefined();
         if (stats) {
-            expect(stats.hp).toBe('9056');
-            expect(stats.attack).toBe('508');
-            expect(stats.defense).toBe('15%');
-            expect(stats.critRate).toBe('0%');
-            expect(stats.critDamage).toBe('0%');
-            expect(stats.speed).toBe('20%');
+            expect(stats.hp).toBe(9056);
+            expect(stats.attack).toBe(508);
+            expect(stats.defense).toBe(15);
+            expect(stats.critRate).toBe(0);
+            expect(stats.critDamage).toBe(0);
+            expect(stats.speed).toBe(20);
         }
     });
 
@@ -143,12 +143,12 @@ describe('wikiParser', () => {
 
         expect(stats).toBeDefined();
         if (stats) {
-            expect(stats.hp).toBe('5782');
-            expect(stats.attack).toBe('207%'); // Support type has %
-            expect(stats.defense).toBe('0%');
-            expect(stats.critRate).toBe('15%');
-            expect(stats.critDamage).toBe('75%');
-            expect(stats.speed).toBe('5%');
+            expect(stats.hp).toBe(5782);
+            expect(stats.attack).toBe(207); // Support type has %
+            expect(stats.defense).toBe(0);
+            expect(stats.critRate).toBe(15);
+            expect(stats.critDamage).toBe(75);
+            expect(stats.speed).toBe(5);
         }
     });
 });
