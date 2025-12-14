@@ -26,6 +26,7 @@ interface Props {
 export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) => {
     // Clone character for local editing to avoid direct mutation/lag
     const [formData, setFormData] = useState<ParsedCharacterData>(character);
+    const [selectedLevels, setSelectedLevels] = useState<{ [key: number]: number }>({});
 
     // Dynamic label generation
     const getStatLabel = (key: string, role?: string) => {
@@ -67,6 +68,13 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
         };
         setFormData(updated);
         onUpdate(updated);
+    };
+
+    const handleLevelChange = (skillIndex: number, newLevelIndex: number) => {
+        setSelectedLevels(prev => ({
+            ...prev,
+            [skillIndex]: newLevelIndex
+        }));
     };
 
     // Helper to update a specific effect in a specific skill level
@@ -158,7 +166,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                 {formData.skills.map((skill, sIdx) => {
                     // For editing simplicity, we allow editing Level 1 only for now, or the first level found.
                     // In a real app we might want tabs for levels.
-                    const levelIndex = 0;
+                    const levelIndex = selectedLevels[sIdx] || 0;
                     const level = skill.levels[levelIndex];
 
                     if (!level) return null;
@@ -169,6 +177,22 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                 <Typography fontWeight="bold">{skill.name} (Lvl {level.level})</Typography>
                             </AccordionSummary>
                             <AccordionDetails>
+                                <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                                        <InputLabel>Level</InputLabel>
+                                        <Select
+                                            value={levelIndex}
+                                            label="Level"
+                                            onChange={(e) => handleLevelChange(sIdx, Number(e.target.value))}
+                                        >
+                                            {skill.levels.map((lvl, idx) => (
+                                                <MenuItem key={idx} value={idx}>
+                                                    Level {lvl.level}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Box>
                                 {level.description && (
                                     <Box sx={{ mb: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1, border: '1px solid', borderColor: 'divider' }}>
                                         <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-wrap' }}>
