@@ -364,4 +364,85 @@ describe('calculateMaxBuffs', () => {
             expect.stringContaining('臨戦態勢'), // Monica Skill 4
         ]));
     });
+
+    it('should respect Ex skill toggle', () => {
+        const attacker = createChar('Attacker', [
+            { type: 'Buff', target: 'Self', attribute: 'Attack', value: 20 }
+        ]);
+        // Mock Ex skill
+        (attacker.skills[0].levels[0] as any).level = 'Ex';
+
+        // 1. Default (Enabled)
+        let result = calculateMaxBuffs(attacker, []);
+        expect(result.attackIncreasePercent).toBe(20);
+
+        // 2. Disabled
+        result = calculateMaxBuffs(attacker, [], {}, { 'Attacker': false });
+        expect(result.attackIncreasePercent).toBe(0);
+
+        // 3. Explicitly Enabled
+        result = calculateMaxBuffs(attacker, [], {}, { 'Attacker': true });
+        expect(result.attackIncreasePercent).toBe(20);
+    });
+
+    it('should correctly handle Ex skill toggles for Attacker and Supporters', () => {
+        // Setup Attacker with Ex Skill (Attack +10)
+        const attacker = createChar('Attacker', [
+            { type: 'Buff', target: 'Self', attribute: 'Attack', value: 10 }
+        ]);
+        (attacker.skills[0].levels[0] as any).level = 'Ex';
+
+        // Setup Supporter 1 with Ex Skill (CritRate +10)
+        const supporter1 = createChar('Supporter1', [
+            { type: 'Buff', target: 'AllAllies', attribute: 'CritRate', value: 10 }
+        ]);
+        (supporter1.skills[0].levels[0] as any).level = 'Ex';
+
+        // Setup Supporter 2 with Ex Skill (CritDamage +10)
+        const supporter2 = createChar('Supporter2', [
+            { type: 'Buff', target: 'AllAllies', attribute: 'CritDamage', value: 10 }
+        ]);
+        (supporter2.skills[0].levels[0] as any).level = 'Ex';
+
+        const supporters = [supporter1, supporter2];
+
+        // 1. All Enabled (Default)
+        let result = calculateMaxBuffs(attacker, supporters);
+        expect(result.attackIncreasePercent).toBe(10);
+        expect(result.critRateTotal).toBe(10); // Base 0 + 10
+        expect(result.critDamageTotal).toBe(10); // Base 0 + 10
+
+        // 2. Attacker Ex Disabled
+        result = calculateMaxBuffs(attacker, supporters, {}, { 'Attacker': false });
+        expect(result.attackIncreasePercent).toBe(0);
+        expect(result.critRateTotal).toBe(10);
+        expect(result.critDamageTotal).toBe(10);
+
+        // 3. Supporter 1 Ex Disabled
+        result = calculateMaxBuffs(attacker, supporters, {}, { 'Supporter1': false });
+        expect(result.attackIncreasePercent).toBe(10);
+        expect(result.critRateTotal).toBe(0);
+        expect(result.critDamageTotal).toBe(10);
+
+        // 4. All Disabled
+        result = calculateMaxBuffs(attacker, supporters, {}, {
+            'Attacker': false,
+            'Supporter1': false,
+            'Supporter2': false
+        });
+        expect(result.attackIncreasePercent).toBe(0);
+        expect(result.critRateTotal).toBe(0);
+        expect(result.critDamageTotal).toBe(0);
+
+        // 5. Mixed: Attacker ON, Supporter 1 OFF, Supporter 2 ON
+        result = calculateMaxBuffs(attacker, supporters, {}, {
+            'Attacker': true,
+            'Supporter1': false,
+            'Supporter2': true
+        });
+        expect(result.attackIncreasePercent).toBe(10);
+        expect(result.critRateTotal).toBe(0);
+        expect(result.critDamageTotal).toBe(10);
+    });
 });
+

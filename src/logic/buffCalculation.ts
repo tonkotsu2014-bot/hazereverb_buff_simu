@@ -19,7 +19,8 @@ export interface CalculatedBuffs {
 export const calculateMaxBuffs = (
     attacker: ParsedCharacterData,
     supporters: ParsedCharacterData[],
-    stackCounts: Record<string, number> = {}
+    stackCounts: Record<string, number> = {},
+    activeExSkills: Record<string, boolean> = {}
 ): CalculatedBuffs => {
     let attackIncreasePercent = 0;
     let critRateBuff = 0;
@@ -39,6 +40,11 @@ export const calculateMaxBuffs = (
             // Use the highest level that has effects, or the last level if none have effects
             const maxLevel = [...skill.levels].reverse().find(l => l.effects && l.effects.length > 0) || skill.levels[skill.levels.length - 1];
             if (!maxLevel || !maxLevel.effects) return;
+
+            // Check Ex Toggle
+            if (maxLevel.level === 'Ex' && activeExSkills[supporter.name || ''] === false) {
+                return;
+            }
 
             maxLevel.effects.forEach(effect => {
                 // Must be Buff, target Self, and attribute Attack (Support)
@@ -149,6 +155,10 @@ export const calculateMaxBuffs = (
     attacker.skills.forEach(skill => {
         const maxLevel = [...skill.levels].reverse().find(l => l.effects && l.effects.length > 0) || skill.levels[skill.levels.length - 1];
         if (maxLevel && maxLevel.effects) {
+            // Check Ex Toggle
+            if (maxLevel.level === 'Ex' && activeExSkills[attacker.name || ''] === false) {
+                return;
+            }
             processEffects(maxLevel.effects, attacker, true, skill.name, maxLevel.level || 'Max');
         }
     });
@@ -158,6 +168,10 @@ export const calculateMaxBuffs = (
         supporter.skills.forEach(skill => {
             const maxLevel = [...skill.levels].reverse().find(l => l.effects && l.effects.length > 0) || skill.levels[skill.levels.length - 1];
             if (maxLevel && maxLevel.effects) {
+                // Check Ex Toggle
+                if (maxLevel.level === 'Ex' && activeExSkills[supporter.name || ''] === false) {
+                    return;
+                }
                 processEffects(maxLevel.effects, supporter, false, skill.name, maxLevel.level || 'Max');
             }
         });

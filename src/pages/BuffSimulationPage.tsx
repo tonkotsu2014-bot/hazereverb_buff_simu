@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Box, Typography, Paper, IconButton, Grid } from '@mui/material';
+import { Box, Typography, Paper, IconButton, Grid, FormControlLabel, Checkbox } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { CharacterSelector } from '../components/Simulation/CharacterSelector';
 import { CharacterList } from '../components/CharacterList';
@@ -14,6 +14,7 @@ interface BuffSimulationPageProps {
 export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characters }) => {
     const [attacker, setAttacker] = useState<ParsedCharacterData | null>(null);
     const [supporters, setSupporters] = useState<(ParsedCharacterData | null)[]>([]);
+    const [activeExSkills, setActiveExSkills] = useState<Record<string, boolean>>({});
 
     // Sync state with characters prop to reflect edits
     useEffect(() => {
@@ -55,11 +56,25 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
         setSupporters(supporters.filter((_, i) => i !== index));
     };
 
+    const handleToggleExSkill = (characterName: string | undefined, checked: boolean) => {
+        if (!characterName) return;
+        setActiveExSkills(prev => ({
+            ...prev,
+            [characterName]: checked
+        }));
+    };
+
     const results = useMemo(() => {
         if (!attacker) return null;
         const activeSupporters = supporters.filter((s): s is ParsedCharacterData => s !== null);
-        return calculateMaxBuffs(attacker, activeSupporters);
-    }, [attacker, supporters]);
+        return calculateMaxBuffs(attacker, activeSupporters, {}, activeExSkills);
+    }, [attacker, supporters, activeExSkills]);
+
+    // Helper to get Ex toggle state (default true if undefined)
+    const isExEnabled = (charName: string | undefined) => {
+        if (!charName) return false;
+        return activeExSkills[charName] !== false;
+    };
 
     return (
         <Box sx={{ p: 3, maxWidth: 1600, mx: 'auto', height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
@@ -90,12 +105,28 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                                     <Typography variant="h6" gutterBottom>
                                         1. 攻撃役 (Attacker)
                                     </Typography>
-                                    <CharacterSelector
-                                        label="攻撃役を選択"
-                                        characters={characters}
-                                        selectedCharacter={attacker}
-                                        onSelect={setAttacker}
-                                    />
+                                    <Box sx={{ mb: 2 }}>
+                                        <CharacterSelector
+                                            label="攻撃役を選択"
+                                            characters={characters}
+                                            selectedCharacter={attacker}
+                                            onSelect={setAttacker}
+                                        />
+                                        {attacker && (
+                                            <Box sx={{ mt: 1, display: 'flex', alignItems: 'center' }}>
+                                                <FormControlLabel
+                                                    control={
+                                                        <Checkbox
+                                                            checked={isExEnabled(attacker.name)}
+                                                            onChange={(e) => handleToggleExSkill(attacker.name, e.target.checked)}
+                                                            size="small"
+                                                        />
+                                                    }
+                                                    label="Exスキル有効"
+                                                />
+                                            </Box>
+                                        )}
+                                    </Box>
                                     {attacker && (
                                         <Box sx={{ mt: 2, p: 2, bgcolor: '#f0f9ff', borderRadius: 1 }}>
                                             <Typography variant="subtitle2">Base Stats:</Typography>
@@ -120,14 +151,31 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                                         </Typography>
                                     ) : (
                                         supporters.map((supporter, index) => (
-                                            <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                                <CharacterSelector
-                                                    label={`支援役 #${index + 1}`}
-                                                    characters={characters}
-                                                    selectedCharacter={supporter}
-                                                    onSelect={(c) => handleUpdateSupporter(index, c)}
-                                                />
-                                                <IconButton onClick={() => handleRemoveSupporter(index)} color="error" size="small">
+                                            <Box key={index} sx={{ display: 'flex', alignItems: 'flex-start', mb: 2, gap: 1 }}>
+                                                <Box sx={{ flex: 1 }}>
+                                                    <CharacterSelector
+                                                        label={`支援役 #${index + 1}`}
+                                                        characters={characters}
+                                                        selectedCharacter={supporter}
+                                                        onSelect={(c) => handleUpdateSupporter(index, c)}
+                                                    />
+                                                    {supporter && (
+                                                        <Box sx={{ mt: 0.5 }}>
+                                                            <FormControlLabel
+                                                                control={
+                                                                    <Checkbox
+                                                                        checked={isExEnabled(supporter.name)}
+                                                                        onChange={(e) => handleToggleExSkill(supporter.name, e.target.checked)}
+                                                                        size="small"
+                                                                    />
+                                                                }
+                                                                label="Exスキル有効"
+                                                                sx={{ '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
+                                                            />
+                                                        </Box>
+                                                    )}
+                                                </Box>
+                                                <IconButton onClick={() => handleRemoveSupporter(index)} color="error" size="small" sx={{ mt: 1 }}>
                                                     <DeleteIcon />
                                                 </IconButton>
                                             </Box>
