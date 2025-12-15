@@ -190,6 +190,6 @@ export const calculateEffectiveStats = (
         stats: {
             ...character.stats,
             attack: effectiveAttack
-        }
+        } as any
     };
 };

@@ -18,23 +18,56 @@ import {
     IconButton,
     Button,
     Checkbox,
-    FormControlLabel
+    FormControlLabel,
+    Card,
+    CardContent,
+    Chip,
+    Tooltip,
+    alpha
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import TrendingDownIcon from '@mui/icons-material/TrendingDown';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import LayersIcon from '@mui/icons-material/Layers';
 
 interface Props {
     character: ParsedCharacterData;
     onUpdate: (updated: ParsedCharacterData) => void;
 }
 
+const attributeLabels: Record<string, string> = {
+    Attack: '攻撃力',
+    Armor: '装甲',
+    CritRate: 'クリ率',
+    CritDamage: 'クリダメ',
+    Mobility: '機動力',
+    Support: '支援力',
+    Shield: 'シールド',
+    MaxHP: '最大HP',
+    DamageReduction: 'ダメ軽減',
+    DamageBoost: 'ダメ増加',
+    Evasion: '回避'
+};
+
+const targetLabels: Record<string, string> = {
+    Default: '標準',
+    Self: '自身',
+    AllAllies: '味方全体'
+};
+
+const calculationTypeLabels: Record<string, string> = {
+    Fixed: '固定値',
+    Scaling: '係数',
+    SupportScaling: '支援力'
+};
+
 export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) => {
-    // Clone character for local editing to avoid direct mutation/lag
     const [formData, setFormData] = useState<ParsedCharacterData>(character);
     const [selectedLevels, setSelectedLevels] = useState<{ [key: number]: number }>({});
 
-    // Dynamic label generation
     const getStatLabel = (key: string, role?: string) => {
         let label = '';
         switch (key) {
@@ -118,7 +151,6 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
         onUpdate(updated);
     };
 
-    // Helper to update a specific effect in a specific skill level
     const updateEffect = (skillIndex: number, levelIndex: number, effectIndex: number, field: keyof SkillEffect, value: any) => {
         const newSkills = [...formData.skills];
         const newLevels = [...newSkills[skillIndex].levels];
@@ -133,9 +165,17 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
         onUpdate(updated);
     };
 
+    const getEffectColor = (type: string) => {
+        return type === 'Buff' ? 'success' : 'error';
+    };
+
+    const getEffectIcon = (type: string) => {
+        return type === 'Buff' ? <TrendingUpIcon /> : <TrendingDownIcon />;
+    };
+
     return (
         <Paper sx={{ p: 3, height: '100%', overflow: 'auto', boxSizing: 'border-box' }}>
-            <Typography variant="h5" gutterBottom color="primary">
+            <Typography variant="h5" gutterBottom color="primary" fontWeight={700}>
                 {formData.name || '名称不明'}
             </Typography>
 
@@ -184,8 +224,8 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                 </Grid>
             </Grid>
 
-            <Divider sx={{ mb: 2 }} />
-            <Typography variant="h6" gutterBottom>ステータス</Typography>
+            <Divider sx={{ mb: 3 }} />
+            <Typography variant="h6" gutterBottom fontWeight={600}>ステータス</Typography>
             <Grid container spacing={2} sx={{ mb: 4 }}>
                 {Object.entries(formData.stats || {}).map(([key, val]) => (
                     <Grid size={{ xs: 6, sm: 4, md: 3 }} key={key}>
@@ -201,16 +241,18 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                 ))}
             </Grid>
 
-            <Divider sx={{ mb: 2 }} />
-            <Typography variant="h6" gutterBottom>スキル</Typography>
+            <Divider sx={{ mb: 3 }} />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+                <AutoAwesomeIcon color="primary" />
+                <Typography variant="h6" fontWeight={600}>スキル効果</Typography>
+            </Box>
+
             <Box>
                 {formData.skills.map((skill, sIdx) => {
-                    // Filter levels to only those with descriptions
                     const availableLevels = skill.levels
                         .map((lvl, idx) => ({ ...lvl, originalIndex: idx }))
                         .filter(lvl => lvl.description);
 
-                    // Determine current level index. Default to the first available level if no selection or invalid selection.
                     const selected = selectedLevels[sIdx];
                     const defaultLevelIndex = availableLevels.length > 0 ? availableLevels[0].originalIndex : 0;
                     const levelIndex = (selected !== undefined && availableLevels.some(l => l.originalIndex === selected))
@@ -221,18 +263,48 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
 
                     if (!level) return null;
 
+                    const isExSkill = level.level === 'Ex' || level.level === 'EX';
+
                     return (
-                        <Accordion key={sIdx} defaultExpanded={sIdx === 0}>
-                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                                <Typography fontWeight="bold">{skill.name} (Lvl {level.level})</Typography>
+                        <Accordion
+                            key={sIdx}
+                            defaultExpanded={sIdx === 0}
+                            sx={{
+                                mb: 2,
+                                '&:before': { display: 'none' },
+                                boxShadow: 2,
+                                borderRadius: '8px !important',
+                                overflow: 'hidden'
+                            }}
+                        >
+                            <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                sx={{
+                                    bgcolor: isExSkill ? alpha('#9c27b0', 0.08) : alpha('#2563eb', 0.04),
+                                    '&:hover': {
+                                        bgcolor: isExSkill ? alpha('#9c27b0', 0.12) : alpha('#2563eb', 0.08)
+                                    }
+                                }}
+                            >
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%' }}>
+                                    <Typography fontWeight={700} sx={{ flex: 1 }}>
+                                        {skill.name}
+                                    </Typography>
+                                    <Chip
+                                        label={`Lv.${level.level}`}
+                                        size="small"
+                                        color={isExSkill ? 'secondary' : 'primary'}
+                                        sx={{ fontWeight: 600 }}
+                                    />
+                                </Box>
                             </AccordionSummary>
-                            <AccordionDetails>
-                                <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
-                                    <FormControl size="small" sx={{ minWidth: 120 }}>
-                                        <InputLabel>Level</InputLabel>
+                            <AccordionDetails sx={{ p: 3, bgcolor: 'background.default' }}>
+                                <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                                    <FormControl size="small" sx={{ minWidth: 140 }}>
+                                        <InputLabel>スキルレベル</InputLabel>
                                         <Select
                                             value={levelIndex}
-                                            label="Level"
+                                            label="スキルレベル"
                                             onChange={(e) => handleLevelChange(sIdx, Number(e.target.value))}
                                         >
                                             {availableLevels.map((lvl) => (
@@ -243,135 +315,238 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                         </Select>
                                     </FormControl>
                                 </Box>
+
                                 {level.description && (
-                                    <Box sx={{ mb: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1, border: '1px solid', borderColor: 'divider' }}>
-                                        <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-wrap' }}>
+                                    <Paper
+                                        elevation={0}
+                                        sx={{
+                                            mb: 3,
+                                            p: 2.5,
+                                            bgcolor: alpha('#f1f5f9', 0.5),
+                                            border: '1px solid',
+                                            borderColor: 'divider',
+                                            borderRadius: 2
+                                        }}
+                                    >
+                                        <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ mb: 0.5, display: 'block' }}>
+                                            スキル説明
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>
                                             {level.description}
                                         </Typography>
-                                    </Box>
+                                    </Paper>
                                 )}
-                                <Typography variant="subtitle2" gutterBottom>効果</Typography>
-                                {level.effects.map((effect, eIdx) => (
-                                    <Grid container spacing={1} key={eIdx} sx={{ mb: 2, alignItems: 'center', bgcolor: 'action.hover', p: 1, borderRadius: 1 }}>
-                                        {/* Row 1 */}
-                                        <Grid size={{ xs: 6, md: 3 }}>
-                                            <FormControl fullWidth size="small">
-                                                <InputLabel>タイプ</InputLabel>
-                                                <Select
-                                                    value={effect.type}
-                                                    label="タイプ"
-                                                    onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'type', e.target.value)}
-                                                >
-                                                    <MenuItem value="Buff">バフ</MenuItem>
-                                                    <MenuItem value="Debuff">デバフ</MenuItem>
-                                                </Select>
-                                            </FormControl>
-                                        </Grid>
-                                        <Grid size={{ xs: 6, md: 3 }}>
-                                            <FormControl fullWidth size="small">
-                                                <InputLabel>計算</InputLabel>
-                                                <Select
-                                                    value={effect.calculationType || 'Fixed'}
-                                                    label="計算"
-                                                    onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'calculationType', e.target.value)}
-                                                >
-                                                    <MenuItem value="Fixed">固定値</MenuItem>
-                                                    <MenuItem value="Scaling">係数</MenuItem>
-                                                    <MenuItem value="SupportScaling">支援力</MenuItem>
-                                                </Select>
-                                            </FormControl>
-                                        </Grid>
-                                        <Grid size={{ xs: 6, md: 3 }}>
-                                            <FormControl fullWidth size="small">
-                                                <InputLabel>対象属性</InputLabel>
-                                                <Select
-                                                    value={effect.attribute}
-                                                    label="対象属性"
-                                                    onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'attribute', e.target.value)}
-                                                >
-                                                    <MenuItem value="Attack">攻撃力</MenuItem>
-                                                    <MenuItem value="Armor">装甲</MenuItem>
-                                                    <MenuItem value="CritRate">クリティカル率</MenuItem>
-                                                    <MenuItem value="CritDamage">クリティカルダメージ</MenuItem>
-                                                    <MenuItem value="Mobility">機動力</MenuItem>
-                                                    <MenuItem value="Support">支援力</MenuItem>
-                                                    <MenuItem value="Shield">シールド</MenuItem>
-                                                    <MenuItem value="MaxHP">最大HP</MenuItem>
-                                                </Select>
-                                            </FormControl>
-                                        </Grid>
-                                        <Grid size={{ xs: 6, md: 3 }}>
-                                            <FormControl fullWidth size="small">
-                                                <InputLabel>対象範囲</InputLabel>
-                                                <Select
-                                                    value={effect.target || 'Default'}
-                                                    label="対象範囲"
-                                                    onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'target', e.target.value)}
-                                                >
-                                                    <MenuItem value="Default">標準</MenuItem>
-                                                    <MenuItem value="Self">自身</MenuItem>
-                                                    <MenuItem value="AllAllies">味方全員</MenuItem>
-                                                </Select>
-                                            </FormControl>
-                                        </Grid>
 
-                                        {/* Row 2 */}
-                                        <Grid size={{ xs: 6, md: 4 }}>
-                                            <TextField
-                                                fullWidth
-                                                size="small"
-                                                label="値"
-                                                type="number"
-                                                value={effect.value}
-                                                onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'value', parseFloat(e.target.value))}
-                                            />
-                                        </Grid>
-                                        <Grid size={{ xs: 6, md: 4 }}>
-                                            <TextField
-                                                fullWidth
-                                                size="small"
-                                                label="持続"
-                                                type="number"
-                                                value={effect.duration}
-                                                onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'duration', parseInt(e.target.value))}
-                                            />
-                                        </Grid>
-                                        <Grid size={{ xs: 6, md: 3 }}>
-                                            <FormControlLabel
-                                                control={
-                                                    <Checkbox
-                                                        checked={!!effect.isStackable}
-                                                        onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'isStackable', e.target.checked)}
-                                                        size="small"
-                                                    />
-                                                }
-                                                label="スタック可能"
-                                            />
-                                        </Grid>
-                                        <Grid size={{ xs: 6, md: 1 }} sx={{ display: 'flex', justifyContent: 'center' }}>
-                                            <IconButton
-                                                size="small"
-                                                color="error"
-                                                onClick={() => handleRemoveEffect(sIdx, levelIndex, eIdx)}
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <LayersIcon fontSize="small" color="action" />
+                                        <Typography variant="subtitle2" fontWeight={600} color="text.primary">
+                                            効果詳細 ({level.effects.length})
+                                        </Typography>
+                                    </Box>
+                                    <Button
+                                        startIcon={<AddIcon />}
+                                        variant="outlined"
+                                        size="small"
+                                        onClick={() => handleAddEffect(sIdx, levelIndex)}
+                                    >
+                                        効果を追加
+                                    </Button>
+                                </Box>
+
+                                <Stack spacing={2}>
+                                    {level.effects.length === 0 ? (
+                                        <Paper
+                                            elevation={0}
+                                            sx={{
+                                                p: 4,
+                                                textAlign: 'center',
+                                                bgcolor: alpha('#f1f5f9', 0.3),
+                                                border: '2px dashed',
+                                                borderColor: 'divider'
+                                            }}
+                                        >
+                                            <Typography variant="body2" color="text.secondary">
+                                                効果が登録されていません
+                                            </Typography>
+                                        </Paper>
+                                    ) : (
+                                        level.effects.map((effect, eIdx) => (
+                                            <Card
+                                                key={eIdx}
+                                                elevation={0}
+                                                sx={{
+                                                    border: '2px solid',
+                                                    borderColor: effect.type === 'Buff'
+                                                        ? alpha('#22c55e', 0.3)
+                                                        : alpha('#ef4444', 0.3),
+                                                    bgcolor: effect.type === 'Buff'
+                                                        ? alpha('#22c55e', 0.04)
+                                                        : alpha('#ef4444', 0.04),
+                                                    borderRadius: 2,
+                                                    position: 'relative',
+                                                    transition: 'all 0.2s',
+                                                    '&:hover': {
+                                                        boxShadow: 3,
+                                                        borderColor: effect.type === 'Buff'
+                                                            ? alpha('#22c55e', 0.6)
+                                                            : alpha('#ef4444', 0.6)
+                                                    }
+                                                }}
                                             >
-                                                <DeleteIcon />
-                                            </IconButton>
-                                        </Grid>
-                                    </Grid>
-                                ))}
-                                <Button
-                                    startIcon={<AddIcon />}
-                                    size="small"
-                                    onClick={() => handleAddEffect(sIdx, levelIndex)}
-                                    sx={{ mt: 1 }}
-                                >
-                                    効果を追加
-                                </Button>
+                                                <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
+                                                    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, mb: 2.5 }}>
+                                                        <Chip
+                                                            icon={getEffectIcon(effect.type)}
+                                                            label={effect.type === 'Buff' ? 'バフ' : 'デバフ'}
+                                                            color={getEffectColor(effect.type)}
+                                                            size="small"
+                                                            sx={{ fontWeight: 600 }}
+                                                        />
+                                                        <Box sx={{ flex: 1 }}>
+                                                            <Typography variant="body2" fontWeight={600} color="text.primary">
+                                                                {attributeLabels[effect.attribute] || effect.attribute}
+                                                            </Typography>
+                                                            <Typography variant="caption" color="text.secondary">
+                                                                {targetLabels[effect.target || 'Default']} • {calculationTypeLabels[effect.calculationType || 'Fixed']}
+                                                            </Typography>
+                                                        </Box>
+                                                        <Tooltip title="削除">
+                                                            <IconButton
+                                                                size="small"
+                                                                onClick={() => handleRemoveEffect(sIdx, levelIndex, eIdx)}
+                                                                sx={{
+                                                                    color: 'error.main',
+                                                                    '&:hover': { bgcolor: alpha('#ef4444', 0.1) }
+                                                                }}
+                                                            >
+                                                                <DeleteIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </Box>
+
+                                                    <Grid container spacing={2}>
+                                                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                                            <FormControl fullWidth size="small">
+                                                                <InputLabel>タイプ</InputLabel>
+                                                                <Select
+                                                                    value={effect.type}
+                                                                    label="タイプ"
+                                                                    onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'type', e.target.value)}
+                                                                >
+                                                                    <MenuItem value="Buff">バフ</MenuItem>
+                                                                    <MenuItem value="Debuff">デバフ</MenuItem>
+                                                                </Select>
+                                                            </FormControl>
+                                                        </Grid>
+
+                                                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                                            <FormControl fullWidth size="small">
+                                                                <InputLabel>対象属性</InputLabel>
+                                                                <Select
+                                                                    value={effect.attribute}
+                                                                    label="対象属性"
+                                                                    onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'attribute', e.target.value)}
+                                                                >
+                                                                    <MenuItem value="Attack">攻撃力</MenuItem>
+                                                                    <MenuItem value="Armor">装甲</MenuItem>
+                                                                    <MenuItem value="CritRate">クリティカル率</MenuItem>
+                                                                    <MenuItem value="CritDamage">クリティカルダメージ</MenuItem>
+                                                                    <MenuItem value="Mobility">機動力</MenuItem>
+                                                                    <MenuItem value="Support">支援力</MenuItem>
+                                                                    <MenuItem value="Shield">シールド</MenuItem>
+                                                                    <MenuItem value="MaxHP">最大HP</MenuItem>
+                                                                </Select>
+                                                            </FormControl>
+                                                        </Grid>
+
+                                                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                                            <FormControl fullWidth size="small">
+                                                                <InputLabel>計算方法</InputLabel>
+                                                                <Select
+                                                                    value={effect.calculationType || 'Fixed'}
+                                                                    label="計算方法"
+                                                                    onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'calculationType', e.target.value)}
+                                                                >
+                                                                    <MenuItem value="Fixed">固定値</MenuItem>
+                                                                    <MenuItem value="Scaling">係数</MenuItem>
+                                                                    <MenuItem value="SupportScaling">支援力</MenuItem>
+                                                                </Select>
+                                                            </FormControl>
+                                                        </Grid>
+
+                                                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                                            <FormControl fullWidth size="small">
+                                                                <InputLabel>対象範囲</InputLabel>
+                                                                <Select
+                                                                    value={effect.target || 'Default'}
+                                                                    label="対象範囲"
+                                                                    onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'target', e.target.value)}
+                                                                >
+                                                                    <MenuItem value="Default">標準</MenuItem>
+                                                                    <MenuItem value="Self">自身</MenuItem>
+                                                                    <MenuItem value="AllAllies">味方全員</MenuItem>
+                                                                </Select>
+                                                            </FormControl>
+                                                        </Grid>
+
+                                                        <Grid size={{ xs: 6, sm: 4, md: 3 }}>
+                                                            <TextField
+                                                                fullWidth
+                                                                size="small"
+                                                                label="効果値"
+                                                                type="number"
+                                                                value={effect.value}
+                                                                onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'value', parseFloat(e.target.value))}
+                                                                InputProps={{
+                                                                    endAdornment: <Typography variant="caption" color="text.secondary">%</Typography>
+                                                                }}
+                                                            />
+                                                        </Grid>
+
+                                                        <Grid size={{ xs: 6, sm: 4, md: 3 }}>
+                                                            <Tooltip title="ターン数 (-1 = 永続)">
+                                                                <TextField
+                                                                    fullWidth
+                                                                    size="small"
+                                                                    label="持続ターン"
+                                                                    type="number"
+                                                                    value={effect.duration}
+                                                                    onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'duration', parseInt(e.target.value))}
+                                                                    InputProps={{
+                                                                        endAdornment: <Typography variant="caption" color="text.secondary">T</Typography>
+                                                                    }}
+                                                                />
+                                                            </Tooltip>
+                                                        </Grid>
+
+                                                        <Grid size={{ xs: 12, sm: 4, md: 6 }} sx={{ display: 'flex', alignItems: 'center' }}>
+                                                            <FormControlLabel
+                                                                control={
+                                                                    <Checkbox
+                                                                        checked={!!effect.isStackable}
+                                                                        onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'isStackable', e.target.checked)}
+                                                                        size="small"
+                                                                    />
+                                                                }
+                                                                label={
+                                                                    <Typography variant="body2" fontWeight={500}>
+                                                                        スタック可能
+                                                                    </Typography>
+                                                                }
+                                                            />
+                                                        </Grid>
+                                                    </Grid>
+                                                </CardContent>
+                                            </Card>
+                                        ))
+                                    )}
+                                </Stack>
                             </AccordionDetails>
                         </Accordion>
                     );
                 })}
-            </Box >
-        </Paper >
+            </Box>
+        </Paper>
     );
 };
