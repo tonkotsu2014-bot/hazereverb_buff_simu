@@ -15,6 +15,54 @@ export const calculateMaxBuffs = (
     let critRateBuff = 0;
     let critDamageBuff = 0;
 
+    // Helper to calculate effective support power for a supporter
+    const calculateEffectiveSupportStats = (supporter: ParsedCharacterData): ParsedCharacterData => {
+        let baseAttack = typeof supporter.stats?.attack === 'number'
+            ? supporter.stats.attack
+            : parseFloat(supporter.stats?.attack || '0');
+
+        // Accumulate percentage increase for Attack (Support Power)
+        let attackIncrease = 0;
+
+        supporter.skills.forEach(skill => {
+            const maxLevel = skill.levels[skill.levels.length - 1];
+            if (!maxLevel || !maxLevel.effects) return;
+
+            maxLevel.effects.forEach(effect => {
+                // Must be Buff, target Self, and attribute Attack (Support)
+                if (effect.type === 'Buff' && effect.target === 'Self' && (effect.attribute === 'Attack' || effect.attribute === 'Support')) {
+                    let value = effect.value;
+
+                    // Apply Stacks (if implemented for self buffs too)
+                    if (effect.isStackable) {
+                        const count = stackCounts[skill.name] ?? 1;
+                        if (count > 1) {
+                            value = value * count;
+                        }
+                    }
+
+                    attackIncrease += value;
+                }
+            });
+        });
+
+        // Calculate effective attack (Support Power)
+        // Support Power is a percentage value, so increases are additive.
+        // e.g. Base 110% + Buff 90% = 200%
+        const effectiveAttack = baseAttack + attackIncrease;
+
+        return {
+            ...supporter,
+            stats: {
+                ...supporter.stats,
+                attack: effectiveAttack
+            }
+        };
+    };
+
+    // Pre-calculate effective stats for supporters
+    const effectiveSupporters = supporters.map(s => calculateEffectiveSupportStats(s));
+
     // Helper to process effects
     const processEffects = (effects: SkillEffect[], character: ParsedCharacterData, isAttacker: boolean, skillName: string) => {
         effects.forEach(effect => {
@@ -82,8 +130,8 @@ export const calculateMaxBuffs = (
         }
     });
 
-    // 2. Process Supporters' skills
-    supporters.forEach(supporter => {
+    // 2. Process Supporters' skills (using effective stats)
+    effectiveSupporters.forEach(supporter => {
         supporter.skills.forEach(skill => {
             const maxLevel = skill.levels[skill.levels.length - 1];
             if (maxLevel && maxLevel.effects) {

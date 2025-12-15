@@ -16,7 +16,9 @@ import {
     AccordionSummary,
     AccordionDetails,
     IconButton,
-    Button
+    Button,
+    Checkbox,
+    FormControlLabel
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -329,6 +331,18 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                 type="number"
                                                 value={effect.duration}
                                                 onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'duration', parseInt(e.target.value))}
+                                            />
+                                        </Grid>
+                                        <Grid size={{ xs: 6, md: 1 }}>
+                                            <FormControlLabel
+                                                control={
+                                                    <Checkbox
+                                                        checked={!!effect.isStackable}
+                                                        onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'isStackable', e.target.checked)}
+                                                        size="small"
+                                                    />
+                                                }
+                                                label="スタック"
                                             />
                                         </Grid>
                                         <Grid size="auto">

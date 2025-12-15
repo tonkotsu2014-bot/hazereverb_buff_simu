@@ -252,4 +252,42 @@ describe('calculateMaxBuffs', () => {
         // 10 * 3 = 30
         expect(result.attackIncreasePercent).toBe(30);
     });
+
+    // 11. Complex Scenario: Supporter Self-Buff -> Buff Attacker
+    it('should correctly calculate buff when supporter buffs self first', () => {
+        // Attacker: CritDamage 0, CritRate 20, Skill: AllAllies CritDamage + 50%
+        const attacker = createChar('Attacker', [
+            { type: 'Buff', attribute: 'CritDamage', value: 50, target: 'AllAllies' }
+        ], { critRate: 20, critDamage: 0 });
+
+        const supporter = createChar('Supporter', [], { attack: 110 });
+        supporter.skills = [
+            {
+                name: 'Skill 1',
+                // Use 'Support' as attribute to be precise, though 'Attack' also works in logic now.
+                levels: [{ level: '1', description: null, effects: [{ type: 'Buff', attribute: 'Support', value: 90, target: 'Self' }] }]
+            },
+            {
+                name: 'Skill 2',
+                levels: [{
+                    level: '1', description: null, effects: [
+                        { type: 'Buff', attribute: 'CritDamage', value: 85, calculationType: 'SupportScaling', target: 'Default' },
+                        { type: 'Buff', attribute: 'CritRate', value: 85, calculationType: 'SupportScaling', target: 'Default' }
+                    ]
+                }]
+            }
+        ];
+
+        const result = calculateMaxBuffs(attacker, [supporter]);
+
+        // Support Power: 110 + 90 = 200
+        // Buff Value: 200 * 0.85 = 170
+        // Attacker Base: CritRate 20, CritDmg 0
+        // Attacker Buff: CritDmg + 50
+        // Total Rate: 20 + 170 = 190
+        // Total Dmg: 0 + 50 + 170 = 220
+
+        expect(result.critRateTotal).toBeCloseTo(190, 1);
+        expect(result.critDamageTotal).toBeCloseTo(220, 1);
+    });
 });
