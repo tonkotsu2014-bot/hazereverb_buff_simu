@@ -149,6 +149,13 @@ export const parseSkills = (doc: Document): SkillData[] => {
                 const levels: { level: string; description: string | null; effects: SkillEffect[] }[] = [];
                 const rows = tbody.querySelectorAll('tr');
 
+                const cleanDescription = (cell: Element): string => {
+                    const tempDiv = doc.createElement('div');
+                    tempDiv.innerHTML = cell.innerHTML.replace(/<br\s*\/?>/gi, '\n');
+                    const text = tempDiv.textContent || '';
+                    return text.split(/\r?\n/).map(s => s.trim()).filter(s => s).join('\n');
+                };
+
                 rows.forEach(row => {
                     const cells = row.querySelectorAll('td');
                     if (cells.length === 1) {
@@ -158,13 +165,15 @@ export const parseSkills = (doc: Document): SkillData[] => {
                             levels.push({ level: content, description: null, effects: [] });
                         } else if (content) {
                             // Fallback for "legacy" description parsing or Ex skill special cases
-                            // Only add if it looks like a description (not a number)
-                            const levelObj = { level: isEx ? 'Ex' : '1', description: content, effects: [] };
+                            // Use cleaner for content if possible, but cells[0] is content here.
+                            const desc = cleanDescription(cells[0]);
+                            const levelObj = { level: isEx ? 'Ex' : '1', description: desc, effects: [] };
                             levels.push(levelObj);
                         }
                     } else if (cells.length >= 2) {
                         const level = cells[0].textContent?.trim() || '';
-                        const description = cells[1].textContent?.trim() || '';
+                        // Use cleanDescription for the second cell
+                        const description = cleanDescription(cells[1]);
                         if (level && description) {
                             levels.push({ level, description, effects: [] });
                         }
@@ -287,8 +296,18 @@ export const parseDuration = (sentence: string): number | undefined => {
     return undefined;
 };
 
-export const parseEffectType = (verb: string): 'Buff' | 'Debuff' => {
+export const determineEffectType = (verb: string): 'Buff' | 'Debuff' => {
     return ['低下', '減少', 'ダウン'].includes(verb) ? 'Debuff' : 'Buff';
+};
+
+export const determineCalculationType = (scalingFactor?: string): { calculationType: string, scalingFactor?: string } => {
+    if (!scalingFactor) {
+        return { calculationType: 'Fixed', scalingFactor: undefined };
+    }
+    if (scalingFactor.includes('支援力')) {
+        return { calculationType: 'SupportScaling', scalingFactor: undefined };
+    }
+    return { calculationType: 'Fixed', scalingFactor: scalingFactor };
 };
 
 export const splitSkillDescription = (description: string): string[] => {
@@ -345,7 +364,7 @@ export const parseSkillDescription = (description: string): SkillEffect[] => {
                 const verb = m[3];
 
                 if (verb) {
-                    const type = parseEffectType(verb);
+                    const type = determineEffectType(verb);
                     const isDecrease = type === 'Debuff';
                     // Resolve any pending verb-less effects
                     flushVerbPending(isDecrease);
@@ -379,27 +398,27 @@ export const parseSkillDescription = (description: string): SkillEffect[] => {
                 const verb = m[4];
 
                 if (verb) {
-                    const type = parseEffectType(verb);
+                    const type = determineEffectType(verb);
                     const isDecrease = type === 'Debuff';
                     // Resolve any pending verb-less effects
                     flushVerbPending(isDecrease);
 
-                    const isSupport = scalingFactor.includes('支援力');
+                    const calcInfo = determineCalculationType(scalingFactor);
                     pendingEffects.push({
                         type,
-                        calculationType: isSupport ? 'SupportScaling' : 'Scaling',
+                        calculationType: calcInfo.calculationType,
                         attribute: attrKey,
                         value: value,
-                        scalingFactor: isSupport ? undefined : scalingFactor
+                        scalingFactor: calcInfo.scalingFactor
                     });
                 } else {
                     // It's a comma-separated list item, wait for verb
-                    const isSupport = scalingFactor.includes('支援力');
+                    const calcInfo = determineCalculationType(scalingFactor);
                     verbPendingEffects.push({
-                        calculationType: isSupport ? 'SupportScaling' : 'Scaling',
+                        calculationType: calcInfo.calculationType,
                         attribute: attrKey,
                         value: value,
-                        scalingFactor: isSupport ? undefined : scalingFactor
+                        scalingFactor: calcInfo.scalingFactor
                     });
                 }
             }

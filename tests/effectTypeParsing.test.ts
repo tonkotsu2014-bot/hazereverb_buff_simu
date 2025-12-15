@@ -1,24 +1,24 @@
 // @vitest-environment jsdom
 import { describe, it, expect } from 'vitest';
-import { parseEffectType } from '../src/logic/wikiParser';
+import { determineEffectType } from '../src/logic/wikiParser';
 
-describe('wikiParser - Effect Type Parsing (parseEffectType)', () => {
+describe('wikiParser - Effect Type Parsing (determineEffectType)', () => {
     it('should identify "Buff" verbs', () => {
-        expect(parseEffectType('増加')).toBe('Buff');
-        expect(parseEffectType('上昇')).toBe('Buff');
-        expect(parseEffectType('アップ')).toBe('Buff');
+        expect(determineEffectType('増加')).toBe('Buff');
+        expect(determineEffectType('上昇')).toBe('Buff');
+        expect(determineEffectType('アップ')).toBe('Buff');
     });
 
     it('should identify "Debuff" verbs', () => {
-        expect(parseEffectType('低下')).toBe('Debuff');
-        expect(parseEffectType('減少')).toBe('Debuff');
-        expect(parseEffectType('ダウン')).toBe('Debuff');
+        expect(determineEffectType('低下')).toBe('Debuff');
+        expect(determineEffectType('減少')).toBe('Debuff');
+        expect(determineEffectType('ダウン')).toBe('Debuff');
     });
 
     it('should default to "Buff" for unknown verbs (implementation detail)', () => {
         // Current implementation is: ['低下', '減少', 'ダウン'].includes(verb) ? 'Debuff' : 'Buff';
-        expect(parseEffectType('獲得')).toBe('Buff');
-        expect(parseEffectType('回復')).toBe('Buff');
+        expect(determineEffectType('獲得')).toBe('Buff');
+        expect(determineEffectType('回復')).toBe('Buff');
     });
 });
 

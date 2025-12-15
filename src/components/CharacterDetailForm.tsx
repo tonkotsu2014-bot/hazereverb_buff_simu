@@ -14,8 +14,12 @@ import {
     Stack,
     Accordion,
     AccordionSummary,
-    AccordionDetails
+    AccordionDetails,
+    IconButton,
+    Button
 } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 interface Props {
@@ -75,6 +79,41 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
             ...prev,
             [skillIndex]: newLevelIndex
         }));
+    };
+
+    const handleAddEffect = (skillIndex: number, levelIndex: number) => {
+        const newSkills = [...formData.skills];
+        const newLevels = [...newSkills[skillIndex].levels];
+        const newEffects = [
+            ...newLevels[levelIndex].effects,
+            {
+                type: 'Buff',
+                attribute: 'Attack',
+                value: 0,
+                duration: 1,
+                calculationType: 'Fixed',
+                target: 'Default'
+            } as SkillEffect
+        ];
+        newLevels[levelIndex] = { ...newLevels[levelIndex], effects: newEffects };
+        newSkills[skillIndex] = { ...newSkills[skillIndex], levels: newLevels };
+
+        const updated = { ...formData, skills: newSkills };
+        setFormData(updated);
+        onUpdate(updated);
+    };
+
+    const handleRemoveEffect = (skillIndex: number, levelIndex: number, effectIndex: number) => {
+        const newSkills = [...formData.skills];
+        const newLevels = [...newSkills[skillIndex].levels];
+        const newEffects = newLevels[levelIndex].effects.filter((_, idx) => idx !== effectIndex);
+
+        newLevels[levelIndex] = { ...newLevels[levelIndex], effects: newEffects };
+        newSkills[skillIndex] = { ...newSkills[skillIndex], levels: newLevels };
+
+        const updated = { ...formData, skills: newSkills };
+        setFormData(updated);
+        onUpdate(updated);
     };
 
     // Helper to update a specific effect in a specific skill level
@@ -164,9 +203,18 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
             <Typography variant="h6" gutterBottom>スキル</Typography>
             <Box>
                 {formData.skills.map((skill, sIdx) => {
-                    // For editing simplicity, we allow editing Level 1 only for now, or the first level found.
-                    // In a real app we might want tabs for levels.
-                    const levelIndex = selectedLevels[sIdx] || 0;
+                    // Filter levels to only those with descriptions
+                    const availableLevels = skill.levels
+                        .map((lvl, idx) => ({ ...lvl, originalIndex: idx }))
+                        .filter(lvl => lvl.description);
+
+                    // Determine current level index. Default to the first available level if no selection or invalid selection.
+                    const selected = selectedLevels[sIdx];
+                    const defaultLevelIndex = availableLevels.length > 0 ? availableLevels[0].originalIndex : 0;
+                    const levelIndex = (selected !== undefined && availableLevels.some(l => l.originalIndex === selected))
+                        ? selected
+                        : defaultLevelIndex;
+
                     const level = skill.levels[levelIndex];
 
                     if (!level) return null;
@@ -185,8 +233,8 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                             label="Level"
                                             onChange={(e) => handleLevelChange(sIdx, Number(e.target.value))}
                                         >
-                                            {skill.levels.map((lvl, idx) => (
-                                                <MenuItem key={idx} value={idx}>
+                                            {availableLevels.map((lvl) => (
+                                                <MenuItem key={lvl.originalIndex} value={lvl.originalIndex}>
                                                     Level {lvl.level}
                                                 </MenuItem>
                                             ))}
@@ -203,7 +251,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                 <Typography variant="subtitle2" gutterBottom>効果</Typography>
                                 {level.effects.map((effect, eIdx) => (
                                     <Grid container spacing={1} key={eIdx} sx={{ mb: 2, alignItems: 'center', bgcolor: 'action.hover', p: 1, borderRadius: 1 }}>
-                                        <Grid size={{ xs: 12, sm: 2 }}>
+                                        <Grid size={{ xs: 6, md: 2 }}>
                                             <FormControl fullWidth size="small">
                                                 <InputLabel>タイプ</InputLabel>
                                                 <Select
@@ -216,7 +264,21 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                 </Select>
                                             </FormControl>
                                         </Grid>
-                                        <Grid size={{ xs: 12, sm: 2 }}>
+                                        <Grid size={{ xs: 6, md: 2 }}>
+                                            <FormControl fullWidth size="small">
+                                                <InputLabel>計算</InputLabel>
+                                                <Select
+                                                    value={effect.calculationType || 'Fixed'}
+                                                    label="計算"
+                                                    onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'calculationType', e.target.value)}
+                                                >
+                                                    <MenuItem value="Fixed">固定値</MenuItem>
+                                                    <MenuItem value="Scaling">係数</MenuItem>
+                                                    <MenuItem value="SupportScaling">支援力</MenuItem>
+                                                </Select>
+                                            </FormControl>
+                                        </Grid>
+                                        <Grid size={{ xs: 6, md: 2 }}>
                                             <FormControl fullWidth size="small">
                                                 <InputLabel>対象</InputLabel>
                                                 <Select
@@ -235,7 +297,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                 </Select>
                                             </FormControl>
                                         </Grid>
-                                        <Grid size={{ xs: 6, sm: 2 }}>
+                                        <Grid size={{ xs: 6, md: 2 }}>
                                             <FormControl fullWidth size="small">
                                                 <InputLabel>対象</InputLabel>
                                                 <Select
@@ -249,7 +311,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                 </Select>
                                             </FormControl>
                                         </Grid>
-                                        <Grid size={{ xs: 6, sm: 3 }}>
+                                        <Grid size={{ xs: 6, md: 2 }}>
                                             <TextField
                                                 fullWidth
                                                 size="small"
@@ -259,7 +321,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                 onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'value', parseFloat(e.target.value))}
                                             />
                                         </Grid>
-                                        <Grid size={{ xs: 6, sm: 2 }}>
+                                        <Grid size={{ xs: 6, md: 1 }}>
                                             <TextField
                                                 fullWidth
                                                 size="small"
@@ -269,13 +331,30 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                 onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'duration', parseInt(e.target.value))}
                                             />
                                         </Grid>
+                                        <Grid size="auto">
+                                            <IconButton
+                                                size="small"
+                                                color="error"
+                                                onClick={() => handleRemoveEffect(sIdx, levelIndex, eIdx)}
+                                            >
+                                                <DeleteIcon />
+                                            </IconButton>
+                                        </Grid>
                                     </Grid>
                                 ))}
+                                <Button
+                                    startIcon={<AddIcon />}
+                                    size="small"
+                                    onClick={() => handleAddEffect(sIdx, levelIndex)}
+                                    sx={{ mt: 1 }}
+                                >
+                                    効果を追加
+                                </Button>
                             </AccordionDetails>
                         </Accordion>
                     );
                 })}
-            </Box>
-        </Paper>
+            </Box >
+        </Paper >
     );
 };

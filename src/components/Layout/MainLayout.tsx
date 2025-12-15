@@ -45,7 +45,7 @@ export const MainLayout: React.FC = () => {
                                 borderRadius: 0
                             }}
                         >
-                            インポート
+                            キャラ作成
                         </Button>
                     </Box>
                 </Toolbar>
