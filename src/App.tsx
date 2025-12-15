@@ -119,6 +119,7 @@ function App() {
                   characters={characters}
                   onAddCharacter={handleAddCharacter}
                   onDelete={handleDeleteCharacter}
+                  onImport={handleImportCharacters}
                 />
               }
             />

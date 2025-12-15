@@ -9,9 +9,10 @@ interface Props {
     characters: ParsedCharacterData[];
     onAddCharacter: (character: ParsedCharacterData) => void;
     onDelete: (index: number) => void;
+    onImport: (data: ParsedCharacterData[]) => void;
 }
 
-export const ParserPage: React.FC<Props> = ({ characters, onAddCharacter, onDelete }) => {
+export const ParserPage: React.FC<Props> = ({ characters, onAddCharacter, onDelete, onImport }) => {
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
     const selectedCharacter = selectedIndex !== null ? characters[selectedIndex] : null;
 
@@ -26,6 +27,7 @@ export const ParserPage: React.FC<Props> = ({ characters, onAddCharacter, onDele
                             selectedIndex={selectedIndex}
                             onSelect={setSelectedIndex}
                             onDelete={onDelete}
+                            onImport={onImport}
                         />
                     </Box>
 

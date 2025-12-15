@@ -97,9 +97,10 @@ export const CharacterList: React.FC<Props> = ({ characters, onDelete, onImport,
                         >
                             インポート
                             <input
-                                type="hidden"
+                                type="file"
                                 accept=".json"
                                 onChange={handleImport}
+                                style={{ display: 'none' }}
                             />
                         </Button>
                         <Button
