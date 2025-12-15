@@ -19,16 +19,18 @@ import PersonIcon from '@mui/icons-material/Person';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
 import UploadIcon from '@mui/icons-material/Upload';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 interface Props {
     characters: ParsedCharacterData[];
     onDelete?: (index: number) => void;
     onImport?: (data: ParsedCharacterData[]) => void;
     onSelect?: (index: number) => void;
+    onAdd?: (index: number) => void;
     selectedIndex?: number | null;
 }
 
-export const CharacterList: React.FC<Props> = ({ characters, onDelete, onImport, onSelect, selectedIndex }) => {
+export const CharacterList: React.FC<Props> = ({ characters, onDelete, onImport, onSelect, onAdd, selectedIndex }) => {
     // We lift the state up if onSelect is provided, otherwise local state (though mostly unused currently without onSelect in parent)
     const [localSelected, setLocalSelected] = useState<number | null>(null);
 
@@ -173,6 +175,23 @@ export const CharacterList: React.FC<Props> = ({ characters, onDelete, onImport,
                                         />
                                     )}
                                 </Box>
+                                {onAdd && (
+                                    <IconButton
+                                        edge="end"
+                                        aria-label="add"
+                                        size="small"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onAdd(index);
+                                        }}
+                                        sx={{
+                                            color: 'primary.main',
+                                            '&:hover': { bgcolor: 'primary.alpha', opacity: 0.8 }
+                                        }}
+                                    >
+                                        <AddCircleOutlineIcon />
+                                    </IconButton>
+                                )}
                                 {onDelete && (
                                     <IconButton
                                         edge="end"
@@ -185,7 +204,8 @@ export const CharacterList: React.FC<Props> = ({ characters, onDelete, onImport,
                                         }}
                                         sx={{
                                             opacity: 0.5,
-                                            '&:hover': { opacity: 1, color: 'error.main' }
+                                            '&:hover': { opacity: 1, color: 'error.main' },
+                                            ml: 1
                                         }}
                                     >
                                         <DeleteIcon />

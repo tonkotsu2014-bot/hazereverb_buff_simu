@@ -290,4 +290,78 @@ describe('calculateMaxBuffs', () => {
         expect(result.critRateTotal).toBeCloseTo(190, 1);
         expect(result.critDamageTotal).toBeCloseTo(220, 1);
     });
+
+    // 12. Verify Modifiers Logging
+    it('should include modifier logs', () => {
+        const attacker = createChar('Attacker', [
+            { type: 'Buff', target: 'Self', attribute: 'Attack', value: 20 }
+        ]);
+
+        const supporter = createChar('Supporter', [
+            { type: 'Buff', target: 'AllAllies', attribute: 'CritRate', value: 15 }
+        ]);
+
+        const result = calculateMaxBuffs(attacker, [supporter]);
+
+        expect(result.modifiers).toBeDefined();
+        // Since we process Attacker first then Supporters in the loop:
+        // Attacker -> Self Buff -> Attack 20
+        // Supporter -> Buff -> CritRate 15
+
+        expect(result.modifiers).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                sourceCharacterName: 'Attacker',
+                skillName: 'Test Skill', // default from createChar
+                attribute: 'Attack',
+                value: 20
+            }),
+            expect.objectContaining({
+                sourceCharacterName: 'Supporter',
+                skillName: 'Test Skill',
+                attribute: 'CritRate',
+                value: 15
+            })
+        ]));
+    });
+
+    // 13. User Requested Test: Course Guard (Attacker) + Melia & Monica (Supporters)
+    it('should log all necessary skills for Course Guard (Attacker) + Melia & Monica (Supporters)', () => {
+        const dataPath = path.join(__dirname, 'data', 'test_characters.json');
+        const rawData = fs.readFileSync(dataPath, 'utf-8');
+        const characters = (JSON.parse(rawData) as ParsedCharacterData[]).map(c => ({
+            ...c,
+            skills: processSkillAttributes(c.skills)
+        }));
+
+        const attacker = characters.find(c => c.name?.includes('清浄の騎士 コースガード'));
+        const melia = characters.find(c => c.name?.includes('神聖Trick メリア'));
+        const monica = characters.find(c => c.name?.includes('懲罰の審問官 モニカ'));
+
+        if (!attacker || !melia || !monica) {
+            console.warn('Skipping test: Characters not found');
+            return;
+        }
+
+        const result = calculateMaxBuffs(attacker, [melia, monica]);
+
+        const modifierNames = result.modifiers.map(m => m.sourceCharacterName);
+        const skillNames = result.modifiers.map(m => m.skillName);
+
+        // console.log('Modifiers:', JSON.stringify(result.modifiers, null, 2));
+
+        expect(modifierNames).toContain(attacker.name);
+        expect(modifierNames).toContain(melia.name);
+
+        // Melia should provide buffs
+        expect(skillNames).toEqual(expect.arrayContaining([
+            expect.stringContaining('武運の恩恵'), // Melia Skill 1
+            expect.stringContaining('運命を掠め取る'), // Melia Skill 4
+        ]));
+
+        // Monica should provide buffs
+        expect(skillNames).toEqual(expect.arrayContaining([
+            expect.stringContaining('激励'), // Monica Skill 1
+            expect.stringContaining('臨戦態勢'), // Monica Skill 4
+        ]));
+    });
 });

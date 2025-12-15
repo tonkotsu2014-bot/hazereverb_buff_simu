@@ -1,9 +1,19 @@
 import type { ParsedCharacterData, SkillEffect } from './wikiParser';
 
+export interface BuffModifier {
+    sourceCharacterName: string;
+    skillName: string;
+    skillLevel: string; // "Lv.5" etc. or just index
+    effectType: string;
+    attribute: string;
+    value: number;
+}
+
 export interface CalculatedBuffs {
     attackIncreasePercent: number;
     critRateTotal: number;
     critDamageTotal: number;
+    modifiers: BuffModifier[];
 }
 
 export const calculateMaxBuffs = (
@@ -14,6 +24,7 @@ export const calculateMaxBuffs = (
     let attackIncreasePercent = 0;
     let critRateBuff = 0;
     let critDamageBuff = 0;
+    const modifiers: BuffModifier[] = [];
 
     // Helper to calculate effective support power for a supporter
     const calculateEffectiveSupportStats = (supporter: ParsedCharacterData): ParsedCharacterData => {
@@ -25,7 +36,8 @@ export const calculateMaxBuffs = (
         let attackIncrease = 0;
 
         supporter.skills.forEach(skill => {
-            const maxLevel = skill.levels[skill.levels.length - 1];
+            // Use the highest level that has effects, or the last level if none have effects
+            const maxLevel = [...skill.levels].reverse().find(l => l.effects && l.effects.length > 0) || skill.levels[skill.levels.length - 1];
             if (!maxLevel || !maxLevel.effects) return;
 
             maxLevel.effects.forEach(effect => {
@@ -64,7 +76,7 @@ export const calculateMaxBuffs = (
     const effectiveSupporters = supporters.map(s => calculateEffectiveSupportStats(s));
 
     // Helper to process effects
-    const processEffects = (effects: SkillEffect[], character: ParsedCharacterData, isAttacker: boolean, skillName: string) => {
+    const processEffects = (effects: SkillEffect[], character: ParsedCharacterData, isAttacker: boolean, skillName: string, levelName: string) => {
         effects.forEach(effect => {
             const isBuff = effect.type === 'Buff';
             const isDebuff = effect.type === 'Debuff';
@@ -109,6 +121,17 @@ export const calculateMaxBuffs = (
                     value = -value;
                 }
 
+                if (value !== 0) {
+                    modifiers.push({
+                        sourceCharacterName: character.name || 'Unknown',
+                        skillName: skillName,
+                        skillLevel: levelName,
+                        effectType: effect.type,
+                        attribute: effect.attribute,
+                        value: value
+                    });
+                }
+
                 if (effect.attribute === 'Attack') {
                     // Attack buffs are usually percentage based increases
                     attackIncreasePercent += value;
@@ -124,18 +147,18 @@ export const calculateMaxBuffs = (
     // 1. Process Attacker's own skills (Max Level assumed for simulation simplicity or we need to select level)
     // For this simulation, let's assume we use the highest level available for each skill.
     attacker.skills.forEach(skill => {
-        const maxLevel = skill.levels[skill.levels.length - 1];
+        const maxLevel = [...skill.levels].reverse().find(l => l.effects && l.effects.length > 0) || skill.levels[skill.levels.length - 1];
         if (maxLevel && maxLevel.effects) {
-            processEffects(maxLevel.effects, attacker, true, skill.name);
+            processEffects(maxLevel.effects, attacker, true, skill.name, maxLevel.level || 'Max');
         }
     });
 
     // 2. Process Supporters' skills (using effective stats)
     effectiveSupporters.forEach(supporter => {
         supporter.skills.forEach(skill => {
-            const maxLevel = skill.levels[skill.levels.length - 1];
+            const maxLevel = [...skill.levels].reverse().find(l => l.effects && l.effects.length > 0) || skill.levels[skill.levels.length - 1];
             if (maxLevel && maxLevel.effects) {
-                processEffects(maxLevel.effects, supporter, false, skill.name);
+                processEffects(maxLevel.effects, supporter, false, skill.name, maxLevel.level || 'Max');
             }
         });
     });
@@ -147,6 +170,7 @@ export const calculateMaxBuffs = (
     return {
         attackIncreasePercent,
         critRateTotal: baseCritRate + critRateBuff,
-        critDamageTotal: baseCritDamage + critDamageBuff
+        critDamageTotal: baseCritDamage + critDamageBuff,
+        modifiers
     };
 };
