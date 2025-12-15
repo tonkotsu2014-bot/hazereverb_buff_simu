@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, Typography, Divider, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { Card, CardContent, Typography, Divider, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Tooltip } from '@mui/material';
 import type { CalculatedBuffs } from '../../logic/buffCalculation';
 
 interface BuffResultProps {
@@ -81,7 +81,11 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results }) => {
                                             {mod.sourceCharacterName}
                                         </TableCell>
                                         <TableCell>
-                                            {mod.skillName} {mod.skillLevel && `(${mod.skillLevel})`}
+                                            <Tooltip title={<Typography variant="body2">{mod.description || 'No description'}</Typography>} arrow>
+                                                <Typography component="span" sx={{ borderBottom: '1px dotted', cursor: 'help' }}>
+                                                    {mod.skillName} {mod.skillLevel && `(${mod.skillLevel})`}
+                                                </Typography>
+                                            </Tooltip>
                                         </TableCell>
                                         <TableCell>
                                             {mod.effectType === 'Debuff' ? '▼ ' : ''}{attributeMap[mod.attribute] || mod.attribute}

@@ -1,10 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Box, Typography, Paper, IconButton, Grid, FormControlLabel, Checkbox } from '@mui/material';
+import { Box, Typography, Paper, IconButton, Grid, FormControlLabel, Checkbox, Card, CardContent } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { CharacterSelector } from '../components/Simulation/CharacterSelector';
 import { CharacterList } from '../components/CharacterList';
 import { BuffResult } from '../components/Simulation/BuffResult';
-import { calculateMaxBuffs } from '../logic/buffCalculation';
+import { calculateMaxBuffs, calculateEffectiveStats } from '../logic/buffCalculation';
 import type { ParsedCharacterData } from '../logic/wikiParser';
 
 interface BuffSimulationPageProps {
@@ -46,12 +46,6 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
         }
     };
 
-    const handleUpdateSupporter = (index: number, char: ParsedCharacterData | null) => {
-        const newSupporters = [...supporters];
-        newSupporters[index] = char;
-        setSupporters(newSupporters);
-    };
-
     const handleRemoveSupporter = (index: number) => {
         setSupporters(supporters.filter((_, i) => i !== index));
     };
@@ -74,6 +68,11 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
     const isExEnabled = (charName: string | undefined) => {
         if (!charName) return false;
         return activeExSkills[charName] !== false;
+    };
+
+    const getEffectiveSupportPower = (supporter: ParsedCharacterData) => {
+        const effective = calculateEffectiveStats(supporter, {}, activeExSkills);
+        return effective.stats?.attack || 0;
     };
 
     return (
@@ -150,36 +149,48 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                                             左のリストから追加してください
                                         </Typography>
                                     ) : (
-                                        supporters.map((supporter, index) => (
-                                            <Box key={index} sx={{ display: 'flex', alignItems: 'flex-start', mb: 2, gap: 1 }}>
-                                                <Box sx={{ flex: 1 }}>
-                                                    <CharacterSelector
-                                                        label={`支援役 #${index + 1}`}
-                                                        characters={characters}
-                                                        selectedCharacter={supporter}
-                                                        onSelect={(c) => handleUpdateSupporter(index, c)}
-                                                    />
+                                        <Grid container spacing={1}>
+                                            {supporters.map((supporter, index) => (
+                                                <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={index}>
                                                     {supporter && (
-                                                        <Box sx={{ mt: 0.5 }}>
-                                                            <FormControlLabel
-                                                                control={
-                                                                    <Checkbox
-                                                                        checked={isExEnabled(supporter.name)}
-                                                                        onChange={(e) => handleToggleExSkill(supporter.name, e.target.checked)}
-                                                                        size="small"
+                                                        <Card variant="outlined" sx={{ position: 'relative' }}>
+                                                            <CardContent sx={{ pb: '16px !important', pr: 5 }}>
+                                                                <Typography variant="subtitle2" title={supporter.name} sx={{ fontWeight: 'bold' }}>
+                                                                    {supporter.name}
+                                                                </Typography>
+                                                                {(supporter.role === '支援' || supporter.type?.includes('支援')) && (
+                                                                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                                                                        支援力: {getEffectiveSupportPower(supporter)}%
+                                                                    </Typography>
+                                                                )}
+                                                                <Box sx={{ mt: 0.5 }}>
+                                                                    <FormControlLabel
+                                                                        control={
+                                                                            <Checkbox
+                                                                                checked={isExEnabled(supporter.name)}
+                                                                                onChange={(e) => handleToggleExSkill(supporter.name, e.target.checked)}
+                                                                                size="small"
+                                                                                sx={{ p: 0.5 }}
+                                                                            />
+                                                                        }
+                                                                        label={<Typography variant="caption">Ex有効</Typography>}
+                                                                        sx={{ mr: 0, ml: -0.5 }}
                                                                     />
-                                                                }
-                                                                label="Exスキル有効"
-                                                                sx={{ '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
-                                                            />
-                                                        </Box>
+                                                                </Box>
+                                                            </CardContent>
+                                                            <IconButton
+                                                                onClick={() => handleRemoveSupporter(index)}
+                                                                size="small"
+                                                                color="default"
+                                                                sx={{ position: 'absolute', top: 4, right: 4 }}
+                                                            >
+                                                                <DeleteIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </Card>
                                                     )}
-                                                </Box>
-                                                <IconButton onClick={() => handleRemoveSupporter(index)} color="error" size="small" sx={{ mt: 1 }}>
-                                                    <DeleteIcon />
-                                                </IconButton>
-                                            </Box>
-                                        ))
+                                                </Grid>
+                                            ))}
+                                        </Grid>
                                     )}
                                 </Paper>
                             </Box>

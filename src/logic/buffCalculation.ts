@@ -4,6 +4,7 @@ export interface BuffModifier {
     sourceCharacterName: string;
     skillName: string;
     skillLevel: string; // "Lv.5" etc. or just index
+    description?: string;
     effectType: string;
     attribute: string;
     value: number;
@@ -27,62 +28,11 @@ export const calculateMaxBuffs = (
     let critDamageBuff = 0;
     const modifiers: BuffModifier[] = [];
 
-    // Helper to calculate effective support power for a supporter
-    const calculateEffectiveSupportStats = (supporter: ParsedCharacterData): ParsedCharacterData => {
-        let baseAttack = typeof supporter.stats?.attack === 'number'
-            ? supporter.stats.attack
-            : parseFloat(supporter.stats?.attack || '0');
-
-        // Accumulate percentage increase for Attack (Support Power)
-        let attackIncrease = 0;
-
-        supporter.skills.forEach(skill => {
-            // Use the highest level that has effects, or the last level if none have effects
-            const maxLevel = [...skill.levels].reverse().find(l => l.effects && l.effects.length > 0) || skill.levels[skill.levels.length - 1];
-            if (!maxLevel || !maxLevel.effects) return;
-
-            // Check Ex Toggle
-            if (maxLevel.level === 'Ex' && activeExSkills[supporter.name || ''] === false) {
-                return;
-            }
-
-            maxLevel.effects.forEach(effect => {
-                // Must be Buff, target Self, and attribute Attack (Support)
-                if (effect.type === 'Buff' && effect.target === 'Self' && (effect.attribute === 'Attack' || effect.attribute === 'Support')) {
-                    let value = effect.value;
-
-                    // Apply Stacks (if implemented for self buffs too)
-                    if (effect.isStackable) {
-                        const count = stackCounts[skill.name] ?? 1;
-                        if (count > 1) {
-                            value = value * count;
-                        }
-                    }
-
-                    attackIncrease += value;
-                }
-            });
-        });
-
-        // Calculate effective attack (Support Power)
-        // Support Power is a percentage value, so increases are additive.
-        // e.g. Base 110% + Buff 90% = 200%
-        const effectiveAttack = baseAttack + attackIncrease;
-
-        return {
-            ...supporter,
-            stats: {
-                ...supporter.stats,
-                attack: effectiveAttack
-            }
-        };
-    };
-
     // Pre-calculate effective stats for supporters
-    const effectiveSupporters = supporters.map(s => calculateEffectiveSupportStats(s));
+    const effectiveSupporters = supporters.map(s => calculateEffectiveStats(s, stackCounts, activeExSkills));
 
     // Helper to process effects
-    const processEffects = (effects: SkillEffect[], character: ParsedCharacterData, isAttacker: boolean, skillName: string, levelName: string) => {
+    const processEffects = (effects: SkillEffect[], character: ParsedCharacterData, isAttacker: boolean, skillName: string, levelName: string, description: string | null) => {
         effects.forEach(effect => {
             const isBuff = effect.type === 'Buff';
             const isDebuff = effect.type === 'Debuff';
@@ -132,6 +82,7 @@ export const calculateMaxBuffs = (
                         sourceCharacterName: character.name || 'Unknown',
                         skillName: skillName,
                         skillLevel: levelName,
+                        description: description || undefined,
                         effectType: effect.type,
                         attribute: effect.attribute,
                         value: value
@@ -159,7 +110,7 @@ export const calculateMaxBuffs = (
             if (maxLevel.level === 'Ex' && activeExSkills[attacker.name || ''] === false) {
                 return;
             }
-            processEffects(maxLevel.effects, attacker, true, skill.name, maxLevel.level || 'Max');
+            processEffects(maxLevel.effects, attacker, true, skill.name, maxLevel.level || 'Max', maxLevel.description);
         }
     });
 
@@ -172,7 +123,7 @@ export const calculateMaxBuffs = (
                 if (maxLevel.level === 'Ex' && activeExSkills[supporter.name || ''] === false) {
                     return;
                 }
-                processEffects(maxLevel.effects, supporter, false, skill.name, maxLevel.level || 'Max');
+                processEffects(maxLevel.effects, supporter, false, skill.name, maxLevel.level || 'Max', maxLevel.description);
             }
         });
     });
@@ -186,5 +137,59 @@ export const calculateMaxBuffs = (
         critRateTotal: baseCritRate + critRateBuff,
         critDamageTotal: baseCritDamage + critDamageBuff,
         modifiers
+    };
+};
+
+export const calculateEffectiveStats = (
+    character: ParsedCharacterData,
+    stackCounts: Record<string, number> = {},
+    activeExSkills: Record<string, boolean> = {}
+): ParsedCharacterData => {
+    let baseAttack = typeof character.stats?.attack === 'number'
+        ? character.stats.attack
+        : parseFloat(character.stats?.attack || '0');
+
+    // Accumulate percentage increase for Attack (Support Power)
+    let attackIncrease = 0;
+
+    character.skills.forEach(skill => {
+        // Use the highest level that has effects, or the last level if none have effects
+        const maxLevel = [...skill.levels].reverse().find(l => l.effects && l.effects.length > 0) || skill.levels[skill.levels.length - 1];
+        if (!maxLevel || !maxLevel.effects) return;
+
+        // Check Ex Toggle
+        if (maxLevel.level === 'Ex' && activeExSkills[character.name || ''] === false) {
+            return;
+        }
+
+        maxLevel.effects.forEach(effect => {
+            // Must be Buff, target Self, and attribute Attack (Support)
+            if (effect.type === 'Buff' && effect.target === 'Self' && (effect.attribute === 'Attack' || effect.attribute === 'Support')) {
+                let value = effect.value;
+
+                // Apply Stacks (if implemented for self buffs too)
+                if (effect.isStackable) {
+                    const count = stackCounts[skill.name] ?? 1;
+                    if (count > 1) {
+                        value = value * count;
+                    }
+                }
+
+                attackIncrease += value;
+            }
+        });
+    });
+
+    // Calculate effective attack (Support Power)
+    // Support Power is a percentage value, so increases are additive.
+    // e.g. Base 110% + Buff 90% = 200%
+    const effectiveAttack = baseAttack + attackIncrease;
+
+    return {
+        ...character,
+        stats: {
+            ...character.stats,
+            attack: effectiveAttack
+        }
     };
 };
