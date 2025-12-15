@@ -239,4 +239,17 @@ describe('calculateMaxBuffs', () => {
         // Total: -40 + 32.2 = -7.8%
         expect(result.attackIncreasePercent).toBeCloseTo(-7.8, 1);
     });
+
+    // 10. Stackable Buffs
+    it('should correctly calculate stackable buffs', () => {
+        const attacker = createChar('Attacker', [], { attack: 1000 });
+        const supporter = createChar('Supporter', [
+            { type: 'Buff', attribute: 'Attack', value: 10, target: 'AllAllies', isStackable: true }
+        ]);
+
+        const result = calculateMaxBuffs(attacker, [supporter], { 'Test Skill': 3 });
+
+        // 10 * 3 = 30
+        expect(result.attackIncreasePercent).toBe(30);
+    });
 });

@@ -7,6 +7,7 @@ export interface SkillEffect {
     calculationType?: string; // Made optional to fit existing usage or ensure alignment
     scalingFactor?: string;
     target?: string; // 'Default' | 'Self' | 'AllAllies' etc.
+    isStackable?: boolean;
 }
 
 export interface SkillLevel {

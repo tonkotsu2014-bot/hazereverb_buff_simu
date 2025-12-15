@@ -8,14 +8,15 @@ export interface CalculatedBuffs {
 
 export const calculateMaxBuffs = (
     attacker: ParsedCharacterData,
-    supporters: ParsedCharacterData[]
+    supporters: ParsedCharacterData[],
+    stackCounts: Record<string, number> = {}
 ): CalculatedBuffs => {
     let attackIncreasePercent = 0;
     let critRateBuff = 0;
     let critDamageBuff = 0;
 
     // Helper to process effects
-    const processEffects = (effects: SkillEffect[], character: ParsedCharacterData, isAttacker: boolean) => {
+    const processEffects = (effects: SkillEffect[], character: ParsedCharacterData, isAttacker: boolean, skillName: string) => {
         effects.forEach(effect => {
             const isBuff = effect.type === 'Buff';
             const isDebuff = effect.type === 'Debuff';
@@ -47,6 +48,14 @@ export const calculateMaxBuffs = (
                     value = supportPower * (effect.value / 100);
                 }
 
+                // Apply Stacks
+                if (effect.isStackable) {
+                    const count = stackCounts[skillName] ?? 1;
+                    if (count > 1) {
+                        value = value * count;
+                    }
+                }
+
                 // Negate for Debuffs
                 if (isDebuff) {
                     value = -value;
@@ -69,7 +78,7 @@ export const calculateMaxBuffs = (
     attacker.skills.forEach(skill => {
         const maxLevel = skill.levels[skill.levels.length - 1];
         if (maxLevel && maxLevel.effects) {
-            processEffects(maxLevel.effects, attacker, true);
+            processEffects(maxLevel.effects, attacker, true, skill.name);
         }
     });
 
@@ -78,7 +87,7 @@ export const calculateMaxBuffs = (
         supporter.skills.forEach(skill => {
             const maxLevel = skill.levels[skill.levels.length - 1];
             if (maxLevel && maxLevel.effects) {
-                processEffects(maxLevel.effects, supporter, false);
+                processEffects(maxLevel.effects, supporter, false, skill.name);
             }
         });
     });
