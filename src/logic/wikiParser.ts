@@ -311,7 +311,8 @@ export const determineCalculationType = (scalingFactor?: string): { calculationT
 };
 
 export const splitSkillDescription = (description: string): string[] => {
-    return description.split(/(?=♦)|[\r\n]+/).map(s => s.trim()).filter(s => s.length > 0);
+    // Only split by ♦, do NOT split by newlines as they might break sentences mid-word.
+    return description.split(/(?=♦)/).map(s => s.trim()).filter(s => s.length > 0);
 };
 
 export const parseSkillDescription = (description: string): SkillEffect[] => {
@@ -324,8 +325,10 @@ export const parseSkillDescription = (description: string): SkillEffect[] => {
     // Flatten chunks into sentences for processing
     // splitSkillDescription handles high-level grouping (e.g. by '♦'), but for logic we likely need 
     // sentence-level granularity (splitting by '。') to handle sequential effects/durations correctly.
+    // Flatten chunks into sentences for processing
+    // Replace newlines with space to handle wrap-around words, then split by period.
     const sentences = chunks.flatMap(chunk =>
-        chunk.split(/[。\n]+/).map(s => s.trim()).filter(s => s.length > 0)
+        chunk.replace(/[\r\n]+/g, ' ').split(/[。]+/).map(s => s.trim()).filter(s => s.length > 0)
     );
 
     // Buffer to hold effects found in the current "thought unit" until a duration is found
@@ -473,22 +476,38 @@ export const parseSkillDescription = (description: string): SkillEffect[] => {
 };
 
 export const processSkillAttributes = (skills: SkillData[]): SkillData[] => {
-    return skills.map(skill => ({
-        ...skill,
-        levels: skill.levels.map(levelObj => {
+    return skills.map(skill => {
+        let lastEffects: SkillEffect[] = [];
+        const levels = skill.levels.sort(() => {
+            // Ensure levels are sorted numerically for inheritance (Ex handled separately if needed, treating as -1 or 0?)
+            // Normally levels are 1, 2, 3... Ex might be separate.
+            // Assuming input is already sorted or we handle the array order.
+            // Let's assume array order is correct for now (1 -> 10).
+            return 0; // Keep original order
+        }).map(levelObj => {
             const { description } = levelObj;
             let effects: SkillEffect[] = [];
 
             if (description) {
                 effects = parseSkillDescription(description);
+                lastEffects = effects; // Update last known effects
+            } else {
+                // Inherit from previous level if description is missing
+                // Clone the effects to avoid reference issues
+                effects = lastEffects.map(e => ({ ...e }));
             }
 
             return {
                 ...levelObj,
                 effects
             };
-        })
-    }));
+        });
+
+        return {
+            ...skill,
+            levels
+        };
+    });
 };
 
 export const parseCharacterData = (html: string): ParsedCharacterData => {

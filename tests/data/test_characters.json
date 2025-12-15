@@ -1,0 +1,2588 @@
+[
+  {
+    "skills": [
+      {
+        "name": "全力だあっ！",
+        "levels": [
+          {
+            "level": "Ex",
+            "description": "♦全力だあっ！\n自身行動前に、自身の体力値が50%以下な\nら、ターゲットにその時点での自身の体力\n値の残存率×ターゲット最大体力値\n×20%のダメージを与える。",
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル1/異世界探索中",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦コア出力\n通常攻撃後、ターゲットに最大体力値\n×7%のダメージを与える。",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": "♦コア出力\n通常攻撃後、ターゲットに最大体力値\n×10%のダメージを与える。",
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル2/刺激を求めて",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦不協和音フリークエンシー\n通常攻撃後、挑発効果を獲得し、12ターン\nの間、敵の攻撃を自身に集中させる。",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": "♦不協和音フリークエンシー\n通常攻撃後、挑発効果を獲得し、15ターン\nの間、敵の攻撃を自身に集中させる。",
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": "♦不協和音フリークエンシー\n通常攻撃後、挑発効果を獲得し、18ターン\nの間、敵の攻撃を自身に集中させる。",
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": "♦不協和音フリークエンシー\n毎ラウンド開始時に、挑発効果を獲得し、\n18ターンの間、敵の攻撃を自身に集中させ\nる。",
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": "♦不協和音フリークエンシー\n戦闘開始前、永続的に挑発効果を獲得し、\n敵の攻撃を自身に集中させる。",
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル3/特別な平凡ドライバー☆ランク3で開放",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦不屈\n通常攻撃を受けた後に(毎ターン一回のみ\n発動)、自身の最大体力値の10%が回復す\nる。",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": "♦不屈\n通常攻撃を受けた後に(毎ターン一回のみ\n発動)、自身の最大体力値の15%が回復す\nる。",
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": "♦不屈\n通常攻撃を受けた後に(毎ターン一回のみ\n発動)、自身の最大体力値の20%が回復す\nる。",
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル4/もっと大きく!覚醒開放",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦防護障壁\n戦闘開始時、永続的に自身のダメージ軽減\n率が60%増加する。",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": "♦防護障壁\n戦闘開始時、永続的に自身のダメージ軽減\n率が90%増加する。",
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": "♦防護障壁\n戦闘開始時、永続的に自身のダメージ軽減\n率が120%増加する。",
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": "♦防護障壁\n戦闘開始時、永続的に自身のダメージ軽減\n率が150%増加する。\n♦装甲侵蝕\n戦闘開始時、永続的に敵の装甲値を10%低\n下させる。",
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": "♦防護障壁\n戦闘開始時、永続的に自身のダメージ軽減\n率が180%増加する。\n♦装甲侵蝕\n戦闘開始時、永続的に敵の装甲値を15%低\n下させる。",
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": "♦防護障壁\n戦闘開始時、永続的に自身のダメージ軽減\n率が200%増加する。\n♦装甲侵蝕\n戦闘開始時、永続的に敵の装甲値を20%低\n下させる。",
+            "effects": []
+          }
+        ]
+      }
+    ],
+    "stats": {
+      "hp": 12921,
+      "attack": 64,
+      "defense": 5,
+      "critRate": 0,
+      "critDamage": 0,
+      "speed": 0
+    },
+    "name": "玉体革命(パラダイムシフト) 駿河朱々",
+    "type": "防御",
+    "role": "Defender"
+  },
+  {
+    "skills": [
+      {
+        "name": "雲煙のごとき死",
+        "levels": [
+          {
+            "level": "Ex",
+            "description": "♦雲煙のごとき死 ダメージ   追加\n自身の行動後、ターゲットの体力値が\n50%以下なら、ターゲットに攻撃力×クリ\nティカル率×440%のダメージを与える。(こ\nのダメージはダメージ軽減率を考慮しな\nい)。",
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル1/精神八つ裂き",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦コア出力 ダメージ   追加\n通常攻撃後、ターゲットに攻撃力×85%の\nダメージを与える。\n♦攻撃増幅 強化   バフ\n通常攻撃前に、自身の攻撃力が20%増加す\nる。これは12ターン持続する。",
+            "effects": [
+              {
+                "type": "Buff",
+                "calculationType": "Fixed",
+                "attribute": "Attack",
+                "value": 20,
+                "target": "Self",
+                "duration": 12
+              }
+            ]
+          },
+          {
+            "level": "2",
+            "description": "♦コア出力 ダメージ   追加\n通常攻撃後、ターゲットに攻撃力×115%の\nダメージを与える。\n♦攻撃増幅 強化   バフ\n通常攻撃前に、自身の攻撃力が30%増加す\nる。これは12ターン持続する。",
+            "effects": [
+              {
+                "type": "Buff",
+                "calculationType": "Fixed",
+                "attribute": "Attack",
+                "value": 30,
+                "target": "Self",
+                "duration": 12
+              }
+            ]
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": "♦コア出力 ダメージ   追加\n通常攻撃後、ターゲットに攻撃力×145%の\nダメージを与える。\n♦攻撃増幅 強化   バフ\n通常攻撃前に、自身の攻撃力が40%増加す\nる。これは12ターン持続する。",
+            "effects": [
+              {
+                "type": "Buff",
+                "calculationType": "Fixed",
+                "attribute": "Attack",
+                "value": 40,
+                "target": "Self",
+                "duration": 12
+              }
+            ]
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": "♦コア出力 ダメージ   追加\n通常攻撃後、ターゲットに攻撃力×175%の\nダメージを与える。\n♦攻撃増幅 強化   バフ\n通常攻撃前に、自身の攻撃力が50%増加す\nる。これは12ターン持続する。",
+            "effects": [
+              {
+                "type": "Buff",
+                "calculationType": "Fixed",
+                "attribute": "Attack",
+                "value": 50,
+                "target": "Self",
+                "duration": 12
+              }
+            ]
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル2/双極ブレインウェーブ",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦攻撃増幅 強化   バフ\n戦闘開始時に、永続的に自身の攻撃力が\n35%増加する。\n例外事項",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": "♦攻撃増幅 強化   バフ\n戦闘開始時に、永続的に自身の攻撃力が\n50%増加する。\n例外事項",
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": "♦攻撃増幅 強化   バフ\n戦闘開始時に、永続的に自身の攻撃力が\n60%、クリティカルダメージが45%増加す\nる。\n例外事項",
+            "effects": [
+              {
+                "type": "Buff",
+                "calculationType": "Fixed",
+                "attribute": "CritDamage",
+                "value": 45,
+                "target": "Self",
+                "duration": -1
+              }
+            ]
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": "♦攻撃増幅 強化   バフ\n戦闘開始時に、永続的に自身の攻撃力が\n70%、クリティカルダメージが65%増加す\nる。\n例外事項",
+            "effects": [
+              {
+                "type": "Buff",
+                "calculationType": "Fixed",
+                "attribute": "CritDamage",
+                "value": 65,
+                "target": "Self",
+                "duration": -1
+              }
+            ]
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": "♦攻撃増幅 強化   バフ\n戦闘開始時に、永続的に自身の攻撃力が\n80%、クリティカルダメージが85%増加す\nる。\n例外事項",
+            "effects": [
+              {
+                "type": "Buff",
+                "calculationType": "Fixed",
+                "attribute": "CritDamage",
+                "value": 85,
+                "target": "Self",
+                "duration": -1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "スキル3/黒爪の烙印     ドライバー☆ランク3で開放",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦「黒爪」 刻印   デバフ\n通常攻撃後、ターゲットに「黒爪」を付与\nする。ターゲットにすでに「黒爪」が付与\nされている場合、全ての「黒爪」を解除\nし、新たに「黒爪」を付与する。\n「黒爪」が消えるか除去された時、ター\nゲットに攻撃力×クリティカル率×90%の\nダメージを与える。\n例外事項",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": "♦「黒爪」 刻印   デバフ\n通常攻撃後、ターゲットに「黒爪」を付与\nする。ターゲットにすでに「黒爪」が付与\nされている場合、全ての「黒爪」を解除\nし、新たに「黒爪」を付与する。\n「黒爪」が消えるか除去された時、ター\nゲットに攻撃力×クリティカル率×170%の\nダメージを与える。\n例外事項",
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": "♦「黒爪」 刻印   デバフ\n通常攻撃後、ターゲットに「黒爪」を付与\nする。ターゲットにすでに「黒爪」が付与\nされている場合、全ての「黒爪」を解除\nし、新たに「黒爪」を付与する。\n「黒爪」が消えるか除去された時、ター\nゲットに攻撃力×クリティカル率×250%の\nダメージを与える(このダメージはダメー\nジ軽減率を考慮しない)。\n例外事項\n♦劣化 弱体化   デバフ\n通常攻撃前に、ターゲットに劣化効果を与\nえる。これは12ターン持続する。\nターゲットが受けるダメージを追加で\n2.5%増加させる。\n例外事項",
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": "♦「黒爪」 刻印   デバフ\n通常攻撃後、ターゲットに「黒爪」を付与\nする。ターゲットにすでに「黒爪」が付与\nされている場合、全ての「黒爪」を解除\nし、新たに「黒爪」を付与する。\n「黒爪」が消えるか除去された時、ター\nゲットに攻撃力×クリティカル率×330%の\nダメージを与える(このダメージはダメー\nジ軽減率を考慮しない)。\n例外事項\n♦劣化 弱体化   デバフ\n通常攻撃前に、ターゲットに劣化効果を与\nえる。これは12ターン持続する。\nターゲットが受けるダメージを追加で\n5%増加させる。\n例外事項",
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル4/狩りのひと咬み     覚醒開放",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦攻撃増幅 強化   バフ\n戦闘開始前に、自身のクリティカル率が\n40%以上なら、永続的に自身の攻撃力が\n200ポイント増加する。\n例外事項",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": "♦攻撃増幅 強化   バフ\n戦闘開始前に、自身のクリティカル率が\n40%以上なら、永続的に自身の攻撃力が\n250ポイント増加する。\n例外事項",
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": "♦攻撃増幅 強化   バフ\n戦闘開始前に、自身のクリティカル率が\n40%以上なら、永続的に自身の攻撃力が\n300ポイント増加する。自身のクリティカル\n率が60%以上なら、さらに永続的に自身の\n攻撃力が550ポイント増加する。\n例外事項",
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": "♦攻撃増幅 強化   バフ\n戦闘開始前に、自身のクリティカル率が\n40%以上なら、永続的に自身の攻撃力が\n350ポイント増加する。自身のクリティカル\n率が60%以上なら、さらに永続的に自身の\n攻撃力が750ポイント増加する。\n例外事項",
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      }
+    ],
+    "stats": {
+      "hp": 5290,
+      "attack": 1449,
+      "defense": 0,
+      "critRate": 20,
+      "critDamage": 65,
+      "speed": 0
+    },
+    "name": "不安定化合物 ヴェリル",
+    "type": "攻撃",
+    "role": "Attacker"
+  },
+  {
+    "skills": [
+      {
+        "name": "聖剣の導き",
+        "levels": [
+          {
+            "level": "Ex",
+            "description": "♦コア出力・固 ダメージ   追加\n自身の行動前に、自身の体力値が50%以下\nなら、ターゲットにターゲットにかかって\nいるバフスキル効果の数×攻撃力×30%の\n固定ダメージを与える。\n♦付与・聖剣の導き 付与   バフ\n自身の行動前に、自身の体力値が50%以下\nなら、自身に聖剣の導きスキルを付与す\nる。これは24ターン持続する。\n例外事項\n♦聖剣の導き ダメージ   追加\n通常攻撃後、ターゲットにターゲットにか\nかっているバフスキル効果の数×攻撃力×\n60%の固定ダメージを与える。",
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル1/鋭峰の剣",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦コア出力 ダメージ   追加\n通常攻撃後、ターゲットに攻撃力×75%の\nダメージを与える。",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": "♦コア出力 ダメージ   追加\n通常攻撃後、ターゲットに攻撃力×105%の\nダメージを与える。",
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": "♦コア出力 ダメージ   追加\n通常攻撃後、ターゲットに攻撃力×135%の\nダメージを与える。",
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル2/天険のごとく",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦防護障壁 軽減   バフ\n毎ラウンド開始時に、自身のダメージ軽減\n率が85%増加する。これは12ターン持続す\nる。",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": "♦防護障壁 軽減   バフ\n毎ラウンド開始時に、自身のダメージ軽減\n率が115%増加する。これは12ターン持続す\nる。\n♦出力増幅 強化   バフ\n毎ラウンド開始時に、すべての味方のクリ\nティカルダメージが30%増加する。これは\n18ターン持続する。",
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": "♦防護障壁 軽減   バフ\n毎ラウンド開始時に、自身のダメージ軽減\n率が165%増加する。これは12ターン持続す\nる。\n♦出力増幅 強化   バフ\n毎ラウンド開始時に、すべての味方のクリ\nティカルダメージが50%増加する。これは\n18ターン持続する。",
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル3/聖泉の加護     ドライバー☆ランク3で開放",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦ダメージ癒合 回復   バフ\n戦闘開始時に、継続回復効果を獲得する。\nこれは24ターン持続する。\n毎ターン終了時に、自身の最大体力値の\n1.5%が回復する。\n例外事項",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": "♦ダメージ癒合 回復   バフ\n戦闘開始時に、継続回復効果を獲得する。\nこれは24ターン持続する。\n毎ターン終了時に、自身の最大体力値の\n2%が回復する。\n例外事項",
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": "♦ダメージ癒合 回復   バフ\n戦闘開始時に、継続回復効果を獲得する。\nこれは24ターン持続する。\n毎ターン終了時に、自身の最大体力値の\n2.5%が回復する。\n例外事項",
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル4/万古不変の光     覚醒開放",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦コア出力 ダメージ   追加\n通常攻撃後、ターゲットにターゲットにか\nかっているバフスキル効果の数×攻撃力\n×20%のダメージを与える。",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": "♦コア出力 ダメージ   追加\n通常攻撃後、ターゲットにターゲットにか\nかっているバフスキル効果の数×攻撃力\n×25%のダメージを与える。",
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": "♦コア出力 ダメージ   追加\n通常攻撃後、ターゲットにターゲットにか\nかっているバフスキル効果の数×攻撃力\n×35%の固定ダメージを与える。\n♦劣化 弱体化   デバフ\n通常攻撃前に、ターゲットに劣化効果を与\nえる。これは12ターン持続する。\nターゲットが受けるすべてのダメージが追\n加で7.5%増加する。\n例外事項",
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": "♦コア出力 ダメージ   追加\n通常攻撃後、ターゲットにターゲットにか\nかっているバフスキル効果の数×攻撃力\n×45%の固定ダメージを与える。\n♦劣化 弱体化   デバフ\n通常攻撃前に、ターゲットに劣化効果を与\nえる。これは12ターン持続する。\nターゲットが受けるすべてのダメージが追\n加で15%増加する。\n例外事項",
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      }
+    ],
+    "stats": {
+      "hp": 9241,
+      "attack": 897,
+      "defense": 15,
+      "critRate": 0,
+      "critDamage": 0,
+      "speed": 0
+    },
+    "name": "清浄の騎士 コースガード",
+    "type": "超越",
+    "role": "Transcendence"
+  },
+  {
+    "skills": [
+      {
+        "name": "恨み、忘れることなく",
+        "levels": [
+          {
+            "level": "Ex",
+            "description": "♦恨み、忘れることなく\n自身の行動前で、自身が静寂効果を2層持っ\nている時、ターゲットに機動力×攻撃力\n×300%の固定ダメージを与える。\n♦恨み、忘れることなく\n自身の行動前で、自身が静寂効果を2層持っ\nている時、またダメージ吸収シールドを獲\n得する。\nダメージ吸収シールドは通常攻撃を複数回\n受けると消失する。\n2回の通常攻撃を防ぐことができる。",
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル1/静かな心",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦機動増幅\n毎ラウンド開始時に、永続的にサイレンス\n効果を獲得する。\n自身の機動力が15%増加する。",
+            "effects": [
+              {
+                "type": "Buff",
+                "calculationType": "Fixed",
+                "attribute": "Mobility",
+                "value": 15,
+                "target": "Self",
+                "duration": -1
+              }
+            ]
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": "♦機動増幅\n毎ラウンド開始時に、永続的にサイレンス\n効果を獲得する。\n自身の機動力が20%増加する。",
+            "effects": [
+              {
+                "type": "Buff",
+                "calculationType": "Fixed",
+                "attribute": "Mobility",
+                "value": 20,
+                "target": "Self",
+                "duration": -1
+              }
+            ]
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル2/復讐者の怒り",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦コア出力\n通常攻撃後、ターゲットに機動力×攻撃力\n×50%の固定ダメージを与える。",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": "♦コア出力\n通常攻撃後、ターゲットに機動力×攻撃力\n×100%の固定ダメージを与える。",
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": "♦コア出力\n通常攻撃後、ターゲットに機動力×攻撃力\n×150%の固定ダメージを与える。",
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": "♦コア出力\n通常攻撃後、ターゲットに機動力×攻撃力\n×200%の固定ダメージを与える。",
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル3/怒りに呑まれない自己   ドライバー☆ランク3で開放",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦回避増幅・永続\n戦闘開始時に、永続的に自身のダメージ回\n避率が25%増加する。",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": "♦回避増幅・永続\n戦闘開始時に、永続的に自身のダメージ回\n避率が45%増加する。",
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": "♦回避増幅・永続\n戦闘開始時に、永続的に自身のダメージ回\n避率が45%増加する。\n♦解除・コントロール\n自身の行動前に(コントロールは無視する)、\n自身のすべてのコントロールスキル効果を\n解除する。",
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": "♦回避増幅・永続\n戦闘開始時に、永続的に自身のダメージ回\n避率が65%増加する。\n♦解除・コントロール\n自身の行動前に(コントロールは無視する)、\n自身のすべてのコントロールスキル効果を\n解除する。",
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル4/大切なひとのために   覚醒開放",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦ハイパー出力アシスト\n通常攻撃前に、すべての味方のハイパーク\nリティカルダメージが静寂効果の数\n×20%増加する。これは18ターン持続する。",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": "♦ハイパー出力アシスト\n通常攻撃前に、すべての味方のハイパーク\nリティカルダメージが静寂効果の数\n×30%増加する。これは18ターン持続する。",
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": "♦ハイパー出力アシスト\n通常攻撃前に、すべての味方のハイパーク\nリティカルダメージが静寂効果の数\n×40%増加する。これは18ターン持続する。",
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": "♦ハイパー出力アシスト\n通常攻撃前に、すべての味方のハイパーク\nリティカルダメージが静寂効果の数\n×50%増加する。これは18ターン持続する。",
+            "effects": []
+          }
+        ]
+      }
+    ],
+    "stats": {
+      "hp": 9056,
+      "attack": 508,
+      "defense": 15,
+      "critRate": 0,
+      "critDamage": 0,
+      "speed": 20
+    },
+    "name": "輪廻を超える者 イリア",
+    "type": "超越",
+    "role": "Transcendence"
+  },
+  {
+    "skills": [
+      {
+        "name": "尽きない聖水の杯",
+        "levels": [
+          {
+            "level": "Ex",
+            "description": "♦尽きない聖水の杯 強化   バフ\n自身の行動前に、味方が2名かそれ以上死\n亡していたなら、味方すべての支援型ユ\nニットの支援力が20%増加する。これは\n18ターン持続する。\n♦尽きない聖水の杯 回復   バフ\n自身の行動前に、味方が2名かそれ以上死\n亡していたなら、味方すべての支援型ユ\nニットに持続回復効果を与える。これは\n18ターン持続する。\n毎ターン終了時に、その最大体力値の2%が\n回復する。",
+            "effects": [
+              {
+                "type": "Buff",
+                "calculationType": "Fixed",
+                "attribute": "Support",
+                "value": 20,
+                "target": "Self",
+                "duration": 18
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "スキル1/武運の恩恵",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦攻撃アシスト 強化   バフ\nターゲットの攻撃力が支援力×15%増加す\nる。これは18ターン持続する。",
+            "effects": [
+              {
+                "type": "Buff",
+                "calculationType": "SupportScaling",
+                "attribute": "Attack",
+                "value": 15,
+                "duration": 18,
+                "target": "Default"
+              }
+            ]
+          },
+          {
+            "level": "2",
+            "description": "♦攻撃アシスト\nターゲットの攻撃力が支援力×30%増加す\nる。これは18ターン持続する。",
+            "effects": [
+              {
+                "type": "Buff",
+                "calculationType": "SupportScaling",
+                "attribute": "Attack",
+                "value": 30,
+                "duration": 18,
+                "target": "Default"
+              }
+            ]
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": "♦攻撃・出力アシスト 強化   バフ\nターゲットの攻撃力が支援力×45%、クリ\nティカルダメージが支援力×20%増加す\nる。これは18ターン持続する。",
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": "♦攻撃・出力アシスト 強化   バフ\nターゲットの攻撃力が支援力×60%、クリ\nティカルダメージが支援力×35%増加す\nる。これは18ターン持続する。",
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル2/禁欲の演技",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦解除アシスト・魅了 解除   バフ\nターゲットにかかっているすべての魅了ス\nキル効果を解除する。",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": "♦解除アシスト・魅了 解除   バフ\nターゲットにかかっているすべての魅了ス\nキル効果を解除する。\n♦免疫アシスト・魅了 免疫   バフ\nターゲットにすべての魅了スキル効果の免\n疫を与える。これは9ターン持続する。\n♦解除・妨害 解除   バフ\n自身の行動前に(妨害は無視する)、自身にか\nかっているすべての妨害スキル効果を解除\nする。",
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": "♦解除アシスト・魅了 解除   バフ\nターゲットにかかっているすべての魅了ス\nキル効果を解除する。\n♦免疫アシスト・魅了 免疫   バフ\nターゲットにすべての魅了スキル効果の免\n疫を与える。これは18ターン持続する。\n♦解除・妨害 解除   バフ\n自身の行動前に(妨害は無視する)、自身にか\nかっているすべての妨害スキル効果を解除\nする。",
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル3/不純な進歩  ドライバー☆ランク3で開放",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦支援増幅 強化   バフ\n支援前に、自身の支援力が25%増加する。\nこれは18ターン持続する。\n例外事項",
+            "effects": [
+              {
+                "type": "Buff",
+                "calculationType": "Fixed",
+                "attribute": "Support",
+                "value": 25,
+                "target": "Self",
+                "duration": 18
+              }
+            ]
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": "♦支援増幅 強化   バフ\n支援前に、自身の支援力が50%増加する。\nこれは18ターン持続する。\n例外事項",
+            "effects": [
+              {
+                "type": "Buff",
+                "calculationType": "Fixed",
+                "attribute": "Support",
+                "value": 50,
+                "target": "Self",
+                "duration": 18
+              }
+            ]
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": "♦支援増幅 強化   バフ\n支援前に、自身の支援力が75%増加する。\nこれは18ターン持続する。\n例外事項",
+            "effects": [
+              {
+                "type": "Buff",
+                "calculationType": "Fixed",
+                "attribute": "Support",
+                "value": 75,
+                "target": "Self",
+                "duration": 18
+              }
+            ]
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル4/運命を掠め取る  覚醒開放",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦奮起 特殊   追加\n永続的にターゲットの機動力が30%減少す\nる。\n例外事項\n♦弱点アシスト 強化   バフ\nターゲットのクリティカル率が支援力\n×10%増加する。これは18ターン持続する。",
+            "effects": [
+              {
+                "type": "Debuff",
+                "calculationType": "Fixed",
+                "attribute": "Mobility",
+                "value": 30,
+                "duration": -1,
+                "target": "Default"
+              }
+            ]
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": "♦奮起 特殊   追加\n永続的にターゲットの機動力が30%減少す\nる。\n例外事項\n♦弱点・出力アシスト 強化   バフ\nターゲットのクリティカル率が支援力\n×15%、クリティカルダメージが支援力\n×30%増加する。これは18ターン持続する。",
+            "effects": [
+              {
+                "type": "Debuff",
+                "calculationType": "Fixed",
+                "attribute": "Mobility",
+                "value": 30,
+                "duration": -1,
+                "target": "Default"
+              }
+            ]
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": "♦奮起 特殊   追加\n永続的にターゲットの機動力が30%減少す\nる。\n例外事項\n♦弱点・出力アシスト 強化   バフ\nターゲットのクリティカル率が支援力\n×25%、クリティカルダメージが支援力\n×50%増加する。これは18ターン持続する。",
+            "effects": [
+              {
+                "type": "Debuff",
+                "calculationType": "Fixed",
+                "attribute": "Mobility",
+                "value": 30,
+                "duration": -1,
+                "target": "Default"
+              }
+            ]
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      }
+    ],
+    "stats": {
+      "hp": 8091,
+      "attack": 111,
+      "defense": 10,
+      "critRate": 0,
+      "critDamage": 0,
+      "speed": 25
+    },
+    "name": "神聖Trick メリア",
+    "type": "支援",
+    "role": "Supporter"
+  },
+  {
+    "skills": [
+      {
+        "name": "億千万の幸福",
+        "levels": [
+          {
+            "level": "Ex",
+            "description": "♦シールド展開 シールド   バフ\n自身の行動前に、味方ユニットが2名以上退\n場しているなら、自身とターゲットにドロ\nリィスの最大体力値×20%のシールドを付\n与する(ダメージを受けた時はシールド値が\n優先的に消耗される)。\n例外事項",
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル1/優しい慰め",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦応急処置 回復   バフ\nターゲットの体力値が支援力×ターゲット\nの最大体力値×30%回復する。",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": "♦応急処置 回復   バフ\nターゲットの体力値が支援力×ターゲット\nの最大体力値×45%回復する。",
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": "♦応急処置 回復   バフ\nターゲットの体力値が支援力×ターゲット\nの最大体力値×60%回復する。",
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": "♦応急処置 回復   バフ\nターゲットの体力値が支援力×ターゲット\nの最大体力値×75%回復する。",
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル2/勇気をもって歌え",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦弱点アシスト 強化   バフ\nターゲットのクリティカル率が支援力×4%\n増加する。これは9ターン持続する。",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": "♦弱点アシスト 強化   バフ\nターゲットのクリティカル率が支援力×8%\n増加する。これは9ターン持続する。",
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": "♦弱点・出力アシスト 強化   バフ\nターゲットのクリティカル率が支援力×\n12%、クリティカルダメージが支援力×\n40%増加する。これは9ターン持続する。",
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": "♦弱点・出力アシスト 強化   バフ\nターゲットのクリティカル率が支援力×\n16%、クリティカルダメージが支援力×\n80%増加する。これは9ターン持続する。",
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": "♦弱点・出力アシスト 強化   バフ\nターゲットのクリティカル率が支援力×\n20%、クリティカルダメージが支援力×\n120%増加する。これは9ターン持続する。",
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル3/温かな抱擁     ドライバー☆ランク3で開放",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦解除アシスト・継続 解除   バフ\nターゲットにかかっているすべての継続ダ\nメージスキル効果を解除する。",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル4/星の守護     覚醒開放",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦免疫・継続 免疫   バフ\n戦闘開始時、自身に永続的なすべての継続\nダメージスキル効果に対する免疫を与え\nる。\n例外事項",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": "♦免疫・継続 免疫   バフ\n戦闘開始時、自身に永続的なすべての継続\nダメージスキル効果に対する免疫を与え\nる。\n例外事項\n♦光学迷彩 特殊   バフ\n戦闘開始時、自身が光学迷彩効果を獲得す\nる。これは9ターン持続する。\n同列に味方がいる時、敵のメインターゲッ\nトにならない。\n例外事項",
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": "♦免疫・継続 免疫   バフ\n戦闘開始時、自身に永続的なすべての継続\nダメージスキル効果に対する免疫を与え\nる。\n例外事項\n♦解除・完全 解除   バフ\n自身の行動前に(妨害は無視する)、自身にか\nかっているすべてのデバフスキル効果を解\n除する。\n♦光学迷彩 特殊   バフ\n戦闘開始時、自身が光学迷彩効果を獲得す\nる。これは9ターン持続する。\n同列に味方がいる時、敵のメインターゲッ\nトにならない。\n例外事項",
+            "effects": []
+          }
+        ]
+      }
+    ],
+    "stats": {
+      "hp": 5194,
+      "attack": 96,
+      "defense": 0,
+      "critRate": 0,
+      "critDamage": 0,
+      "speed": 35
+    },
+    "name": "億千万の幸福 ドロリィス",
+    "type": "支援",
+    "role": "Supporter"
+  },
+  {
+    "skills": [
+      {
+        "name": "きっと見つける！",
+        "levels": [
+          {
+            "level": "Ex",
+            "description": "♦きっと見つける！\n行自身の行動前に、味方が2体以上戦闘不能と\nなっている場合、全ての味方の会心率を支\n援力×15%、会心ダメージを支援力\n×10%アップさせ、18ターン持続する。\n♦きっと見つける！\n自身の行動前に、味方が2体以上戦闘不能と\nなっている場合、敵全体の回避ダメージ軽\n減率が5%低下させ、18ターン持続する。",
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル1/果実がもたらす希望",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦弱点アシスト\nターゲットの会心率が支援力×4%アップ\nし、9ターン持続する。",
+            "effects": [
+              {
+                "type": "Buff",
+                "calculationType": "SupportScaling",
+                "attribute": "CritRate",
+                "value": 4,
+                "duration": 9,
+                "target": "Default"
+              }
+            ]
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": "♦弱点アシスト\nターゲットの会心率が支援力×8%アップ\nし、9ターン持続する。",
+            "effects": [
+              {
+                "type": "Buff",
+                "calculationType": "SupportScaling",
+                "attribute": "CritRate",
+                "value": 8,
+                "duration": 9,
+                "target": "Default"
+              }
+            ]
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": "♦弱点アシスト\nターゲットの会心率が支援力×12%、会心\nダメージが支援力×40%アップし、9ターン\n持続する。",
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": "♦弱点アシスト\nターゲットの会心率が支援力×16%、会心\nダメージが支援力×80%アップし、9ターン\n持続する。",
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": "♦弱点アシスト\nターゲットの会心率が支援力×20%、会心\nダメージが支援力×120%アップし、9ター\nン持続する。",
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル2/大切な仕事",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦アンカー支援\n戦闘開始時、永続的に自信を支援ターゲッ\nトとする。",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル3/十一歳の非戦闘員ドライバー☆ランク3で開放",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦光学迷彩\n戦闘開始時、自身が光学迷彩効果を獲得\nし、12ターン持続する。\n同一横列に味方が存在する場合、敵の主要\nな攻撃目標とはならない。",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": "♦光学迷彩\n戦闘開始時、自身が光学迷彩効果を獲得\nし、18ターン持続する。\n同一横列に味方が存在する場合、敵の主要\nな攻撃目標とはならない。",
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": "♦光学迷彩\n戦闘開始時、自身が永続的な光学迷彩効果\nを獲得する。\n同一横列に味方が存在する場合、敵の主要\nな攻撃目標とはならない。",
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル4/家族を探しに行く覚醒開放",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦守りの城塞\n支援後、体力値の一番高いターゲットの回\n避ダメージ軽減率を2%低下させ、18ターン\n持続する。",
+            "effects": [
+              {
+                "type": "Debuff",
+                "calculationType": "Fixed",
+                "attribute": "DamageReduction",
+                "value": 2,
+                "target": "Default"
+              }
+            ]
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": "♦守りの城塞\n支援後、体力値の一番高いターゲットの回\n避ダメージ軽減率を4%低下させ、18ターン\n持続する。",
+            "effects": [
+              {
+                "type": "Debuff",
+                "calculationType": "Fixed",
+                "attribute": "DamageReduction",
+                "value": 4,
+                "target": "Default"
+              }
+            ]
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": "♦守りの城塞\n支援後、体力値の一番高いターゲットの回\n避ダメージ軽減率を6%低下させ、18ターン\n持続する。",
+            "effects": [
+              {
+                "type": "Debuff",
+                "calculationType": "Fixed",
+                "attribute": "DamageReduction",
+                "value": 6,
+                "target": "Default"
+              }
+            ]
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": "♦守りの城塞\n支援後、体力値の一番高いターゲットの回\n避ダメージ軽減率を8%低下させ、18ターン\n持続する。",
+            "effects": [
+              {
+                "type": "Debuff",
+                "calculationType": "Fixed",
+                "attribute": "DamageReduction",
+                "value": 8,
+                "target": "Default"
+              }
+            ]
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": "♦守りの城塞\n支援後、体力値の一番高いターゲットの回\n避ダメージ軽減率を10%低下させ、18ター\nン持続する。",
+            "effects": [
+              {
+                "type": "Debuff",
+                "calculationType": "Fixed",
+                "attribute": "DamageReduction",
+                "value": 10,
+                "target": "Default"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "stats": {
+      "hp": 3138,
+      "attack": 89,
+      "defense": 0,
+      "critRate": 0,
+      "critDamage": 0,
+      "speed": 30
+    },
+    "name": "きっと見つける(プロミス) 大川村寧",
+    "type": "支援",
+    "role": "Supporter"
+  },
+  {
+    "skills": [
+      {
+        "name": "究極審問!",
+        "levels": [
+          {
+            "level": "Ex",
+            "description": "♦究極審問!\n自身行動前、味方が2名かそれ以上戦闘不\n能となった場合、すべての味方の攻撃力が\n支援力×60%、会心ダメージが支援力\n×80%アップし、18ターン持続する。",
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル1/激励",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦激発\n永続的にターゲットの装甲値を10%ダウン\nする。\n♦火力アシスト\nターゲットの攻撃力が支援力×30%アップ\nし、18ターン持続する。",
+            "effects": [
+              {
+                "type": "Debuff",
+                "calculationType": "Fixed",
+                "attribute": "Armor",
+                "value": 10,
+                "duration": -1,
+                "target": "Default"
+              },
+              {
+                "type": "Buff",
+                "calculationType": "SupportScaling",
+                "attribute": "Attack",
+                "value": 30,
+                "duration": 18,
+                "target": "Default"
+              }
+            ]
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": "♦激発\n永続的にターゲットの装甲値を10%ダウン\nする。\n♦火力アシスト\nターゲットの攻撃力が支援力×50%アップ\nし、18ターン持続する。",
+            "effects": [
+              {
+                "type": "Debuff",
+                "calculationType": "Fixed",
+                "attribute": "Armor",
+                "value": 10,
+                "duration": -1,
+                "target": "Default"
+              },
+              {
+                "type": "Buff",
+                "calculationType": "SupportScaling",
+                "attribute": "Attack",
+                "value": 50,
+                "duration": 18,
+                "target": "Default"
+              }
+            ]
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": "♦激発\n永続的にターゲットの装甲値を10%ダウン\nする。\n♦火力アシスト\nターゲットの攻撃力が支援力×70%アップ\nし、18ターン持続する。",
+            "effects": [
+              {
+                "type": "Debuff",
+                "calculationType": "Fixed",
+                "attribute": "Armor",
+                "value": 10,
+                "duration": -1,
+                "target": "Default"
+              },
+              {
+                "type": "Buff",
+                "calculationType": "SupportScaling",
+                "attribute": "Attack",
+                "value": 70,
+                "duration": 18,
+                "target": "Default"
+              }
+            ]
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル2/冷静維持",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦激発\nターゲットの最大体力値を30%ダウンす\nる。\n♦シールドアシスト\nターゲットが支援力×600のシールドを獲得\nする(ダメージを受けた時はシールド値が\n優先的に消耗される)。",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": "♦激発\nターゲットの最大体力値を30%ダウンす\nる。\n♦シールドアシスト\nターゲットが支援力×800のシールドを獲得\nする(ダメージを受けた時はシールド値が\n優先的に消耗される)。",
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": "♦激発\nターゲットの最大体力値を30%ダウンす\nる。\n♦シールドアシスト\nターゲットが支援力×1000のシールドを獲\n得する(ダメージを受けた時はシールド値\nが優先的に消耗される)。",
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル3/意識明瞭   ドライバー☆ランク3で開放",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦免疫・コントロール\nターゲットにすべてのコントロール効果の\n免疫を付与し、9ターン持続する。",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": "♦免疫・コントロール\nターゲットにすべてのコントロール効果の\n免疫を付与し、18ターン持続する。",
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": "♦免疫・コントロール\nターゲットにすべてのコントロール効果の\n免疫を付与し、9ターン持続する。\n♦解除アシスト・弱体化\nターゲットにかかっているすべての弱体化\n効果を解除する。",
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル4/臨戦態勢   覚醒開放",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦激発\n永続的にターゲットの機動力を50%ダウン\nする。\n♦弱点アシスト\nターゲットの会心率が支援力×20%アップ\nし、18ターン持続する。",
+            "effects": [
+              {
+                "type": "Debuff",
+                "calculationType": "Fixed",
+                "attribute": "Mobility",
+                "value": 50,
+                "duration": -1,
+                "target": "Default"
+              },
+              {
+                "type": "Buff",
+                "calculationType": "SupportScaling",
+                "attribute": "CritRate",
+                "value": 20,
+                "duration": 18,
+                "target": "Default"
+              }
+            ]
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": "♦激発\n永続的にターゲットの機動力を40%ダウン\nする。\n♦弱点アシスト\nターゲットの会心率が支援力×20%アップ\nし、18ターン持続する。",
+            "effects": [
+              {
+                "type": "Debuff",
+                "calculationType": "Fixed",
+                "attribute": "Mobility",
+                "value": 40,
+                "duration": -1,
+                "target": "Default"
+              },
+              {
+                "type": "Buff",
+                "calculationType": "SupportScaling",
+                "attribute": "CritRate",
+                "value": 20,
+                "duration": 18,
+                "target": "Default"
+              }
+            ]
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": "♦激発\n永続的にターゲットの機動力を30%ダウン\nする。\n♦弱点・出力アシスト\nターゲットの会心率が支援力×20%、会心\nダメージが支援力×35%アップし、18ター\nン持続する。",
+            "effects": [
+              {
+                "type": "Debuff",
+                "calculationType": "Fixed",
+                "attribute": "Mobility",
+                "value": 30,
+                "duration": -1,
+                "target": "Default"
+              }
+            ]
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": "♦激発\n永続的にターゲットの機動力を30%ダウン\nする。\n♦弱点・出力アシスト\nターゲットの会心率が支援力×20%、会心\nダメージが支援力×70%アップし、18ター\nン持続する。",
+            "effects": [
+              {
+                "type": "Debuff",
+                "calculationType": "Fixed",
+                "attribute": "Mobility",
+                "value": 30,
+                "duration": -1,
+                "target": "Default"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "stats": {
+      "hp": 6714,
+      "attack": 70,
+      "defense": 20,
+      "critRate": 0,
+      "critDamage": 0,
+      "speed": 0
+    },
+    "name": "懲罰の審問官 モニカ",
+    "type": "支援",
+    "role": "Supporter"
+  },
+  {
+    "skills": [
+      {
+        "name": "天使となった天使",
+        "levels": [
+          {
+            "level": "Ex",
+            "description": "♦天使となった天使 ダメージ   追加\n自身の行動後、ターゲットの体力値が50%\n以下なら、ターゲットに攻撃力×クリティ\nカル率×200%の固定ダメージを与える。\nターゲットに攻撃力×機動力×200%のダメ\nージを与える(このダメージはダメージ軽\n減率を無視する)。",
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル1/慣れない武器",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦擬罪戦法・四式 付与   バフ\n永続的に自身の攻撃力が100%低下する。自\n身は毎ターン通常攻撃を4回行える。\n例外事項",
+            "effects": [
+              {
+                "type": "Debuff",
+                "calculationType": "Fixed",
+                "attribute": "Attack",
+                "value": 100,
+                "duration": -1,
+                "target": "Self"
+              }
+            ]
+          },
+          {
+            "level": "2",
+            "description": "♦擬罪戦法・四式 付与   バフ\n永続的に自身の攻撃力が90%低下する。自\n身は毎ターン通常攻撃を4回行える。\n例外事項",
+            "effects": [
+              {
+                "type": "Debuff",
+                "calculationType": "Fixed",
+                "attribute": "Attack",
+                "value": 90,
+                "duration": -1,
+                "target": "Self"
+              }
+            ]
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": "♦擬罪戦法・四式 付与   バフ\n永続的に自身の攻撃力が80%低下する。自\n身は毎ターン通常攻撃を4回行える。\n例外事項",
+            "effects": [
+              {
+                "type": "Debuff",
+                "calculationType": "Fixed",
+                "attribute": "Attack",
+                "value": 80,
+                "duration": -1,
+                "target": "Self"
+              }
+            ]
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": "♦擬罪戦法・四式 付与   バフ\n永続的に自身の攻撃力が70%低下する。自\n身は毎ターン通常攻撃を4回行える。\n例外事項",
+            "effects": [
+              {
+                "type": "Debuff",
+                "calculationType": "Fixed",
+                "attribute": "Attack",
+                "value": 70,
+                "duration": -1,
+                "target": "Self"
+              }
+            ]
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル2/定められた運命",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦コア出力 ダメージ   追加\n通常攻撃後、ターゲットに攻撃力×クリ\nティカル率×200%のダメージを与える。",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": "♦コア出力 ダメージ   追加\n通常攻撃後、ターゲットに攻撃力×クリ\nティカル率×200%のダメージを与える。\n♦コア出力 ダメージ   追加\n通常攻撃後、ターゲットに攻撃力×クリ\nティカル率×150%のダメージを与える。\n(このダメージはダメージ軽減率を無視する)",
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": "♦コア出力 ダメージ   追加\n通常攻撃後、ターゲットに攻撃力×クリ\nティカル率×250%のダメージを与える。\n♦コア出力 ダメージ   追加\n通常攻撃後、ターゲットに攻撃力×クリ\nティカル率×200%のダメージを与える。\n(このダメージはダメージ軽減率を無視する)",
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": "♦コア出力 ダメージ   追加\n通常攻撃後、ターゲットに攻撃力×クリ\nティカル率×300%のダメージを与える。\n♦コア出力 ダメージ   追加\n通常攻撃後、ターゲットに攻撃力×クリ\nティカル率×250%のダメージを与える。\n(このダメージはダメージ軽減率を無視する)",
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル3/天真にして純粋  ドライバー☆ランク3で開放",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦弱点増幅 強化   バフ\n通常攻撃前に、自身のクリティカル率が\n20%増加する。これは18ターン持続する。\n例外事項",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": "♦弱点増幅 強化   バフ\n通常攻撃前に、自身のクリティカル率が\n20%、クリティカルダメージが60%増加す\nる。これは18ターン持続する。\n例外事項",
+            "effects": [
+              {
+                "type": "Buff",
+                "calculationType": "Fixed",
+                "attribute": "CritDamage",
+                "value": 60,
+                "target": "Self",
+                "duration": 18
+              }
+            ]
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": "♦弱点増幅 強化   バフ\n通常攻撃前に、自身のクリティカル率が\n30%、クリティカルダメージが80%増加す\nる。これは18ターン持続する。\n例外事項",
+            "effects": [
+              {
+                "type": "Buff",
+                "calculationType": "Fixed",
+                "attribute": "CritDamage",
+                "value": 80,
+                "target": "Self",
+                "duration": 18
+              }
+            ]
+          },
+          {
+            "level": "6",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": "♦弱点増幅 強化   バフ\n通常攻撃前に、自身のクリティカル率が\n40%、クリティカルダメージが100%増加\nする。これは18ターン持続する。\n例外事項\n♦解除・コントローラ 解除   バフ\n自身の行動前に(コントロールは無視する)、\n自身のすべてのコントロールスキル効果を\n解除する。",
+            "effects": [
+              {
+                "type": "Buff",
+                "calculationType": "Fixed",
+                "attribute": "CritDamage",
+                "value": 100,
+                "target": "Self",
+                "duration": 18
+              }
+            ]
+          },
+          {
+            "level": "9",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      },
+      {
+        "name": "スキル4/天使の戦闘スタイル  覚醒開放",
+        "levels": [
+          {
+            "level": "1",
+            "description": "♦免疫・継続・永続 免疫   バフ\n戦闘開始時に、自身に永続的に継続ダメー\nジスキル効果の免疫を与える。\n例外事項\n♦攻撃増幅・永続 強化   バフ\n戦闘開始時に、永続的に自身の攻撃力が\n40%増加する。\n例外事項",
+            "effects": []
+          },
+          {
+            "level": "2",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "3",
+            "description": "♦免疫・継続・永続 免疫   バフ\n戦闘開始時に、自身に永続的に継続ダメー\nジスキル効果の免疫を与える。\n例外事項\n♦攻撃増幅・永続 強化   バフ\n戦闘開始時に、永続的に自身の攻撃力が\n60%増加する。\n例外事項",
+            "effects": []
+          },
+          {
+            "level": "4",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "5",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "6",
+            "description": "♦免疫・継続・永続 免疫   バフ\n戦闘開始時に、自身に永続的に継続ダメー\nジスキル効果の免疫を与える。\n例外事項\n♦攻撃増幅・永続 強化   バフ\n戦闘開始時に、永続的に自身の攻撃力が\n80%増加する。\n例外事項",
+            "effects": []
+          },
+          {
+            "level": "7",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "8",
+            "description": null,
+            "effects": []
+          },
+          {
+            "level": "9",
+            "description": "♦免疫・継続・永続 免疫   バフ\n戦闘開始時に、自身に永続的に継続ダメー\nジスキル効果の免疫を与える。\n例外事項\n♦攻撃増幅・永続 強化   バフ\n戦闘開始時に、永続的に自身の攻撃力が\n100%増加する。\n例外事項",
+            "effects": []
+          },
+          {
+            "level": "10",
+            "description": null,
+            "effects": []
+          }
+        ]
+      }
+    ],
+    "stats": {
+      "hp": 3624,
+      "attack": 1623,
+      "defense": 0,
+      "critRate": 40,
+      "critDamage": 100,
+      "speed": 0
+    },
+    "name": "人たる天使 ボーリンナ",
+    "type": "攻撃",
+    "role": "Attacker"
+  }
+]

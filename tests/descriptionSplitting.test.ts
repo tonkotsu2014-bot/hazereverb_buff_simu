@@ -9,15 +9,15 @@ describe('wikiParser - Description Splitting (splitSkillDescription)', () => {
         expect(splitSkillDescription(input)).toEqual(expected);
     });
 
-    it('should split by newline', () => {
+    it('should NOT split by newline (newlines preserved for sentence parsing)', () => {
         const input = '攻撃力が上がる\n防御力が下がる';
-        const expected = ['攻撃力が上がる', '防御力が下がる'];
+        const expected = ['攻撃力が上がる\n防御力が下がる'];
         expect(splitSkillDescription(input)).toEqual(expected);
     });
 
-    it('should split by mixed period and newline', () => {
+    it('should NOT split by mixed period and newline (newlines preserved)', () => {
         const input = '攻撃力が上がる。\n防御力が下がる。';
-        const expected = ['攻撃力が上がる。', '防御力が下がる。'];
+        const expected = ['攻撃力が上がる。\n防御力が下がる。'];
         expect(splitSkillDescription(input)).toEqual(expected);
     });
 

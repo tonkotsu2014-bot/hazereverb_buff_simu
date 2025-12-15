@@ -4,6 +4,7 @@ import { MainLayout } from './components/Layout/MainLayout';
 import { ParserPage } from './pages/ParserPage';
 import { CharacterEditPage } from './pages/CharacterEditPage';
 import type { ParsedCharacterData } from './logic/wikiParser';
+import { BuffSimulationPage } from './pages/BuffSimulationPage';
 import {
   CssBaseline,
   createTheme,
@@ -120,6 +121,14 @@ function App() {
                   onAddCharacter={handleAddCharacter}
                   onDelete={handleDeleteCharacter}
                   onImport={handleImportCharacters}
+                />
+              }
+            />
+            <Route
+              path="simulation"
+              element={
+                <BuffSimulationPage
+                  characters={characters}
                 />
               }
             />
