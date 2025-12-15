@@ -253,7 +253,8 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                 <Typography variant="subtitle2" gutterBottom>効果</Typography>
                                 {level.effects.map((effect, eIdx) => (
                                     <Grid container spacing={1} key={eIdx} sx={{ mb: 2, alignItems: 'center', bgcolor: 'action.hover', p: 1, borderRadius: 1 }}>
-                                        <Grid size={{ xs: 6, md: 2 }}>
+                                        {/* Row 1 */}
+                                        <Grid size={{ xs: 6, md: 3 }}>
                                             <FormControl fullWidth size="small">
                                                 <InputLabel>タイプ</InputLabel>
                                                 <Select
@@ -266,7 +267,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                 </Select>
                                             </FormControl>
                                         </Grid>
-                                        <Grid size={{ xs: 6, md: 2 }}>
+                                        <Grid size={{ xs: 6, md: 3 }}>
                                             <FormControl fullWidth size="small">
                                                 <InputLabel>計算</InputLabel>
                                                 <Select
@@ -280,12 +281,12 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                 </Select>
                                             </FormControl>
                                         </Grid>
-                                        <Grid size={{ xs: 6, md: 2 }}>
+                                        <Grid size={{ xs: 6, md: 3 }}>
                                             <FormControl fullWidth size="small">
-                                                <InputLabel>対象</InputLabel>
+                                                <InputLabel>対象属性</InputLabel>
                                                 <Select
                                                     value={effect.attribute}
-                                                    label="対象"
+                                                    label="対象属性"
                                                     onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'attribute', e.target.value)}
                                                 >
                                                     <MenuItem value="Attack">攻撃力</MenuItem>
@@ -299,12 +300,12 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                 </Select>
                                             </FormControl>
                                         </Grid>
-                                        <Grid size={{ xs: 6, md: 2 }}>
+                                        <Grid size={{ xs: 6, md: 3 }}>
                                             <FormControl fullWidth size="small">
-                                                <InputLabel>対象</InputLabel>
+                                                <InputLabel>対象範囲</InputLabel>
                                                 <Select
                                                     value={effect.target || 'Default'}
-                                                    label="対象"
+                                                    label="対象範囲"
                                                     onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'target', e.target.value)}
                                                 >
                                                     <MenuItem value="Default">標準</MenuItem>
@@ -313,7 +314,9 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                 </Select>
                                             </FormControl>
                                         </Grid>
-                                        <Grid size={{ xs: 6, md: 2 }}>
+
+                                        {/* Row 2 */}
+                                        <Grid size={{ xs: 6, md: 4 }}>
                                             <TextField
                                                 fullWidth
                                                 size="small"
@@ -323,7 +326,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                 onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'value', parseFloat(e.target.value))}
                                             />
                                         </Grid>
-                                        <Grid size={{ xs: 6, md: 1 }}>
+                                        <Grid size={{ xs: 6, md: 4 }}>
                                             <TextField
                                                 fullWidth
                                                 size="small"
@@ -333,7 +336,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                 onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'duration', parseInt(e.target.value))}
                                             />
                                         </Grid>
-                                        <Grid size={{ xs: 6, md: 1 }}>
+                                        <Grid size={{ xs: 6, md: 3 }}>
                                             <FormControlLabel
                                                 control={
                                                     <Checkbox
@@ -342,10 +345,10 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                         size="small"
                                                     />
                                                 }
-                                                label="スタック"
+                                                label="スタック可能"
                                             />
                                         </Grid>
-                                        <Grid size="auto">
+                                        <Grid size={{ xs: 6, md: 1 }} sx={{ display: 'flex', justifyContent: 'center' }}>
                                             <IconButton
                                                 size="small"
                                                 color="error"
