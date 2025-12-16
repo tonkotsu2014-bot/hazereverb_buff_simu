@@ -8,7 +8,6 @@ import {
     Button
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import SettingsIcon from '@mui/icons-material/Settings';
 
@@ -37,19 +36,7 @@ export const MainLayout: React.FC = () => {
                         >
                             キャラ編集
                         </Button>
-                        <Button
-                            color="inherit"
-                            component={Link}
-                            to="/import"
-                            startIcon={<CloudDownloadIcon />}
-                            sx={{
-                                borderBottom: location.pathname === '/import' ? '2px solid white' : 'none',
-                                borderRadius: 0
-                            }}
-                        >
 
-                            キャラ作成
-                        </Button>
                         <Button
                             color="inherit"
                             component={Link}
@@ -69,7 +56,8 @@ export const MainLayout: React.FC = () => {
                             startIcon={<SettingsIcon />}
                             sx={{
                                 borderBottom: location.pathname === '/settings' ? '2px solid white' : 'none',
-                                borderRadius: 0
+                                borderRadius: 0,
+                                ml: 'auto'
                             }}
                         >
                             設定

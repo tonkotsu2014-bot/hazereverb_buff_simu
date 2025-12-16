@@ -9,10 +9,17 @@ import {
     Button,
     Alert,
     Box,
-    Stack
+    Stack,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
+    List,
+    ListItem,
+    ListItemText
 } from '@mui/material';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import AddIcon from '@mui/icons-material/Add';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 interface Props {
     onAddCharacter?: (character: ParsedCharacterData) => void;
@@ -106,6 +113,28 @@ export const ParserOverlay: React.FC<Props> = ({ onAddCharacter }) => {
                         WikiページのHTMLソースを貼り付けてデータを抽出します。
                     </Typography>
                 </Box>
+
+                <Accordion sx={{ mb: 2, boxShadow: 'none', border: '1px solid', borderColor: 'divider' }}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <Typography variant="subtitle2" fontWeight="bold">HTMLソースの取得方法</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <List dense disablePadding>
+                            <ListItem>
+                                <ListItemText
+                                    primary="方法1: ソースを表示してコピー"
+                                    secondary="Wikiページで右クリック → 「ページのソースを表示」(Ctrl+U) → 全て選択(Ctrl+A) → コピー(Ctrl+C) → ここに貼り付け"
+                                />
+                            </ListItem>
+                            <ListItem>
+                                <ListItemText
+                                    primary="方法2: HTMLのみダウンロード"
+                                    secondary="Wikiページで右クリック → 「名前を付けて保存」 → ファイルの種類：「ウェブページ、HTMLのみ」を選択して保存 → ファイルをここにドラッグ＆ドロップ"
+                                />
+                            </ListItem>
+                        </List>
+                    </AccordionDetails>
+                </Accordion>
 
                 <Box
                     sx={{

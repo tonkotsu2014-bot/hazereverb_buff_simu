@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { MainLayout } from './components/Layout/MainLayout';
-import { ParserPage } from './pages/ParserPage';
 import { CharacterEditPage } from './pages/CharacterEditPage';
 import type { ParsedCharacterData } from './logic/wikiParser';
 import { BuffSimulationPage } from './pages/BuffSimulationPage';
@@ -108,21 +107,13 @@ function App() {
               element={
                 <CharacterEditPage
                   characters={characters}
+                  onAddCharacter={handleAddCharacter}
                   onDelete={handleDeleteCharacter}
                   onUpdate={handleUpdateCharacter}
                 />
               }
             />
-            <Route
-              path="import"
-              element={
-                <ParserPage
-                  characters={characters}
-                  onAddCharacter={handleAddCharacter}
-                  onDelete={handleDeleteCharacter}
-                />
-              }
-            />
+
             <Route
               path="simulation"
               element={

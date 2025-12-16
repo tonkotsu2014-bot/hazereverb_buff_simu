@@ -11,21 +11,24 @@ import {
     ListItemIcon,
     Box,
     IconButton,
-    Chip
+    Chip,
+    Button
 } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import AddIcon from '@mui/icons-material/Add';
 
 interface Props {
     characters: ParsedCharacterData[];
     onDelete?: (index: number) => void;
     onSelect?: (index: number) => void;
     onAdd?: (index: number) => void;
+    onCreateNew?: () => void;
     selectedIndex?: number | null;
 }
 
-export const CharacterList: React.FC<Props> = ({ characters, onDelete, onSelect, onAdd, selectedIndex }) => {
+export const CharacterList: React.FC<Props> = ({ characters, onDelete, onSelect, onAdd, onCreateNew, selectedIndex }) => {
     // We lift the state up if onSelect is provided, otherwise local state (though mostly unused currently without onSelect in parent)
     const [localSelected, setLocalSelected] = useState<number | null>(null);
 
@@ -49,12 +52,16 @@ export const CharacterList: React.FC<Props> = ({ characters, onDelete, onSelect,
                 }
                 subheader={`${characters.length} 名`}
                 action={
-                    /*
-                    <Stack direction="row" spacing={1}>
-                        // Buttons removed
-                    </Stack>
-                    */
-                    null
+                    onCreateNew ? (
+                        <Button
+                            variant="contained"
+                            size="small"
+                            startIcon={<AddIcon />}
+                            onClick={onCreateNew}
+                        >
+                            キャラ追加
+                        </Button>
+                    ) : null
                 }
                 sx={{
                     borderBottom: '1px solid',
