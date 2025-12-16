@@ -153,12 +153,24 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
 
     const updateEffect = (skillIndex: number, levelIndex: number, effectIndex: number, field: keyof SkillEffect, value: any) => {
         const newSkills = [...formData.skills];
-        const newLevels = [...newSkills[skillIndex].levels];
-        const newEffects = [...newLevels[levelIndex].effects];
+        const currentLevels = [...newSkills[skillIndex].levels];
 
-        newEffects[effectIndex] = { ...newEffects[effectIndex], [field]: value };
-        newLevels[levelIndex] = { ...newLevels[levelIndex], effects: newEffects };
-        newSkills[skillIndex] = { ...newSkills[skillIndex], levels: newLevels };
+        if (field === 'isStackable') {
+            // Apply to all levels
+            newSkills[skillIndex].levels = currentLevels.map(lvl => {
+                const newEffects = [...lvl.effects];
+                if (newEffects[effectIndex]) {
+                    newEffects[effectIndex] = { ...newEffects[effectIndex], [field]: value };
+                }
+                return { ...lvl, effects: newEffects };
+            });
+        } else {
+            // Apply to current level only
+            const newEffects = [...currentLevels[levelIndex].effects];
+            newEffects[effectIndex] = { ...newEffects[effectIndex], [field]: value };
+            currentLevels[levelIndex] = { ...currentLevels[levelIndex], effects: newEffects };
+            newSkills[skillIndex].levels = currentLevels;
+        }
 
         const updated = { ...formData, skills: newSkills };
         setFormData(updated);
