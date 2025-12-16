@@ -17,7 +17,8 @@ import {
     AccordionDetails,
     IconButton,
     Button,
-    Checkbox,
+    Switch,
+    FormControlLabel,
     Card,
     CardContent,
     Chip,
@@ -480,7 +481,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                             </FormControl>
                                                         </Grid>
 
-                                                        <Grid size={{ xs: 4, sm: 3, md: 1 }}>
+                                                        <Grid size={{ xs: 4, sm: 3, md: 1.5 }}>
                                                             <TextField
                                                                 fullWidth
                                                                 size="small"
@@ -493,7 +494,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                             />
                                                         </Grid>
 
-                                                        <Grid size={{ xs: 4, sm: 3, md: 1 }}>
+                                                        <Grid size={{ xs: 4, sm: 3, md: 1.5 }}>
                                                             <Tooltip title="ターン数 (-1 = 永続)">
                                                                 <TextField
                                                                     fullWidth
@@ -508,12 +509,19 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                             </Tooltip>
                                                         </Grid>
 
-                                                        <Grid size={{ xs: 4, sm: 6, md: 0.5 }} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                                                        <Grid size={{ xs: 4, sm: 6, md: 2 }} sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start' }}>
                                                             <Tooltip title="スタック可能">
-                                                                <Checkbox
-                                                                    checked={!!effect.isStackable}
-                                                                    onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'isStackable', e.target.checked)}
-                                                                    size="small"
+                                                                <FormControlLabel
+                                                                    control={
+                                                                        <Switch
+                                                                            checked={!!effect.isStackable}
+                                                                            onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'isStackable', e.target.checked)}
+                                                                            size="small"
+                                                                        />
+                                                                    }
+                                                                    label={<Typography variant="caption" sx={{ fontSize: '0.8rem' }}>スタック</Typography>}
+                                                                    labelPlacement="top"
+                                                                    sx={{ mr: 0, '& .MuiFormControlLabel-label': { mb: -0.5 } }}
                                                                 />
                                                             </Tooltip>
                                                         </Grid>
