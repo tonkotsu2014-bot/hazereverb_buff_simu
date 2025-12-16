@@ -101,8 +101,19 @@ export const CharacterList: React.FC<Props> = ({ characters, onDelete, onSelect,
                                     }
                                 }}
                             >
-                                <ListItemIcon sx={{ minWidth: 36, color: currentSelected === index ? 'primary.main' : 'text.secondary' }}>
-                                    <PersonIcon />
+                                <ListItemIcon sx={{ minWidth: 36 }}>
+                                    <PersonIcon sx={{
+                                        color: (() => {
+                                            const role = char.role || (char.type?.includes('支援') ? 'Supporter' : char.type?.includes('攻撃') ? 'Attacker' : char.type?.includes('防御') ? 'Defender' : char.type?.includes('超越') ? 'Transcendence' : 'Unknown');
+                                            switch (role) {
+                                                case 'Supporter': return '#2e7d32';
+                                                case 'Attacker': return '#d32f2f';
+                                                case 'Defender': return '#1565c0';
+                                                case 'Transcendence': return '#000000';
+                                                default: return 'action.active';
+                                            }
+                                        })()
+                                    }} />
                                 </ListItemIcon>
                                 <Box sx={{ flex: 1 }}>
                                     <ListItemText
@@ -116,9 +127,32 @@ export const CharacterList: React.FC<Props> = ({ characters, onDelete, onSelect,
                                         <Chip
                                             label={char.type}
                                             size="small"
-                                            color={char.type.includes('攻撃') ? 'error' : char.type.includes('支援') ? 'info' : 'default'}
                                             variant="outlined"
-                                            sx={{ mt: 0.5, height: 20, fontSize: '0.7rem' }}
+                                            sx={{
+                                                mt: 0.5,
+                                                height: 20,
+                                                fontSize: '0.7rem',
+                                                color: (() => {
+                                                    const role = char.role || (char.type?.includes('支援') ? 'Supporter' : char.type?.includes('攻撃') ? 'Attacker' : char.type?.includes('防御') ? 'Defender' : char.type?.includes('超越') ? 'Transcendence' : 'Unknown');
+                                                    switch (role) {
+                                                        case 'Supporter': return '#2e7d32';
+                                                        case 'Attacker': return '#d32f2f';
+                                                        case 'Defender': return '#1565c0';
+                                                        case 'Transcendence': return '#000000';
+                                                        default: return 'text.secondary';
+                                                    }
+                                                })(),
+                                                borderColor: (() => {
+                                                    const role = char.role || (char.type?.includes('支援') ? 'Supporter' : char.type?.includes('攻撃') ? 'Attacker' : char.type?.includes('防御') ? 'Defender' : char.type?.includes('超越') ? 'Transcendence' : 'Unknown');
+                                                    switch (role) {
+                                                        case 'Supporter': return 'rgba(46, 125, 50, 0.5)';
+                                                        case 'Attacker': return 'rgba(211, 47, 47, 0.5)';
+                                                        case 'Defender': return 'rgba(21, 101, 192, 0.5)';
+                                                        case 'Transcendence': return 'rgba(0, 0, 0, 0.5)';
+                                                        default: return 'divider';
+                                                    }
+                                                })()
+                                            }}
                                         />
                                     )}
                                 </Box>

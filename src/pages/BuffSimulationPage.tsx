@@ -109,7 +109,11 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                                     <Box sx={{ mb: 2 }}>
                                         <CharacterSelector
                                             label="攻撃役を選択"
-                                            characters={supporters.filter((s): s is ParsedCharacterData => s !== null)}
+                                            characters={supporters.filter((s): s is ParsedCharacterData =>
+                                                s !== null &&
+                                                s.role !== 'Supporter' &&
+                                                !s.type?.includes('支援')
+                                            )}
                                             selectedCharacter={attacker}
                                             onSelect={setAttacker}
                                         />
@@ -157,7 +161,22 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                                                     {supporter && (
                                                         <Card variant="outlined" sx={{ position: 'relative' }}>
                                                             <CardContent sx={{ pb: '16px !important', pr: 5 }}>
-                                                                <Typography variant="subtitle2" title={supporter.name} sx={{ fontWeight: 'bold' }}>
+                                                                <Typography
+                                                                    variant="subtitle2"
+                                                                    title={supporter.name}
+                                                                    sx={{
+                                                                        fontWeight: 'bold',
+                                                                        color: (() => {
+                                                                            switch (supporter.role) {
+                                                                                case 'Supporter': return '#2e7d32'; // Green
+                                                                                case 'Attacker': return '#d32f2f'; // Red
+                                                                                case 'Defender': return '#1565c0'; // Blue
+                                                                                case 'Transcendence': return '#000000'; // Black
+                                                                                default: return 'text.primary';
+                                                                            }
+                                                                        })()
+                                                                    }}
+                                                                >
                                                                     {supporter.name}
                                                                 </Typography>
                                                                 {(supporter.role === '支援' || supporter.type?.includes('支援')) && (
