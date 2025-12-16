@@ -73,8 +73,8 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
             case 'hp': label = 'HP'; break;
             case 'attack': label = role === 'Supporter' ? '支援力' : '攻撃力'; break;
             case 'defense': label = '防御力'; break;
-            case 'critRate': label = 'クリティカル率'; break;
-            case 'critDamage': label = 'クリティカルダメージ'; break;
+            case 'critRate': label = 'クリ率'; break;
+            case 'critDamage': label = 'クリダメ'; break;
             case 'speed': label = '機動力'; break;
             default: label = key;
         }
@@ -204,33 +204,13 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                         </Select>
                     </FormControl>
                 </Grid>
-                <Grid size={{ xs: 6, md: 3 }}>
-                    <Stack direction="row" spacing={0.75}>
-                        <TextField
-                            label="配置列"
-                            type="number"
-                            value={formData.attackRange?.row ?? 1}
-                            onChange={(e) => handleChangeBasic('attackRange', { ...formData.attackRange, row: parseInt(e.target.value) || 1 })}
-                            inputProps={{ min: 1, max: 3 }}
-                            size="small"
-                        />
-                        <TextField
-                            label="射程"
-                            type="number"
-                            value={formData.attackRange?.col ?? 1}
-                            onChange={(e) => handleChangeBasic('attackRange', { ...formData.attackRange, col: parseInt(e.target.value) || 1 })}
-                            inputProps={{ min: 1, max: 6 }}
-                            size="small"
-                        />
-                    </Stack>
-                </Grid>
             </Grid>
 
             <Divider sx={{ my: 1.5 }} />
             <Typography variant="subtitle2" gutterBottom fontWeight={600} sx={{ mb: 1 }}>ステータス</Typography>
             <Grid container spacing={1} sx={{ mb: 2.5 }}>
                 {Object.entries(formData.stats || {}).map(([key, val]) => (
-                    <Grid size={{ xs: 6, sm: 4, md: 3 }} key={key}>
+                    <Grid size={{ xs: 6, sm: 4, md: 2 }} key={key}>
                         <TextField
                             fullWidth
                             label={getStatLabel(key, formData.role)}
@@ -432,7 +412,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                     </Box>
 
                                                     <Grid container spacing={0.75}>
-                                                        <Grid size={{ xs: 6, sm: 4, md: 3 }}>
+                                                        <Grid size={{ xs: 4, sm: 3, md: 1.5 }}>
                                                             <FormControl fullWidth size="small">
                                                                 <InputLabel sx={{ fontSize: '0.8rem' }}>タイプ</InputLabel>
                                                                 <Select
@@ -447,7 +427,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                             </FormControl>
                                                         </Grid>
 
-                                                        <Grid size={{ xs: 6, sm: 4, md: 3 }}>
+                                                        <Grid size={{ xs: 4, sm: 3, md: 2 }}>
                                                             <FormControl fullWidth size="small">
                                                                 <InputLabel sx={{ fontSize: '0.8rem' }}>属性</InputLabel>
                                                                 <Select
@@ -484,7 +464,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                             </FormControl>
                                                         </Grid>
 
-                                                        <Grid size={{ xs: 6, sm: 4, md: 2 }}>
+                                                        <Grid size={{ xs: 6, sm: 4, md: 1.5 }}>
                                                             <FormControl fullWidth size="small">
                                                                 <InputLabel sx={{ fontSize: '0.8rem' }}>範囲</InputLabel>
                                                                 <Select
@@ -500,20 +480,20 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                             </FormControl>
                                                         </Grid>
 
-                                                        <Grid size={{ xs: 4, sm: 3, md: 2 }}>
+                                                        <Grid size={{ xs: 4, sm: 3, md: 1 }}>
                                                             <TextField
                                                                 fullWidth
                                                                 size="small"
-                                                                label="値"
+                                                                label="値(%)"
                                                                 type="number"
                                                                 value={effect.value}
                                                                 onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'value', parseFloat(e.target.value))}
                                                                 sx={{ fontSize: '0.85rem' }}
-                                                                inputProps={{ style: { fontSize: '0.85rem' } }}
+                                                                slotProps={{ htmlInput: { min: 0, max: 1000, style: { fontSize: '0.85rem' } } }}
                                                             />
                                                         </Grid>
 
-                                                        <Grid size={{ xs: 4, sm: 3, md: 1.5 }}>
+                                                        <Grid size={{ xs: 4, sm: 3, md: 1 }}>
                                                             <Tooltip title="ターン数 (-1 = 永続)">
                                                                 <TextField
                                                                     fullWidth
@@ -523,7 +503,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                                     value={effect.duration}
                                                                     onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'duration', parseInt(e.target.value))}
                                                                     sx={{ fontSize: '0.85rem' }}
-                                                                    inputProps={{ style: { fontSize: '0.85rem' } }}
+                                                                    slotProps={{ htmlInput: { min: -1, max: 50, style: { fontSize: '0.85rem' } } }}
                                                                 />
                                                             </Tooltip>
                                                         </Grid>
