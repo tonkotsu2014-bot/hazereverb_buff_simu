@@ -21,7 +21,8 @@ export const calculateMaxBuffs = (
     attacker: ParsedCharacterData,
     supporters: ParsedCharacterData[],
     stackCounts: Record<string, number> = {},
-    activeExSkills: Record<string, boolean> = {}
+    activeExSkills: Record<string, boolean> = {},
+    activeSkillLevels: Record<string, string> = {}
 ): CalculatedBuffs => {
     let attackIncreasePercent = 0;
     let critRateBuff = 0;
@@ -29,7 +30,18 @@ export const calculateMaxBuffs = (
     const modifiers: BuffModifier[] = [];
 
     // Pre-calculate effective stats for supporters
-    const effectiveSupporters = supporters.map(s => calculateEffectiveStats(s, stackCounts, activeExSkills));
+    const effectiveSupporters = supporters.map(s => calculateEffectiveStats(s, stackCounts, activeExSkills, activeSkillLevels));
+
+    // Helper to find the correct level
+    const findLevel = (skill: any, charName: string) => {
+        const preferredLevel = activeSkillLevels[charName];
+        if (preferredLevel) {
+            const found = skill.levels.find((l: any) => l.level === preferredLevel);
+            if (found) return found;
+        }
+        // Fallback to max level logic
+        return [...skill.levels].reverse().find((l: any) => l.effects && l.effects.length > 0) || skill.levels[skill.levels.length - 1];
+    };
 
     // Helper to process effects
     const processEffects = (effects: SkillEffect[], character: ParsedCharacterData, isAttacker: boolean, skillName: string, levelName: string, description: string | null) => {
@@ -101,29 +113,28 @@ export const calculateMaxBuffs = (
         });
     };
 
-    // 1. Process Attacker's own skills (Max Level assumed for simulation simplicity or we need to select level)
-    // For this simulation, let's assume we use the highest level available for each skill.
+    // 1. Process Attacker's own skills
     attacker.skills.forEach(skill => {
-        const maxLevel = [...skill.levels].reverse().find(l => l.effects && l.effects.length > 0) || skill.levels[skill.levels.length - 1];
-        if (maxLevel && maxLevel.effects) {
+        const targetLevel = findLevel(skill, attacker.name || '');
+        if (targetLevel && targetLevel.effects) {
             // Check Ex Toggle
-            if (maxLevel.level === 'Ex' && activeExSkills[attacker.name || ''] === false) {
+            if (targetLevel.level === 'Ex' && activeExSkills[attacker.name || ''] === false) {
                 return;
             }
-            processEffects(maxLevel.effects, attacker, true, skill.name, maxLevel.level || 'Max', maxLevel.description);
+            processEffects(targetLevel.effects, attacker, true, skill.name, targetLevel.level || 'Max', targetLevel.description);
         }
     });
 
     // 2. Process Supporters' skills (using effective stats)
     effectiveSupporters.forEach(supporter => {
         supporter.skills.forEach(skill => {
-            const maxLevel = [...skill.levels].reverse().find(l => l.effects && l.effects.length > 0) || skill.levels[skill.levels.length - 1];
-            if (maxLevel && maxLevel.effects) {
+            const targetLevel = findLevel(skill, supporter.name || '');
+            if (targetLevel && targetLevel.effects) {
                 // Check Ex Toggle
-                if (maxLevel.level === 'Ex' && activeExSkills[supporter.name || ''] === false) {
+                if (targetLevel.level === 'Ex' && activeExSkills[supporter.name || ''] === false) {
                     return;
                 }
-                processEffects(maxLevel.effects, supporter, false, skill.name, maxLevel.level || 'Max', maxLevel.description);
+                processEffects(targetLevel.effects, supporter, false, skill.name, targetLevel.level || 'Max', targetLevel.description);
             }
         });
     });
@@ -143,7 +154,8 @@ export const calculateMaxBuffs = (
 export const calculateEffectiveStats = (
     character: ParsedCharacterData,
     stackCounts: Record<string, number> = {},
-    activeExSkills: Record<string, boolean> = {}
+    activeExSkills: Record<string, boolean> = {},
+    activeSkillLevels: Record<string, string> = {}
 ): ParsedCharacterData => {
     let baseAttack = typeof character.stats?.attack === 'number'
         ? character.stats.attack
@@ -153,8 +165,16 @@ export const calculateEffectiveStats = (
     let attackIncrease = 0;
 
     character.skills.forEach(skill => {
-        // Use the highest level that has effects, or the last level if none have effects
-        const maxLevel = [...skill.levels].reverse().find(l => l.effects && l.effects.length > 0) || skill.levels[skill.levels.length - 1];
+        // Find level logic duplicated for now (or could be shared, but simple enough)
+        let maxLevel = undefined;
+        const preferredLevel = activeSkillLevels[character.name || ''];
+        if (preferredLevel) {
+            maxLevel = skill.levels.find(l => l.level === preferredLevel);
+        }
+        if (!maxLevel) {
+            maxLevel = [...skill.levels].reverse().find(l => l.effects && l.effects.length > 0) || skill.levels[skill.levels.length - 1];
+        }
+
         if (!maxLevel || !maxLevel.effects) return;
 
         // Check Ex Toggle

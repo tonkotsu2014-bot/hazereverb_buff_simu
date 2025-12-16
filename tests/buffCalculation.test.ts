@@ -444,5 +444,66 @@ describe('calculateMaxBuffs', () => {
         expect(result.critRateTotal).toBe(0);
         expect(result.critDamageTotal).toBe(10);
     });
+
+    it('should respect active skill levels', () => {
+        const attacker = createChar('Attacker', [], { attack: 1000 });
+        const supporter = {
+            name: 'Supporter',
+            stats: { attack: 100 },
+            skills: [
+                {
+                    name: 'Support Skill',
+                    levels: [
+                        { level: '1', description: null, effects: [{ type: 'Buff', target: 'AllAllies', attribute: 'Attack', value: 10 }] },
+                        { level: '10', description: null, effects: [{ type: 'Buff', target: 'AllAllies', attribute: 'Attack', value: 100 }] }
+                    ]
+                }
+            ]
+        } as unknown as ParsedCharacterData;
+
+        // 1. Default (Max)
+        const resDefault = calculateMaxBuffs(attacker, [supporter]);
+        expect(resDefault.attackIncreasePercent).toBe(100);
+
+        // 2. Level 1
+        const resLv1 = calculateMaxBuffs(attacker, [supporter], {}, {}, { 'Supporter': '1' });
+        expect(resLv1.attackIncreasePercent).toBe(10);
+
+        // 3. Level 10
+        const resLv10 = calculateMaxBuffs(attacker, [supporter], {}, {}, { 'Supporter': '10' });
+        expect(resLv10.attackIncreasePercent).toBe(100);
+    });
+
+    it('should apply active skill level to ALL skills of the character', () => {
+        const attacker = createChar('Attacker', [], { attack: 1000 });
+        const supporter = {
+            name: 'DualSkillSupporter',
+            stats: { attack: 100 },
+            skills: [
+                {
+                    name: 'Skill A',
+                    levels: [
+                        { level: '1', description: null, effects: [{ type: 'Buff', target: 'AllAllies', attribute: 'Attack', value: 10 }] },
+                        { level: '10', description: null, effects: [{ type: 'Buff', target: 'AllAllies', attribute: 'Attack', value: 100 }] }
+                    ]
+                },
+                {
+                    name: 'Skill B',
+                    levels: [
+                        { level: '1', description: null, effects: [{ type: 'Buff', target: 'AllAllies', attribute: 'Attack', value: 5 }] },
+                        { level: '10', description: null, effects: [{ type: 'Buff', target: 'AllAllies', attribute: 'Attack', value: 50 }] }
+                    ]
+                }
+            ]
+        } as unknown as ParsedCharacterData;
+
+        // 1. Level 1 (Should be 10 + 5 = 15)
+        const resLv1 = calculateMaxBuffs(attacker, [supporter], {}, {}, { 'DualSkillSupporter': '1' });
+        expect(resLv1.attackIncreasePercent).toBe(15);
+
+        // 2. Level 10 (Should be 100 + 50 = 150)
+        const resLv10 = calculateMaxBuffs(attacker, [supporter], {}, {}, { 'DualSkillSupporter': '10' });
+        expect(resLv10.attackIncreasePercent).toBe(150);
+    });
 });
 

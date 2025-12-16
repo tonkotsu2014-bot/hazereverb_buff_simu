@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Box, Typography, Paper, IconButton, Grid, FormControlLabel, Checkbox, Card, CardContent } from '@mui/material';
+import { Box, Typography, Paper, IconButton, Grid, FormControlLabel, Checkbox, Card, CardContent, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { CharacterSelector } from '../components/Simulation/CharacterSelector';
 import { CharacterList } from '../components/CharacterList';
@@ -15,6 +15,9 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
     const [attacker, setAttacker] = useState<ParsedCharacterData | null>(null);
     const [supporters, setSupporters] = useState<(ParsedCharacterData | null)[]>([]);
     const [activeExSkills, setActiveExSkills] = useState<Record<string, boolean>>({});
+    const [activeSkillLevels, setActiveSkillLevels] = useState<Record<string, string>>({});
+    const [configOpen, setConfigOpen] = useState(false);
+    const [configTargetIndex, setConfigTargetIndex] = useState<number | null>(null); // Index in supporters array
 
     // Sync state with characters prop to reflect edits
     useEffect(() => {
@@ -61,8 +64,8 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
     const results = useMemo(() => {
         if (!attacker) return null;
         const activeSupporters = supporters.filter((s): s is ParsedCharacterData => s !== null);
-        return calculateMaxBuffs(attacker, activeSupporters, {}, activeExSkills);
-    }, [attacker, supporters, activeExSkills]);
+        return calculateMaxBuffs(attacker, activeSupporters, {}, activeExSkills, activeSkillLevels);
+    }, [attacker, supporters, activeExSkills, activeSkillLevels]);
 
     // Helper to get Ex toggle state (default true if undefined)
     const isExEnabled = (charName: string | undefined) => {
@@ -71,8 +74,25 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
     };
 
     const getEffectiveSupportPower = (supporter: ParsedCharacterData) => {
-        const effective = calculateEffectiveStats(supporter, {}, activeExSkills);
+        const effective = calculateEffectiveStats(supporter, {}, activeExSkills, activeSkillLevels);
         return effective.stats?.attack || 0;
+    };
+
+    const handleOpenConfig = (index: number) => {
+        setConfigTargetIndex(index);
+        setConfigOpen(true);
+    };
+
+    const handleCloseConfig = () => {
+        setConfigOpen(false);
+        setConfigTargetIndex(null);
+    };
+
+    const handleLevelChange = (charName: string, level: string) => {
+        setActiveSkillLevels(prev => ({
+            ...prev,
+            [charName]: level
+        }));
     };
 
 
@@ -118,27 +138,13 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                                             onSelect={setAttacker}
                                         />
                                         {attacker && (
-                                            <Box sx={{ mt: 1, display: 'flex', alignItems: 'center' }}>
-                                                <FormControlLabel
-                                                    control={
-                                                        <Checkbox
-                                                            checked={isExEnabled(attacker.name)}
-                                                            onChange={(e) => handleToggleExSkill(attacker.name, e.target.checked)}
-                                                            size="small"
-                                                        />
-                                                    }
-                                                    label="Exスキル有効"
-                                                />
+                                            <Box sx={{ mt: 2, p: 2, bgcolor: '#f0f9ff', borderRadius: 1 }}>
+                                                <Typography variant="subtitle2">基本ステータス:</Typography>
+                                                <Typography variant="body2">会心率: {attacker.stats?.critRate || 0}%</Typography>
+                                                <Typography variant="body2">会心ダメージ: {attacker.stats?.critDamage || 0}%</Typography>
                                             </Box>
                                         )}
                                     </Box>
-                                    {attacker && (
-                                        <Box sx={{ mt: 2, p: 2, bgcolor: '#f0f9ff', borderRadius: 1 }}>
-                                            <Typography variant="subtitle2">Base Stats:</Typography>
-                                            <Typography variant="body2">Crit Rate: {attacker.stats?.critRate || 0}%</Typography>
-                                            <Typography variant="body2">Crit Damage: {attacker.stats?.critDamage || 0}%</Typography>
-                                        </Box>
-                                    )}
                                 </Paper>
                             </Box>
 
@@ -184,26 +190,31 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                                                                         支援力: {getEffectiveSupportPower(supporter)}%
                                                                     </Typography>
                                                                 )}
-                                                                <Box sx={{ mt: 0.5 }}>
-                                                                    <FormControlLabel
-                                                                        control={
-                                                                            <Checkbox
-                                                                                checked={isExEnabled(supporter.name)}
-                                                                                onChange={(e) => handleToggleExSkill(supporter.name, e.target.checked)}
-                                                                                size="small"
-                                                                                sx={{ p: 0.5 }}
-                                                                            />
-                                                                        }
-                                                                        label={<Typography variant="caption">Ex有効</Typography>}
-                                                                        sx={{ mr: 0, ml: -0.5 }}
-                                                                    />
-                                                                </Box>
+                                                                <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.5 }}>
+                                                                    スキルレベル {activeSkillLevels[supporter.name || ''] || '10'} {isExEnabled(supporter.name) ? '+ Ex' : ''}
+                                                                </Typography>
                                                             </CardContent>
+                                                            <Box
+                                                                component="div"
+                                                                onClick={() => handleOpenConfig(index)}
+                                                                sx={{
+                                                                    position: 'absolute',
+                                                                    top: 0,
+                                                                    left: 0,
+                                                                    right: 0,
+                                                                    bottom: 0,
+                                                                    cursor: 'pointer',
+                                                                    zIndex: 1
+                                                                }}
+                                                            />
                                                             <IconButton
-                                                                onClick={() => handleRemoveSupporter(index)}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleRemoveSupporter(index);
+                                                                }}
                                                                 size="small"
                                                                 color="default"
-                                                                sx={{ position: 'absolute', top: 4, right: 4 }}
+                                                                sx={{ position: 'absolute', top: 4, right: 4, zIndex: 2 }}
                                                             >
                                                                 <DeleteIcon fontSize="small" />
                                                             </IconButton>
@@ -232,6 +243,43 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                     </Box>
                 </Grid>
             </Grid>
+            {/* Config Dialog */}
+            <Dialog open={configOpen} onClose={handleCloseConfig} maxWidth="xs" fullWidth>
+                {configTargetIndex !== null && supporters[configTargetIndex] && (
+                    <>
+                        <DialogTitle>{supporters[configTargetIndex]?.name} 設定</DialogTitle>
+                        <DialogContent>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 1 }}>
+                                <FormControl fullWidth>
+                                    <InputLabel>スキルレベル (全スキル共通)</InputLabel>
+                                    <Select
+                                        value={activeSkillLevels[supporters[configTargetIndex]!.name || ''] || '10'}
+                                        label="スキルレベル (全スキル共通)"
+                                        onChange={(e) => handleLevelChange(supporters[configTargetIndex]!.name || '', e.target.value)}
+                                    >
+                                        {[...Array(10)].map((_, i) => (
+                                            <MenuItem key={i + 1} value={(i + 1).toString()}>スキルレベル {i + 1}</MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={isExEnabled(supporters[configTargetIndex]!.name)}
+                                            onChange={(e) => handleToggleExSkill(supporters[configTargetIndex]!.name, e.target.checked)}
+                                        />
+                                    }
+                                    label="Exスキル有効"
+                                />
+                            </Box>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={handleCloseConfig}>閉じる</Button>
+                        </DialogActions>
+                    </>
+                )}
+            </Dialog>
         </Box>
     );
 };
