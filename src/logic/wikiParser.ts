@@ -274,10 +274,10 @@ export const parseAttribute = (raw: string): string | undefined => {
 };
 
 export const parseTarget = (sentence: string): string | undefined => {
-    if (sentence.includes('自身')) {
-        return 'Self';
-    } else if (sentence.includes('味方全員') || sentence.includes('すべての味方')) {
+    if (sentence.includes('味方全員') || sentence.includes('すべての味方')) {
         return 'AllAllies';
+    } else if (sentence.includes('自身')) {
+        return 'Self';
     } else if (sentence.includes('敵') || sentence.includes('ターゲット')) {
         return 'Default';
     }

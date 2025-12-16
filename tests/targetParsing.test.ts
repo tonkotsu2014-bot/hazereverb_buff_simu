@@ -71,4 +71,22 @@ describe('wikiParser - Target Detection (parseSkillDescription)', () => {
         const critEffect = effects.find(e => e.attribute === 'CritRate');
         expect(critEffect?.target).toBe('Self');
     });
+    it('should detect "All Allies" target even if "Self" is present in condition (♦究極審問)', () => {
+        const description = '♦究極審問!自身行動前、味方が2名かそれ以上戦闘不能となった場合、すべての味方の攻撃力が支援力×60%、会心ダメージが支援力×80%アップし、18ターン持続する。';
+        const effects = parseSkillDescription(description);
+
+        expect(effects.length).toBeGreaterThan(0);
+        effects.forEach(effect => {
+            expect(effect.target).toBe('AllAllies');
+        });
+
+        const attackEffect = effects.find(e => e.attribute === 'Attack');
+        expect(attackEffect).toBeDefined();
+        expect(attackEffect?.value).toBe(60);
+        expect(attackEffect?.calculationType).toBe('SupportScaling');
+
+        const critEffect = effects.find(e => e.attribute === 'CritDamage');
+        expect(critEffect).toBeDefined();
+        expect(critEffect?.value).toBe(80);
+    });
 });
