@@ -11,26 +11,21 @@ import {
     ListItemIcon,
     Box,
     IconButton,
-    Chip,
-    Button,
-    Stack
+    Chip
 } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import DeleteIcon from '@mui/icons-material/Delete';
-import DownloadIcon from '@mui/icons-material/Download';
-import UploadIcon from '@mui/icons-material/Upload';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 interface Props {
     characters: ParsedCharacterData[];
     onDelete?: (index: number) => void;
-    onImport?: (data: ParsedCharacterData[]) => void;
     onSelect?: (index: number) => void;
     onAdd?: (index: number) => void;
     selectedIndex?: number | null;
 }
 
-export const CharacterList: React.FC<Props> = ({ characters, onDelete, onImport, onSelect, onAdd, selectedIndex }) => {
+export const CharacterList: React.FC<Props> = ({ characters, onDelete, onSelect, onAdd, selectedIndex }) => {
     // We lift the state up if onSelect is provided, otherwise local state (though mostly unused currently without onSelect in parent)
     const [localSelected, setLocalSelected] = useState<number | null>(null);
 
@@ -44,42 +39,6 @@ export const CharacterList: React.FC<Props> = ({ characters, onDelete, onImport,
 
     const currentSelected = onSelect ? selectedIndex : localSelected;
 
-    const handleExport = () => {
-        const dataStr = JSON.stringify(characters, null, 2);
-        const blob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'hazreverb_characters.json';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-    };
-
-    const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const content = e.target?.result as string;
-                    const parsed = JSON.parse(content);
-                    if (Array.isArray(parsed) && onImport) {
-                        onImport(parsed);
-                    } else if (onImport) {
-                        alert('Invalid format: Expected an array of characters.');
-                    }
-                } catch (error) {
-                    console.error('Import failed:', error);
-                    alert('Failed to parse JSON file.');
-                }
-            };
-            reader.readAsText(file);
-        }
-        event.target.value = '';
-    };
-
     return (
         <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', border: 'none', boxShadow: 0 }}>
             <CardHeader
@@ -90,31 +49,12 @@ export const CharacterList: React.FC<Props> = ({ characters, onDelete, onImport,
                 }
                 subheader={`${characters.length} 名`}
                 action={
+                    /*
                     <Stack direction="row" spacing={1}>
-                        <Button
-                            variant="outlined"
-                            size="small"
-                            startIcon={<UploadIcon />}
-                            component="label"
-                        >
-                            インポート
-                            <input
-                                type="file"
-                                accept=".json"
-                                onChange={handleImport}
-                                style={{ display: 'none' }}
-                            />
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            size="small"
-                            startIcon={<DownloadIcon />}
-                            onClick={handleExport}
-                            disabled={characters.length === 0}
-                        >
-                            エクスポート
-                        </Button>
+                        // Buttons removed
                     </Stack>
+                    */
+                    null
                 }
                 sx={{
                     borderBottom: '1px solid',
@@ -128,7 +68,7 @@ export const CharacterList: React.FC<Props> = ({ characters, onDelete, onImport,
                     <Box sx={{ p: 4, textAlign: 'center', opacity: 0.7 }}>
                         <Typography variant="body1" fontWeight={500}>キャラクターがいません</Typography>
                         <Typography variant="body2" sx={{ mt: 1 }}>
-                            インポートまたは追加してください。
+                            キャラを追加してください。
                         </Typography>
                     </Box>
                 ) : (

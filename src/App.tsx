@@ -5,6 +5,7 @@ import { ParserPage } from './pages/ParserPage';
 import { CharacterEditPage } from './pages/CharacterEditPage';
 import type { ParsedCharacterData } from './logic/wikiParser';
 import { BuffSimulationPage } from './pages/BuffSimulationPage';
+import { SettingsPage } from './pages/SettingsPage';
 import {
   CssBaseline,
   createTheme,
@@ -108,7 +109,6 @@ function App() {
                 <CharacterEditPage
                   characters={characters}
                   onDelete={handleDeleteCharacter}
-                  onImport={handleImportCharacters}
                   onUpdate={handleUpdateCharacter}
                 />
               }
@@ -120,7 +120,6 @@ function App() {
                   characters={characters}
                   onAddCharacter={handleAddCharacter}
                   onDelete={handleDeleteCharacter}
-                  onImport={handleImportCharacters}
                 />
               }
             />
@@ -129,6 +128,15 @@ function App() {
               element={
                 <BuffSimulationPage
                   characters={characters}
+                />
+              }
+            />
+            <Route
+              path="settings"
+              element={
+                <SettingsPage
+                  characters={characters}
+                  onImport={handleImportCharacters}
                 />
               }
             />

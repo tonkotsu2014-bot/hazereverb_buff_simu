@@ -10,6 +10,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import CalculateIcon from '@mui/icons-material/Calculate';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 export const MainLayout: React.FC = () => {
     const location = useLocation();
@@ -60,6 +61,18 @@ export const MainLayout: React.FC = () => {
                             }}
                         >
                             シミュ
+                        </Button>
+                        <Button
+                            color="inherit"
+                            component={Link}
+                            to="/settings"
+                            startIcon={<SettingsIcon />}
+                            sx={{
+                                borderBottom: location.pathname === '/settings' ? '2px solid white' : 'none',
+                                borderRadius: 0
+                            }}
+                        >
+                            設定
                         </Button>
                     </Box>
                 </Toolbar>

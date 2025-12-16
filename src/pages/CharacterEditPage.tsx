@@ -7,11 +7,10 @@ import type { ParsedCharacterData } from '../logic/wikiParser';
 interface Props {
     characters: ParsedCharacterData[];
     onDelete: (index: number) => void;
-    onImport: (data: ParsedCharacterData[]) => void;
     onUpdate: (index: number, updated: ParsedCharacterData) => void;
 }
 
-export const CharacterEditPage: React.FC<Props> = ({ characters, onDelete, onImport, onUpdate }) => {
+export const CharacterEditPage: React.FC<Props> = ({ characters, onDelete, onUpdate }) => {
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
     const handleSelect = (index: number) => {
@@ -33,7 +32,6 @@ export const CharacterEditPage: React.FC<Props> = ({ characters, onDelete, onImp
                     <CharacterList
                         characters={characters}
                         onDelete={onDelete}
-                        onImport={onImport}
                         onSelect={handleSelect}
                         selectedIndex={selectedIndex}
                     />
