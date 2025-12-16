@@ -41,7 +41,7 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
     }, [characters, attacker]);
 
     const handleAddSupporter = (index: number) => {
-        if (supporters.length < 8) {
+        if (supporters.length < 9) {
             setSupporters([...supporters, characters[index]]);
         }
     };
@@ -75,13 +75,15 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
         return effective.stats?.attack || 0;
     };
 
+
+
     return (
         <Box sx={{ p: 3, maxWidth: 1600, mx: 'auto', height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
             <Typography variant="h5" gutterBottom>
                 バフシミュレーション
             </Typography>
             <Typography variant="body2" color="text.secondary" paragraph>
-                左側のリストから「＋」ボタンで支援役を追加できます。(最大8人)
+                左側のリストから「＋」ボタンでキャラを追加できます。(最大9人)
             </Typography>
 
             <Grid container spacing={3} sx={{ flex: 1, overflow: 'hidden' }}>
@@ -107,7 +109,7 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                                     <Box sx={{ mb: 2 }}>
                                         <CharacterSelector
                                             label="攻撃役を選択"
-                                            characters={characters}
+                                            characters={supporters.filter((s): s is ParsedCharacterData => s !== null)}
                                             selectedCharacter={attacker}
                                             onSelect={setAttacker}
                                         />
@@ -140,7 +142,7 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                                 <Paper sx={{ p: 3 }}>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                                         <Typography variant="h6">
-                                            2. 支援役 (Supporters) {supporters.length}/8
+                                            2. パーティー (Party) {supporters.length}/9
                                         </Typography>
                                     </Box>
 
