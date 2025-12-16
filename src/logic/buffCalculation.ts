@@ -1,4 +1,4 @@
-import type { ParsedCharacterData, SkillEffect } from './wikiParser';
+import type { ParsedCharacterData, SkillEffect, SkillData } from './wikiParser';
 
 export interface BuffModifier {
     sourceCharacterName: string;
@@ -29,11 +29,8 @@ export const calculateMaxBuffs = (
     let critDamageBuff = 0;
     const modifiers: BuffModifier[] = [];
 
-    // Pre-calculate effective stats for supporters
-    const effectiveSupporters = supporters.map(s => calculateEffectiveStats(s, stackCounts, activeExSkills, activeSkillLevels));
-
     // Helper to find the correct level
-    const findLevel = (skill: any, charName: string) => {
+    const findLevel = (skill: SkillData, charName: string) => {
         const preferredLevel = activeSkillLevels[charName];
         if (preferredLevel) {
             const found = skill.levels.find((l: any) => l.level === preferredLevel);
@@ -42,6 +39,39 @@ export const calculateMaxBuffs = (
         // Fallback to max level logic
         return [...skill.levels].reverse().find((l: any) => l.effects && l.effects.length > 0) || skill.levels[skill.levels.length - 1];
     };
+
+    // 0. Pre-calculate "Global Support/Attack Buffs" from Supporters to other Supporters
+    let globalSupportBuffFromSupporters = 0;
+    supporters.forEach(supporter => {
+        supporter.skills.forEach(skill => {
+            const targetLevel = findLevel(skill, supporter.name || '');
+            if (targetLevel && targetLevel.effects) {
+                // Check Ex Toggle
+                if (targetLevel.level === 'Ex' && activeExSkills[supporter.name || ''] === false) return;
+
+                targetLevel.effects.forEach((effect: SkillEffect) => {
+                    // Check for buffs that target All Allies (or Default) and boost Support Power
+                    // IMPORTANT: Exclude SupportScaling buffs from this pre-calc to avoid circular deps and incorrect static additions.
+                    if (effect.type === 'Buff' &&
+                        (effect.target === 'AllAllies' || effect.target === 'Default') &&
+                        effect.attribute === 'Support' &&
+                        effect.calculationType !== 'SupportScaling'
+                    ) {
+                        let value = effect.value;
+                        // Apply Stacks
+                        if (effect.isStackable) {
+                            const count = stackCounts[skill.name] ?? 1;
+                            if (count > 1) value = value * count;
+                        }
+                        globalSupportBuffFromSupporters += value;
+                    }
+                });
+            }
+        });
+    });
+
+    // Pre-calculate effective stats for supporters, including the global buff
+    const effectiveSupporters = supporters.map(s => calculateEffectiveStats(s, stackCounts, activeExSkills, activeSkillLevels, globalSupportBuffFromSupporters));
 
     // Helper to process effects
     const processEffects = (effects: SkillEffect[], character: ParsedCharacterData, isAttacker: boolean, skillName: string, levelName: string, description: string | null) => {
@@ -155,14 +185,16 @@ export const calculateEffectiveStats = (
     character: ParsedCharacterData,
     stackCounts: Record<string, number> = {},
     activeExSkills: Record<string, boolean> = {},
-    activeSkillLevels: Record<string, string> = {}
+    activeSkillLevels: Record<string, string> = {},
+    globalSupportBuffPercent: number = 0
 ): ParsedCharacterData => {
     let baseAttack = typeof character.stats?.attack === 'number'
         ? character.stats.attack
         : parseFloat(character.stats?.attack || '0');
 
     // Accumulate percentage increase for Attack (Support Power)
-    let attackIncrease = 0;
+    // Initialize with global buffs from other supporters
+    let supportPowerIncrease = globalSupportBuffPercent;
 
     character.skills.forEach(skill => {
         // Find level logic duplicated for now (or could be shared, but simple enough)
@@ -183,8 +215,8 @@ export const calculateEffectiveStats = (
         }
 
         maxLevel.effects.forEach(effect => {
-            // Must be Buff, target Self, and attribute Attack (Support)
-            if (effect.type === 'Buff' && effect.target === 'Self' && (effect.attribute === 'Attack' || effect.attribute === 'Support')) {
+            // Must be Buff, target Self, and attribute Support
+            if (effect.type === 'Buff' && effect.target === 'Self' && effect.attribute === 'Support') {
                 let value = effect.value;
 
                 // Apply Stacks (if implemented for self buffs too)
@@ -195,15 +227,15 @@ export const calculateEffectiveStats = (
                     }
                 }
 
-                attackIncrease += value;
+                supportPowerIncrease += value;
             }
         });
     });
 
     // Calculate effective attack (Support Power)
     // Support Power is a percentage value, so increases are additive.
-    // e.g. Base 110% + Buff 90% = 200%
-    const effectiveAttack = baseAttack + attackIncrease;
+    // e.g. Base 110% + Buff 90% + Global 20% = 220%
+    const effectiveAttack = baseAttack + supportPowerIncrease;
 
     return {
         ...character,

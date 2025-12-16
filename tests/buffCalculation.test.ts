@@ -505,5 +505,131 @@ describe('calculateMaxBuffs', () => {
         const resLv10 = calculateMaxBuffs(attacker, [supporter], {}, {}, { 'DualSkillSupporter': '10' });
         expect(resLv10.attackIncreasePercent).toBe(150);
     });
-});
 
+    it('should apply support power buffs from one supporter to another', () => {
+        const attacker = createChar('Attacker', [], { attack: 1000 });
+
+        // Supporter A: All Allies Attack + 20%
+        const supporterA = {
+            name: 'SupporterA',
+            stats: { attack: 100 },
+            skills: [
+                {
+                    name: 'BuffAll',
+                    levels: [
+                        {
+                            level: '10',
+                            description: null,
+                            effects: [
+                                { type: 'Buff', target: 'AllAllies', attribute: 'Support', value: 20 },
+                                { type: 'Buff', target: 'AllAllies', attribute: 'CritRate', value: 10, calculationType: 'SupportScaling' }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        } as unknown as ParsedCharacterData;
+
+        // Supporter B: Scales off Support Power.
+        // Base Support = 100.
+        // With Buff from A (+20 Support) = 120. (Also +10 CritRate from A, but Support Power doesn't use CritRate)
+        // Skill gives 100% of Support Power as Attack to All Allies.
+        const supporterB = {
+            name: 'SupporterB',
+            stats: { attack: 100 },
+            skills: [
+                {
+                    name: 'ScalingBuff',
+                    levels: [
+                        {
+                            level: '10',
+                            description: null,
+                            effects: [{ type: 'Buff', target: 'AllAllies', attribute: 'Attack', value: 100, calculationType: 'SupportScaling' }]
+                        }
+                    ]
+                }
+            ]
+        } as unknown as ParsedCharacterData;
+
+        // Total Buffs on Attacker:
+        // 1. From A:
+        //    - Support +20 -> Ignored (Attribute Support).
+        //    - CritRate +10 (Scaled):
+        //      - A's Support Power = 100 (Base) + 20 (Buff from self/A) = 120.
+        //      - CritRate Buff = 10 * (120/100) = 12.
+        // 2. From B:
+        //    - Scaled Attack Buff: 100% of B's Support Power (120) -> 120% Attack.
+        // Total Attack: 120%
+        // Total CritRate: 12%
+
+        const result = calculateMaxBuffs(attacker, [supporterA, supporterB]);
+
+        expect(result.attackIncreasePercent).toBe(120);
+        expect(result.critRateTotal).toBe(12);
+    });
+
+    it('should correctly stack Self Support buff AND Global Support buff from another supporter', () => {
+        const attacker = createChar('Attacker', [], { attack: 1000 });
+
+        // Supporter A: 
+        // 1. Self Support + 50 (Buff, Target: Self, Attribute: Support)
+        // 2. Scaling Buff (100% Support -> Attack to AllAllies)
+        const supporterA = {
+            name: 'SupporterA',
+            stats: { attack: 100 },
+            skills: [
+                {
+                    name: 'SelfBuffAndScale',
+                    levels: [
+                        {
+                            level: '10',
+                            description: null,
+                            effects: [
+                                { type: 'Buff', target: 'Self', attribute: 'Support', value: 50 },
+                                { type: 'Buff', target: 'AllAllies', attribute: 'Attack', value: 100, calculationType: 'SupportScaling' }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        } as unknown as ParsedCharacterData;
+
+        // Supporter B:
+        // 1. Global Support + 20 (Buff, Target: AllAllies, Attribute: Support)
+        const supporterB = {
+            name: 'SupporterB',
+            stats: { attack: 100 },
+            skills: [
+                {
+                    name: 'GlobalSupportBuff',
+                    levels: [
+                        {
+                            level: '10',
+                            description: null,
+                            effects: [{ type: 'Buff', target: 'AllAllies', attribute: 'Support', value: 20 }]
+                        }
+                    ]
+                }
+            ]
+        } as unknown as ParsedCharacterData;
+
+        // Calculation:
+        // Supporter A Base Support: 100
+        // buffs on A:
+        //   - Self Buff: +50
+        //   - Global Buff from B: +20
+        //   - Total Support Power: 100 + 50 + 20 = 170.
+        // Supporter A Scaling Buff:
+        //   - 100% of 170 = 170% Attack Increase to Attacker.
+
+        // Supporter B Base Support: 100
+        // buffs on B: 
+        //   - Global Buff from B (AllAllies includes Self): +20 
+        //   (Wait, does AllAllies from B apply to B? Usually yes in this logic so far).
+        //   - Total Support Power B: 120. (Irrelevant for Attacker since B has no scaling skill).
+
+        const result = calculateMaxBuffs(attacker, [supporterA, supporterB]);
+
+        expect(result.attackIncreasePercent).toBe(170);
+    });
+});
