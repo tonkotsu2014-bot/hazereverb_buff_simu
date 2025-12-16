@@ -152,9 +152,9 @@ export const parseSkills = (doc: Document): SkillData[] => {
 
                 const cleanDescription = (cell: Element): string => {
                     const tempDiv = doc.createElement('div');
-                    tempDiv.innerHTML = cell.innerHTML.replace(/<br\s*\/?>/gi, '\n');
+                    tempDiv.innerHTML = cell.innerHTML;
                     const text = tempDiv.textContent || '';
-                    return text.split(/\r?\n/).map(s => s.trim()).filter(s => s).join('\n');
+                    return text.replace(/\s+/g, '');
                 };
 
                 rows.forEach(row => {
