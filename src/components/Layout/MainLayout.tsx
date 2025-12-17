@@ -21,6 +21,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import EditIcon from '@mui/icons-material/Edit';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import SettingsIcon from '@mui/icons-material/Settings';
+import GitHubIcon from '@mui/icons-material/GitHub';
 
 export const MainLayout: React.FC = () => {
     const location = useLocation();
@@ -121,6 +122,16 @@ export const MainLayout: React.FC = () => {
                             >
                                 設定
                             </Button>
+                            <IconButton
+                                color="inherit"
+                                component="a"
+                                href="https://github.com/tonkotsu2014-bot/hazereverb_buff_simu"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                sx={{ ml: 1 }}
+                            >
+                                <GitHubIcon />
+                            </IconButton>
                         </Box>
                     )}
                 </Toolbar>
