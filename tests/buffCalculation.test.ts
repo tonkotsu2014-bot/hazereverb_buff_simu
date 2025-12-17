@@ -903,4 +903,53 @@ describe('calculateMaxBuffs', () => {
         expect(hyperMod).toBeDefined();
         expect(hyperMod?.value).toBe(50);
     });
+
+    // 18. Test Description Fallback
+    it('should fallback to previous level description if current level description is missing', () => {
+        const attacker = createChar('Attacker', [], { attack: 1000 });
+        const supporter = {
+            name: 'Supporter',
+            stats: { Support: 100 },
+            skills: [
+                {
+                    name: 'FallbackSkill',
+                    levels: [
+                        // Level 1: Has description
+                        {
+                            level: '1',
+                            description: 'Level 1 Description',
+                            effects: [{ type: 'Buff', target: 'AllAllies', attribute: 'Attack', value: 10 }]
+                        },
+                        // Level 5: Has different description
+                        {
+                            level: '5',
+                            description: 'Level 5 Description',
+                            effects: [{ type: 'Buff', target: 'AllAllies', attribute: 'Attack', value: 15 }]
+                        }
+                        // Level 10: No description (null or undefined
+                    ]
+                }
+            ]
+        } as unknown as ParsedCharacterData;
+
+        // 1. Test at Level 10 (Should use Level 5 Description)
+        const resLv10 = calculateMaxBuffs(attacker, [supporter], {}, {}, { 'Supporter': '10' });
+        const modLv10 = resLv10.modifiers.find(m => m.skillName === 'FallbackSkill');
+        expect(modLv10?.description).toBe('Level 5 Description');
+
+        // 2. Test at Level 5 (Should use Level 5 Description)
+        const resLv5 = calculateMaxBuffs(attacker, [supporter], {}, {}, { 'Supporter': '5' });
+        const modLv5 = resLv5.modifiers.find(m => m.skillName === 'FallbackSkill');
+        expect(modLv5?.description).toBe('Level 5 Description');
+
+        // 3. Test at Level 1 (Should use Level 1 Description)
+        const resLv1 = calculateMaxBuffs(attacker, [supporter], {}, {}, { 'Supporter': '1' });
+        const modLv1 = resLv1.modifiers.find(m => m.skillName === 'FallbackSkill');
+        expect(modLv1?.description).toBe('Level 1 Description');
+
+        // 4. Test at Level 4 (Should use Level 1 Description)
+        const resLv4 = calculateMaxBuffs(attacker, [supporter], {}, {}, { 'Supporter': '4' });
+        const modLv4 = resLv4.modifiers.find(m => m.skillName === 'FallbackSkill');
+        expect(modLv4?.description).toBe('Level 1 Description');
+    });
 });
