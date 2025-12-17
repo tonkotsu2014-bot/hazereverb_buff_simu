@@ -84,6 +84,11 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results }) => {
                                             <Tooltip title={<Typography variant="body2">{mod.description || 'No description'}</Typography>} arrow>
                                                 <Typography component="span" sx={{ borderBottom: '1px dotted', cursor: 'help' }}>
                                                     {mod.skillName} {mod.skillLevel && `(${mod.skillLevel})`}
+                                                    {mod.stackCount && mod.stackCount > 1 && (
+                                                        <Box component="span" sx={{ color: 'text.secondary', ml: 1, fontSize: '0.85em' }}>
+                                                            ×{mod.stackCount}
+                                                        </Box>
+                                                    )}
                                                 </Typography>
                                             </Tooltip>
                                         </TableCell>

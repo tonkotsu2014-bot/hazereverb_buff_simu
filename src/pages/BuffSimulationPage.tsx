@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Box, Typography, Paper, IconButton, Grid, FormControlLabel, Checkbox, Card, CardContent, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
+import { Box, Typography, Paper, IconButton, Grid, FormControlLabel, Checkbox, Card, CardContent, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem, Button, TextField, Tooltip } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import LayersIcon from '@mui/icons-material/Layers';
 import { CharacterSelector } from '../components/Simulation/CharacterSelector';
 import { CharacterList } from '../components/CharacterList';
 import { BuffResult } from '../components/Simulation/BuffResult';
-import { calculateMaxBuffs, calculateEffectiveStats } from '../logic/buffCalculation';
+import { calculateMaxBuffs, calculateEffectiveStats, getStackableSkills } from '../logic/buffCalculation';
 import type { ParsedCharacterData } from '../logic/wikiParser';
 
 interface BuffSimulationPageProps {
@@ -16,6 +17,7 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
     const [supporters, setSupporters] = useState<(ParsedCharacterData | null)[]>([]);
     const [activeExSkills, setActiveExSkills] = useState<Record<string, boolean>>({});
     const [activeSkillLevels, setActiveSkillLevels] = useState<Record<string, string>>({});
+    const [stackCounts, setStackCounts] = useState<Record<string, number>>({});
     const [configOpen, setConfigOpen] = useState(false);
     const [configTargetIndex, setConfigTargetIndex] = useState<number | null>(null); // Index in supporters array
 
@@ -64,8 +66,8 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
     const results = useMemo(() => {
         if (!attacker) return null;
         const activeSupporters = supporters.filter((s): s is ParsedCharacterData => s !== null);
-        return calculateMaxBuffs(attacker, activeSupporters, {}, activeExSkills, activeSkillLevels);
-    }, [attacker, supporters, activeExSkills, activeSkillLevels]);
+        return calculateMaxBuffs(attacker, activeSupporters, stackCounts, activeExSkills, activeSkillLevels);
+    }, [attacker, supporters, stackCounts, activeExSkills, activeSkillLevels]);
 
     // Helper to get Ex toggle state (default true if undefined)
     const isExEnabled = (charName: string | undefined) => {
@@ -74,7 +76,7 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
     };
 
     const getEffectiveSupportPower = (supporter: ParsedCharacterData) => {
-        const effective = calculateEffectiveStats(supporter, {}, activeExSkills, activeSkillLevels);
+        const effective = calculateEffectiveStats(supporter, stackCounts, activeExSkills, activeSkillLevels);
         return effective.stats?.attack || 0;
     };
 
@@ -93,6 +95,17 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
             ...prev,
             [charName]: level
         }));
+    };
+
+    const handleStackChange = (skillKey: string, count: number) => {
+        setStackCounts(prev => ({
+            ...prev,
+            [skillKey]: count
+        }));
+    };
+
+    const hasStackableSkills = (character: ParsedCharacterData) => {
+        return getStackableSkills(character, activeSkillLevels, activeExSkills).length > 0;
     };
 
 
@@ -218,6 +231,15 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                                                             >
                                                                 <DeleteIcon fontSize="small" />
                                                             </IconButton>
+                                                            {hasStackableSkills(supporter) && (
+                                                                <Tooltip title="スタック可能スキル所持">
+                                                                    <LayersIcon
+                                                                        fontSize="small"
+                                                                        color="action"
+                                                                        sx={{ position: 'absolute', top: 8, left: 8, zIndex: 2, opacity: 0.6 }}
+                                                                    />
+                                                                </Tooltip>
+                                                            )}
                                                         </Card>
                                                     )}
                                                 </Grid>
@@ -272,6 +294,22 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                                     }
                                     label="Exスキル有効"
                                 />
+
+                                {supporters[configTargetIndex] && getStackableSkills(
+                                    supporters[configTargetIndex]!,
+                                    activeSkillLevels,
+                                    activeExSkills
+                                ).map(skill => (
+                                    <TextField
+                                        key={skill.name}
+                                        label={`${skill.name} スタック数`}
+                                        type="number"
+                                        size="small"
+                                        value={stackCounts[skill.name] || 1}
+                                        onChange={(e) => handleStackChange(skill.name, parseInt(e.target.value) || 1)}
+                                        slotProps={{ htmlInput: { min: 1, max: 5 } }}
+                                    />
+                                ))}
                             </Box>
                         </DialogContent>
                         <DialogActions>

@@ -8,6 +8,7 @@ export interface BuffModifier {
     effectType: string;
     attribute: string;
     value: number;
+    stackCount?: number;
 }
 
 export interface CalculatedBuffs {
@@ -16,7 +17,6 @@ export interface CalculatedBuffs {
     critDamageTotal: number;
     modifiers: BuffModifier[];
 }
-
 export const calculateMaxBuffs = (
     attacker: ParsedCharacterData,
     supporters: ParsedCharacterData[],
@@ -29,16 +29,8 @@ export const calculateMaxBuffs = (
     let critDamageBuff = 0;
     const modifiers: BuffModifier[] = [];
 
-    // Helper to find the correct level
-    const findLevel = (skill: SkillData, charName: string) => {
-        const preferredLevel = activeSkillLevels[charName];
-        if (preferredLevel) {
-            const found = skill.levels.find((l: any) => l.level === preferredLevel);
-            if (found) return found;
-        }
-        // Fallback to max level logic
-        return [...skill.levels].reverse().find((l: any) => l.effects && l.effects.length > 0) || skill.levels[skill.levels.length - 1];
-    };
+    // Helper to find the correct level (using the exported helper)
+    const findLevel = (skill: SkillData, charName: string) => findSkillLevel(skill, charName, activeSkillLevels);
 
     // 0. Pre-calculate "Global Support/Attack Buffs" from Supporters to other Supporters
     let globalSupportBuffFromSupporters = 0;
@@ -97,6 +89,7 @@ export const calculateMaxBuffs = (
 
             if (applies) {
                 let value = effect.value;
+                let appliedStackCount: number | undefined = undefined;
 
                 if (effect.calculationType === 'SupportScaling') {
                     // Support Power is stored in 'attack' field for Support characters (and seemingly generally used there)
@@ -112,6 +105,8 @@ export const calculateMaxBuffs = (
                     if (count > 1) {
                         value = value * count;
                     }
+                    // User requested "1 or more". If stackable, we define stackCount.
+                    appliedStackCount = count;
                 }
 
                 // Negate for Debuffs
@@ -127,7 +122,8 @@ export const calculateMaxBuffs = (
                         description: description || undefined,
                         effectType: effect.type,
                         attribute: effect.attribute,
-                        value: value
+                        value: value,
+                        stackCount: appliedStackCount
                     });
                 }
 
@@ -244,4 +240,74 @@ export const calculateEffectiveStats = (
             attack: effectiveAttack
         } as any
     };
+};
+
+// Extracted Helper for finding the correct skill level based on configuration
+export const findSkillLevel = (
+    skill: SkillData,
+    charName: string,
+    activeSkillLevels: Record<string, string>
+) => {
+    const preferredLevel = activeSkillLevels[charName];
+    if (preferredLevel) {
+        const found = skill.levels.find((l: any) => l.level === preferredLevel);
+        if (found) return found;
+    }
+    // Fallback to max level logic or last available
+    // Note: The original logic in calculateMaxBuffs used search for "effects > 0" reversed.
+    return [...skill.levels].reverse().find((l: any) => l.effects && l.effects.length > 0) || skill.levels[skill.levels.length - 1];
+};
+
+export const getStackableSkills = (
+    character: ParsedCharacterData,
+    activeSkillLevels: Record<string, string> = {},
+    activeExSkills: Record<string, boolean> = {}
+): SkillData[] => {
+    return character.skills.filter(skill => {
+        // Find effective level
+        const levelObj = findSkillLevel(skill, character.name || '', activeSkillLevels);
+
+        // Determine if we should check 'Ex' level instead if toggle is active
+        const exLevel = skill.levels.find(l => l.level === 'Ex');
+        const isExAvailable = !!exLevel;
+        const exEnabled = activeExSkills[character.name || ''] !== false; // Default true if undefined
+
+        // Logic: 
+        // If skill has Ex level AND Ex is enabled, does it OVERRIDE the normal level?
+        // Or do we just check "What is the active effect?"
+        // In current parser, "Ex" is a separate level.
+        // If user selected "Lv 10", but Ex is active... 
+        // Usually Ex skills are passive/extra effects that apply IN ADDITION or are the only effects depending on skill type.
+        // But for "Stackable" check, we want to know if *any* currently active effect is stackable.
+
+        // Let's check both the selected active level AND the Ex level if enabled.
+        // If EITHER has stackable effects, we return the skill.
+
+        let hasStackable = false;
+
+        // Check selected level
+        if (levelObj && levelObj.effects) {
+            // If the found level IS 'Ex' and Ex skills are disabled, skip it.
+            if (levelObj.level === 'Ex' && !exEnabled) {
+                // Skip
+            } else {
+                if (levelObj.effects.some(e => e.isStackable)) hasStackable = true;
+            }
+        }
+
+        // Check Ex level if applicable
+        // This is for cases where Ex is SEPARATE from the "active level" (e.g. passive added on top)
+        // If the separate Ex level exists, is enabled, and is stackable, we should include it.
+        // Note: If findSkillLevel returned Ex, we already checked it above (or skipped it).
+        // If findSkillLevel returned non-Ex, we might still have Ex available as separate level.
+        if (!hasStackable && isExAvailable && exEnabled && exLevel && exLevel.effects) {
+            // Avoid double counting if levelObj IS exLevel?
+            // If levelObj === exLevel, we already handled it above.
+            if (levelObj !== exLevel) {
+                if (exLevel.effects.some(e => e.isStackable)) hasStackable = true;
+            }
+        }
+
+        return hasStackable;
+    });
 };

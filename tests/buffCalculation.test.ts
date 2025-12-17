@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculateMaxBuffs, CalculatedBuffs } from '../src/logic/buffCalculation';
+import { calculateMaxBuffs, CalculatedBuffs, getStackableSkills } from '../src/logic/buffCalculation';
 import { ParsedCharacterData, SkillData, processSkillAttributes } from '../src/logic/wikiParser';
 import fs from 'fs';
 import path from 'path';
@@ -755,5 +755,89 @@ describe('calculateMaxBuffs', () => {
         const result = calculateMaxBuffs(attacker, [supporterA, supporterB]);
 
         expect(result.attackIncreasePercent).toBe(170);
+    });
+
+    // 15. Test getStackableSkills logic
+    describe('getStackableSkills', () => {
+
+        const character = {
+            name: 'StackChar',
+            skills: [
+                {
+                    name: 'Skill1', // Stackable at Lv10
+                    levels: [
+                        { level: '1', description: null, effects: [{ type: 'Buff', target: 'Self', attribute: 'Attack', value: 10 }] },
+                        { level: '10', description: null, effects: [{ type: 'Buff', target: 'Self', attribute: 'Attack', value: 20, isStackable: true }] }
+                    ]
+                },
+                {
+                    name: 'Skill2', // Never stackable
+                    levels: [
+                        { level: '10', description: null, effects: [{ type: 'Buff', target: 'Self', attribute: 'Attack', value: 10 }] }
+                    ]
+                },
+                {
+                    name: 'Skill3', // Stackable only on Ex
+                    levels: [
+                        { level: '10', description: null, effects: [{ type: 'Buff', target: 'Self', attribute: 'Attack', value: 10 }] },
+                        { level: 'Ex', description: null, effects: [{ type: 'Buff', target: 'Self', attribute: 'Attack', value: 30, isStackable: true }] }
+                    ]
+                }
+            ]
+        } as unknown as ParsedCharacterData;
+
+        it('should return skills that are stackable at the active level', () => {
+            // Default level is max (10) -> Skill1 is stackable
+            const result = getStackableSkills(character, {}, {});
+            expect(result.map(s => s.name)).toContain('Skill1');
+            expect(result.map(s => s.name)).not.toContain('Skill2');
+
+            // Skill3 is NOT stackable at level 10 (Ex default enabled? logic says Ex is checked if enabled. Ex default is true.)
+            // Logic says if Ex is enabled, we check BOTH effective level AND Ex.
+            // Skill3 has stackable at Ex. So it should be included if Ex is enabled.
+            expect(result.map(s => s.name)).toContain('Skill3');
+        });
+
+        it('should NOT return Skill1 if active level is 1 (not stackable)', () => {
+            const result = getStackableSkills(character, { 'StackChar': '1' }, {});
+            expect(result.map(s => s.name)).not.toContain('Skill1');
+        });
+
+        it('should NOT return Skill3 if Ex is disabled', () => {
+            const result = getStackableSkills(character, {}, { 'StackChar': false });
+            expect(result.map(s => s.name)).not.toContain('Skill3');
+        });
+    });
+
+    // 16. Test stackCount in modifiers
+    it('should include stackCount in modifiers for stackable skills', () => {
+        const attacker = createChar('StackAttacker', [
+            { type: 'Buff', target: 'Self', attribute: 'Attack', value: 10, isStackable: true }
+        ]);
+
+        // 1. Stack Count = 3
+        // Note: createChar uses 'Test Skill' as the default skill name.
+        // And logic uses skill.name as key.
+        let result = calculateMaxBuffs(attacker, [], { 'Test Skill': 3 });
+        let modifier = result.modifiers.find(m => m.skillName === 'Test Skill');
+        expect(modifier).toBeDefined();
+        expect(modifier?.value).toBe(30); // 10 * 3
+        expect(modifier?.stackCount).toBe(3);
+
+        // 2. Stack Count = 1 (Default or explicit)
+        result = calculateMaxBuffs(attacker, [], { 'Test Skill': 1 });
+        modifier = result.modifiers.find(m => m.skillName === 'Test Skill');
+        expect(modifier).toBeDefined();
+        expect(modifier?.value).toBe(10);
+        expect(modifier?.stackCount).toBe(1);
+
+        // 3. Non-stackable skill
+        const nonStack_attacker = createChar('NormalAttacker', [
+            { type: 'Buff', target: 'Self', attribute: 'Attack', value: 10 } // isStackable undefined/false
+        ]);
+        result = calculateMaxBuffs(nonStack_attacker, []);
+        modifier = result.modifiers.find(m => m.skillName === 'Test Skill');
+        expect(modifier).toBeDefined();
+        expect(modifier?.stackCount).toBeUndefined();
     });
 });
