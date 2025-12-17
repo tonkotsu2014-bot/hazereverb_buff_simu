@@ -46,7 +46,7 @@ const attributeLabels: Record<string, string> = {
     Mobility: '機動力',
     Support: '支援力',
     Shield: 'シールド',
-    MaxHP: '最大HP',
+    Hp: '最大HP',
     DamageReduction: 'ダメ軽減',
     DamageBoost: 'ダメ増加',
     Evasion: '回避'
@@ -456,7 +456,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                                     <MenuItem value="Mobility">機動力</MenuItem>
                                                                     <MenuItem value="Support">支援力</MenuItem>
                                                                     <MenuItem value="Shield">シールド</MenuItem>
-                                                                    <MenuItem value="MaxHP">最大HP</MenuItem>
+                                                                    <MenuItem value="Hp">最大HP</MenuItem>
                                                                 </Select>
                                                             </FormControl>
                                                         </Grid>
