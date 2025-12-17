@@ -5,66 +5,143 @@ import {
     Toolbar,
     Typography,
     Box,
-    Button
+    Button,
+    IconButton,
+    Drawer,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    useTheme,
+    useMediaQuery,
+    Divider
 } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
 import EditIcon from '@mui/icons-material/Edit';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 export const MainLayout: React.FC = () => {
     const location = useLocation();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const [mobileOpen, setMobileOpen] = React.useState(false);
+
+    const handleDrawerToggle = () => {
+        setMobileOpen(!mobileOpen);
+    };
+
+    const drawer = (
+        <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
+            <Typography variant="h6" sx={{ my: 2 }}>
+                ハツリバ・バフシミュ
+            </Typography>
+            <Divider />
+            <List>
+                <ListItem disablePadding>
+                    <ListItemButton component={Link} to="/edit" selected={location.pathname === '/edit'}>
+                        <ListItemIcon><EditIcon /></ListItemIcon>
+                        <ListItemText primary="キャラ編集" />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem disablePadding>
+                    <ListItemButton component={Link} to="/simulation" selected={location.pathname === '/simulation'}>
+                        <ListItemIcon><CalculateIcon /></ListItemIcon>
+                        <ListItemText primary="シミュレーション" />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem disablePadding>
+                    <ListItemButton component={Link} to="/settings" selected={location.pathname === '/settings'}>
+                        <ListItemIcon><SettingsIcon /></ListItemIcon>
+                        <ListItemText primary="設定" />
+                    </ListItemButton>
+                </ListItem>
+            </List>
+        </Box>
+    );
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '80vw' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100%' }}>
             <AppBar position="static">
                 <Toolbar>
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 0, mr: 4 }}>
-                        ハツリバ・バフシミュレーター
+                    {isMobile && (
+                        <IconButton
+                            color="inherit"
+                            aria-label="open drawer"
+                            edge="start"
+                            onClick={handleDrawerToggle}
+                            sx={{ mr: 2 }}
+                        >
+                            <MenuIcon />
+                        </IconButton>
+                    )}
+
+                    <Typography variant="h6" component="div" sx={{ flexGrow: isMobile ? 1 : 0, mr: 4 }}>
+                        {isMobile ? 'バフシミュ' : 'ハツリバ・バフシミュレーター'}
                     </Typography>
 
-                    <Box sx={{ flexGrow: 1, display: 'flex', gap: 2 }}>
+                    {!isMobile && (
+                        <Box sx={{ flexGrow: 1, display: 'flex', gap: 2 }}>
+                            <Button
+                                color="inherit"
+                                component={Link}
+                                to="/edit"
+                                startIcon={<EditIcon />}
+                                sx={{
+                                    borderBottom: location.pathname === '/edit' ? '2px solid white' : 'none',
+                                    borderRadius: 0
+                                }}
+                            >
+                                キャラ編集
+                            </Button>
 
-                        <Button
-                            color="inherit"
-                            component={Link}
-                            to="/edit"
-                            startIcon={<EditIcon />}
-                            sx={{
-                                borderBottom: location.pathname === '/edit' ? '2px solid white' : 'none',
-                                borderRadius: 0
-                            }}
-                        >
-                            キャラ編集
-                        </Button>
-
-                        <Button
-                            color="inherit"
-                            component={Link}
-                            to="/simulation"
-                            startIcon={<CalculateIcon />}
-                            sx={{
-                                borderBottom: location.pathname === '/simulation' ? '2px solid white' : 'none',
-                                borderRadius: 0
-                            }}
-                        >
-                            シミュ
-                        </Button>
-                        <Button
-                            color="inherit"
-                            component={Link}
-                            to="/settings"
-                            startIcon={<SettingsIcon />}
-                            sx={{
-                                borderBottom: location.pathname === '/settings' ? '2px solid white' : 'none',
-                                borderRadius: 0,
-                                ml: 'auto'
-                            }}
-                        >
-                            設定
-                        </Button>
-                    </Box>
+                            <Button
+                                color="inherit"
+                                component={Link}
+                                to="/simulation"
+                                startIcon={<CalculateIcon />}
+                                sx={{
+                                    borderBottom: location.pathname === '/simulation' ? '2px solid white' : 'none',
+                                    borderRadius: 0
+                                }}
+                            >
+                                シミュ
+                            </Button>
+                            <Button
+                                color="inherit"
+                                component={Link}
+                                to="/settings"
+                                startIcon={<SettingsIcon />}
+                                sx={{
+                                    borderBottom: location.pathname === '/settings' ? '2px solid white' : 'none',
+                                    borderRadius: 0,
+                                    ml: 'auto'
+                                }}
+                            >
+                                設定
+                            </Button>
+                        </Box>
+                    )}
                 </Toolbar>
             </AppBar>
+
+            <Box component="nav">
+                <Drawer
+                    variant="temporary"
+                    open={mobileOpen}
+                    onClose={handleDrawerToggle}
+                    ModalProps={{
+                        keepMounted: true, // Better open performance on mobile.
+                    }}
+                    sx={{
+                        display: { xs: 'block', sm: 'none' },
+                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
+                    }}
+                >
+                    {drawer}
+                </Drawer>
+            </Box>
 
             <Box component="main" sx={{ flexGrow: 1, overflow: 'hidden', bgcolor: 'background.default' }}>
                 <Outlet />
