@@ -19,7 +19,7 @@ export const MainLayout: React.FC = () => {
             <AppBar position="static">
                 <Toolbar>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 0, mr: 4 }}>
-                        Haze Reverb Sim
+                        ハツリバ・バフシミュレーター
                     </Typography>
 
                     <Box sx={{ flexGrow: 1, display: 'flex', gap: 2 }}>
