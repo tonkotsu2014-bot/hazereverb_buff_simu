@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, Typography, Divider, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Tooltip, Switch } from '@mui/material';
+import { Card, CardContent, Typography, Divider, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Tooltip } from '@mui/material';
 import type { CalculatedBuffs } from '../../logic/buffCalculation';
 
 interface BuffResultProps {
@@ -84,19 +84,32 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results, onToggleBuff })
                                 <TableCell>スキル</TableCell>
                                 <TableCell>効果</TableCell>
                                 <TableCell align="right">値</TableCell>
-                                <TableCell align="center">有効</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {results.modifiers && results.modifiers.length > 0 ? (
                                 results.modifiers.map((mod, index) => (
-                                    <TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                                    <TableRow
+                                        key={index}
+                                        onClick={() => onToggleBuff(mod.id)}
+                                        sx={{
+                                            '&:last-child td, &:last-child th': { border: 0 },
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s',
+                                            opacity: mod.isActive ? 1 : 0.5,
+                                            filter: mod.isActive ? 'none' : 'grayscale(100%)',
+                                            bgcolor: mod.isActive ? 'transparent' : 'action.hover',
+                                            '&:hover': {
+                                                bgcolor: 'action.hover'
+                                            }
+                                        }}
+                                    >
                                         <TableCell component="th" scope="row">
                                             {mod.sourceCharacterName}
                                         </TableCell>
                                         <TableCell>
                                             <Tooltip title={<Typography variant="body2">{mod.description || 'No description'}</Typography>} arrow>
-                                                <Typography component="span" sx={{ borderBottom: '1px dotted', cursor: 'help' }}>
+                                                <Typography component="span" sx={{ borderBottom: '1px dotted' }}>
                                                     {mod.skillName} {mod.skillLevel && `(${mod.skillLevel})`}
                                                     {mod.stackCount && mod.stackCount > 1 && (
                                                         <Box component="span" sx={{ color: 'text.secondary', ml: 1, fontSize: '0.85em' }}>
@@ -112,18 +125,11 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results, onToggleBuff })
                                         <TableCell align="right" sx={{ color: mod.value < 0 ? 'error.main' : 'success.main', fontWeight: 'bold' }}>
                                             {mod.value > 0 ? '+' : ''}{mod.value.toFixed(2)}
                                         </TableCell>
-                                        <TableCell align="center">
-                                            <Switch
-                                                size="small"
-                                                checked={mod.isActive}
-                                                onChange={() => onToggleBuff(mod.id)}
-                                            />
-                                        </TableCell>
                                     </TableRow>
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={5} align="center" sx={{ py: 3, color: 'text.secondary' }}>
+                                    <TableCell colSpan={4} align="center" sx={{ py: 3, color: 'text.secondary' }}>
                                         適用された効果はありません
                                     </TableCell>
                                 </TableRow>
