@@ -63,7 +63,7 @@ export const MainLayout: React.FC = () => {
     );
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '80vw' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', width: { xs: '100%', md: '80vw' }, mx: 'auto' }}>
             <AppBar position="static">
                 <Toolbar>
                     {isMobile && (
