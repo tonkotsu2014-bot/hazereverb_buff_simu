@@ -15,6 +15,7 @@ export interface CalculatedBuffs {
     attackIncreasePercent: number;
     critRateTotal: number;
     critDamageTotal: number;
+    hyperCritDamageBuff: number;
     modifiers: BuffModifier[];
 }
 export const calculateMaxBuffs = (
@@ -27,6 +28,7 @@ export const calculateMaxBuffs = (
     let attackIncreasePercent = 0;
     let critRateBuff = 0;
     let critDamageBuff = 0;
+    let hyperCritDamageBuff = 0;
     const modifiers: BuffModifier[] = [];
 
     // Helper to find the correct level (using the exported helper)
@@ -131,6 +133,8 @@ export const calculateMaxBuffs = (
                     critRateBuff += value;
                 } else if (effect.attribute === 'CritDamage') {
                     critDamageBuff += value;
+                } else if (effect.attribute === 'HyperCritDamage') {
+                    hyperCritDamageBuff += value;
                 }
             }
         });
@@ -169,7 +173,8 @@ export const calculateMaxBuffs = (
     return {
         attackIncreasePercent,
         critRateTotal: baseCritRate + critRateBuff,
-        critDamageTotal: baseCritDamage + critDamageBuff,
+        critDamageTotal: baseCritDamage + critDamageBuff + hyperCritDamageBuff,
+        hyperCritDamageBuff,
         modifiers
     };
 };

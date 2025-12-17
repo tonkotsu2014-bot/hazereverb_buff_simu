@@ -878,4 +878,29 @@ describe('calculateMaxBuffs', () => {
         // 1000 * 10% = 100
         expect(result.critRateTotal).toBe(100);
     });
+
+    // 17. Verify Hyper Crit Damage separation
+    it('should correctly calculate and separate Hyper Crit Damage', () => {
+        const attacker = createChar('Attacker', [], { critDamage: 150 });
+        const supporter = createChar('Supporter', [
+            { type: 'Buff', attribute: 'CritDamage', value: 30, target: 'AllAllies' },
+            { type: 'Buff', attribute: 'HyperCritDamage', value: 50, target: 'AllAllies' }
+        ]);
+
+        const result = calculateMaxBuffs(attacker, [supporter]);
+
+        // Base: 150
+        // CritDamage Buff: 30
+        // HyperCritDamage Buff: 50
+        // Total CritDamage: 150 + 30 + 50 = 230
+        expect(result.critDamageTotal).toBe(230);
+
+        // Check new property
+        expect(result.hyperCritDamageBuff).toBe(50);
+
+        // Verify modifiers
+        const hyperMod = result.modifiers.find(m => m.attribute === 'HyperCritDamage');
+        expect(hyperMod).toBeDefined();
+        expect(hyperMod?.value).toBe(50);
+    });
 });

@@ -246,7 +246,7 @@ const ATTRIBUTE_MAP: { [key: string]: string } = {
     'ダメージ軽減率': 'DamageReduction',
     'ダメージ回避': 'Evasion',
     'ダメージ回避率': 'Evasion',
-    'ハイパークリティカルダメージ': 'CritDamage',
+    'ハイパークリティカルダメージ': 'HyperCritDamage',
     '機動力': 'Mobility',
     '攻撃': 'Attack',
     '支援': 'Support',

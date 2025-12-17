@@ -17,7 +17,8 @@ const attributeMap: Record<string, string> = {
     Support: '支援力',
     DamageReduction: 'ダメージ軽減',
     DamageBoost: 'ダメージ増加',
-    Armor: '装甲'
+    Armor: '装甲',
+    HyperCritDamage: 'ハイパー会心ダメージ'
 };
 
 export const BuffResult: React.FC<BuffResultProps> = ({ results }) => {
@@ -57,6 +58,11 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results }) => {
                         <Typography variant="h4">
                             {formatPercent(results.critDamageTotal)}
                         </Typography>
+                        {results.hyperCritDamageBuff > 0 && (
+                            <Typography variant="caption" display="block" color="text.secondary">
+                                (通常: {formatPercent(results.critDamageTotal - results.hyperCritDamageBuff)} + ハイパー: {formatPercent(results.hyperCritDamageBuff)})
+                            </Typography>
+                        )}
                     </Box>
                 </Box>
 
