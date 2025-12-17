@@ -1,9 +1,10 @@
 import React from 'react';
-import { Card, CardContent, Typography, Divider, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Tooltip } from '@mui/material';
+import { Card, CardContent, Typography, Divider, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Tooltip, Switch } from '@mui/material';
 import type { CalculatedBuffs } from '../../logic/buffCalculation';
 
 interface BuffResultProps {
     results: CalculatedBuffs;
+    onToggleBuff: (id: string) => void;
 }
 
 const attributeMap: Record<string, string> = {
@@ -21,7 +22,7 @@ const attributeMap: Record<string, string> = {
     HyperCritDamage: 'ハイパー会心ダメージ'
 };
 
-export const BuffResult: React.FC<BuffResultProps> = ({ results }) => {
+export const BuffResult: React.FC<BuffResultProps> = ({ results, onToggleBuff }) => {
     const formatPercent = (val: number) => `${val.toFixed(2)}%`;
 
     return (
@@ -83,6 +84,7 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results }) => {
                                 <TableCell>スキル</TableCell>
                                 <TableCell>効果</TableCell>
                                 <TableCell align="right">値</TableCell>
+                                <TableCell align="center">有効</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -110,11 +112,18 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results }) => {
                                         <TableCell align="right" sx={{ color: mod.value < 0 ? 'error.main' : 'success.main', fontWeight: 'bold' }}>
                                             {mod.value > 0 ? '+' : ''}{mod.value.toFixed(2)}
                                         </TableCell>
+                                        <TableCell align="center">
+                                            <Switch
+                                                size="small"
+                                                checked={mod.isActive}
+                                                onChange={() => onToggleBuff(mod.id)}
+                                            />
+                                        </TableCell>
                                     </TableRow>
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={4} align="center" sx={{ py: 3, color: 'text.secondary' }}>
+                                    <TableCell colSpan={5} align="center" sx={{ py: 3, color: 'text.secondary' }}>
                                         適用された効果はありません
                                     </TableCell>
                                 </TableRow>

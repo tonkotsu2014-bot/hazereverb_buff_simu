@@ -9,6 +9,8 @@ export interface BuffModifier {
     attribute: string;
     value: number;
     stackCount?: number;
+    id: string;      // Unique identifier for toggling
+    isActive: boolean; // Whether it's currently enabled
 }
 
 export interface CalculatedBuffs {
@@ -23,7 +25,8 @@ export const calculateMaxBuffs = (
     supporters: ParsedCharacterData[],
     stackCounts: Record<string, number> = {},
     activeExSkills: Record<string, boolean> = {},
-    activeSkillLevels: Record<string, string> = {}
+    activeSkillLevels: Record<string, string> = {},
+    disabledBuffIds: Set<string> = new Set()
 ): CalculatedBuffs => {
     let attackIncreasePercent = 0;
     let critRateBuff = 0;
@@ -114,7 +117,12 @@ export const calculateMaxBuffs = (
                 }
 
                 if (value !== 0) {
+                    const modId = `${character.name || 'Unknown'}-${skillName}-${effect.attribute}-${effect.type}`;
+                    const isDisabled = disabledBuffIds.has(modId);
+
                     modifiers.push({
+                        id: modId,
+                        isActive: !isDisabled,
                         sourceCharacterName: character.name || 'Unknown',
                         skillName: skillName,
                         skillLevel: levelName,
@@ -124,17 +132,20 @@ export const calculateMaxBuffs = (
                         value: value,
                         stackCount: appliedStackCount
                     });
-                }
 
-                if (effect.attribute === 'Attack') {
-                    // Attack buffs are usually percentage based increases
-                    attackIncreasePercent += value;
-                } else if (effect.attribute === 'CritRate') {
-                    critRateBuff += value;
-                } else if (effect.attribute === 'CritDamage') {
-                    critDamageBuff += value;
-                } else if (effect.attribute === 'HyperCritDamage') {
-                    hyperCritDamageBuff += value;
+                    // Only accumulate if active
+                    if (!isDisabled) {
+                        if (effect.attribute === 'Attack') {
+                            // Attack buffs are usually percentage based increases
+                            attackIncreasePercent += value;
+                        } else if (effect.attribute === 'CritRate') {
+                            critRateBuff += value;
+                        } else if (effect.attribute === 'CritDamage') {
+                            critDamageBuff += value;
+                        } else if (effect.attribute === 'HyperCritDamage') {
+                            hyperCritDamageBuff += value;
+                        }
+                    }
                 }
             }
         });

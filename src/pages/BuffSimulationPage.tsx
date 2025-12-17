@@ -21,6 +21,7 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
     const [configOpen, setConfigOpen] = useState(false);
     const [configTargetIndex, setConfigTargetIndex] = useState<number | null>(null); // Index in supporters array
     const [attackerStats, setAttackerStats] = useState({ critRate: 0, critDamage: 0 }); // Custom stats for attacker
+    const [disabledBuffIds, setDisabledBuffIds] = useState<Set<string>>(new Set());
 
     // Sync state with characters prop to reflect edits
     // Sync state with characters prop to reflect edits
@@ -98,8 +99,20 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
         };
 
         const activeSupporters = supporters.filter((s): s is ParsedCharacterData => s !== null);
-        return calculateMaxBuffs(modifiedAttacker, activeSupporters, stackCounts, activeExSkills, activeSkillLevels);
-    }, [attacker, supporters, stackCounts, activeExSkills, activeSkillLevels, attackerStats]);
+        return calculateMaxBuffs(modifiedAttacker, activeSupporters, stackCounts, activeExSkills, activeSkillLevels, disabledBuffIds);
+    }, [attacker, supporters, stackCounts, activeExSkills, activeSkillLevels, attackerStats, disabledBuffIds]);
+
+    const handleToggleBuff = (buffId: string) => {
+        setDisabledBuffIds(prev => {
+            const next = new Set(prev);
+            if (next.has(buffId)) {
+                next.delete(buffId);
+            } else {
+                next.add(buffId);
+            }
+            return next;
+        });
+    };
 
     // Helper to get Ex toggle state (default true if undefined)
     const isExEnabled = (charName: string | undefined) => {
@@ -302,7 +315,7 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                         {/* Results */}
                         <Box>
                             {results ? (
-                                <BuffResult results={results} />
+                                <BuffResult results={results} onToggleBuff={handleToggleBuff} />
                             ) : (
                                 <Paper sx={{ p: 4, textAlign: 'center', bgcolor: '#f5f5f5' }}>
                                     <Typography color="text.secondary">
