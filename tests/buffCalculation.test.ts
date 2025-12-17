@@ -184,7 +184,7 @@ describe('calculateMaxBuffs', () => {
             return modifiedSupporter;
         };
 
-        const supportPower = parseFloat(String(supporter.stats?.attack || '0'));
+        const supportPower = parseFloat(String(supporter.stats?.Support || '0'));
 
         // Calculate solo results to account for Attacker's base stats AND self-buffs
         const soloRes = calculateMaxBuffs(attacker, []);
@@ -230,7 +230,7 @@ describe('calculateMaxBuffs', () => {
 
         const supporter = createChar('Supporter', [
             { type: 'Buff', attribute: 'Attack', value: 20, calculationType: 'SupportScaling', target: 'AllAllies' }
-        ], { attack: 161 });
+        ], { Support: 161 });
 
         const result = calculateMaxBuffs(attacker, [supporter]);
 
@@ -260,7 +260,7 @@ describe('calculateMaxBuffs', () => {
             { type: 'Buff', attribute: 'CritDamage', value: 50, target: 'AllAllies' }
         ], { critRate: 20, critDamage: 0 });
 
-        const supporter = createChar('Supporter', [], { attack: 110 });
+        const supporter = createChar('Supporter', [], { Support: 110 });
         supporter.skills = [
             {
                 name: 'Skill 1',
@@ -573,7 +573,7 @@ describe('calculateMaxBuffs', () => {
         const attacker = createChar('Attacker', [], { attack: 1000 });
         const supporter = {
             name: 'Supporter',
-            stats: { attack: 100 },
+            stats: { Support: 100 },
             skills: [
                 {
                     name: 'Support Skill',
@@ -602,7 +602,7 @@ describe('calculateMaxBuffs', () => {
         const attacker = createChar('Attacker', [], { attack: 1000 });
         const supporter = {
             name: 'DualSkillSupporter',
-            stats: { attack: 100 },
+            stats: { Support: 100 },
             skills: [
                 {
                     name: 'Skill A',
@@ -636,7 +636,7 @@ describe('calculateMaxBuffs', () => {
         // Supporter A: All Allies Attack + 20%
         const supporterA = {
             name: 'SupporterA',
-            stats: { attack: 100 },
+            stats: { Support: 100 },
             skills: [
                 {
                     name: 'BuffAll',
@@ -660,7 +660,7 @@ describe('calculateMaxBuffs', () => {
         // Skill gives 100% of Support Power as Attack to All Allies.
         const supporterB = {
             name: 'SupporterB',
-            stats: { attack: 100 },
+            stats: { Support: 100 },
             skills: [
                 {
                     name: 'ScalingBuff',
@@ -700,7 +700,7 @@ describe('calculateMaxBuffs', () => {
         // 2. Scaling Buff (100% Support -> Attack to AllAllies)
         const supporterA = {
             name: 'SupporterA',
-            stats: { attack: 100 },
+            stats: { Support: 100 },
             skills: [
                 {
                     name: 'SelfBuffAndScale',
@@ -722,7 +722,7 @@ describe('calculateMaxBuffs', () => {
         // 1. Global Support + 20 (Buff, Target: AllAllies, Attribute: Support)
         const supporterB = {
             name: 'SupporterB',
-            stats: { attack: 100 },
+            stats: { Support: 100 },
             skills: [
                 {
                     name: 'GlobalSupportBuff',
@@ -839,5 +839,43 @@ describe('calculateMaxBuffs', () => {
         modifier = result.modifiers.find(m => m.skillName === 'Test Skill');
         expect(modifier).toBeDefined();
         expect(modifier?.stackCount).toBeUndefined();
+    });
+
+    // 13. [Bug Repro] Verify that 'Support' stat is used for SupportScaling, not 'Attack'
+    it('should use Support stat for SupportScaling, NOT Attack stat', () => {
+        const attacker = createChar('Attacker', [], { critRate: 0 });
+
+        // Manual creation of Suporther with explicit 'Support' stat (and NO 'Attack' stat)
+        // Mimicking what wikiParser produces for Supporters
+        const supporter: ParsedCharacterData = {
+            name: 'RealSupporter',
+            // @ts-ignore - explicitly testing missing attack 
+            stats: {
+                Support: 1000,
+                // Attack is deliberately missing or 0
+                hp: 100, defense: 10, critRate: 0, critDamage: 0, speed: 0
+            },
+            skills: [
+                {
+                    name: 'Support Skill',
+                    levels: [{
+                        level: '1',
+                        description: null,
+                        effects: [{
+                            type: 'Buff',
+                            attribute: 'CritRate',
+                            value: 10, // 10% scaling
+                            calculationType: 'SupportScaling',
+                            target: 'AllAllies'
+                        }]
+                    }]
+                }
+            ]
+        };
+
+        const result = calculateMaxBuffs(attacker, [supporter]);
+
+        // 1000 * 10% = 100
+        expect(result.critRateTotal).toBe(100);
     });
 });

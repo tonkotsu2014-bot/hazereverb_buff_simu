@@ -92,10 +92,7 @@ export const calculateMaxBuffs = (
                 let appliedStackCount: number | undefined = undefined;
 
                 if (effect.calculationType === 'SupportScaling') {
-                    // Support Power is stored in 'attack' field for Support characters (and seemingly generally used there)
-                    const supportPower = typeof character.stats?.attack === 'number'
-                        ? character.stats.attack
-                        : parseFloat(character.stats?.attack || '0');
+                    const supportPower = getSupportPower(character.stats);
                     value = supportPower * (effect.value / 100);
                 }
 
@@ -177,6 +174,16 @@ export const calculateMaxBuffs = (
     };
 };
 
+// Helper to get Support Power safely (handles 'Support' vs 'Attack' property)
+const getSupportPower = (stats: any): number => {
+    if (!stats) return 0;
+    // explicit check for Support first
+    if (stats.Support !== undefined) {
+        return typeof stats.Support === 'number' ? stats.Support : parseFloat(stats.Support);
+    }
+    return 0;
+};
+
 export const calculateEffectiveStats = (
     character: ParsedCharacterData,
     stackCounts: Record<string, number> = {},
@@ -184,9 +191,7 @@ export const calculateEffectiveStats = (
     activeSkillLevels: Record<string, string> = {},
     globalSupportBuffPercent: number = 0
 ): ParsedCharacterData => {
-    let baseAttack = typeof character.stats?.attack === 'number'
-        ? character.stats.attack
-        : parseFloat(character.stats?.attack || '0');
+    const baseSupport = getSupportPower(character.stats);
 
     // Accumulate percentage increase for Attack (Support Power)
     // Initialize with global buffs from other supporters
@@ -231,14 +236,18 @@ export const calculateEffectiveStats = (
     // Calculate effective attack (Support Power)
     // Support Power is a percentage value, so increases are additive.
     // e.g. Base 110% + Buff 90% + Global 20% = 220%
-    const effectiveAttack = baseAttack + supportPowerIncrease;
+    const effectiveSupport = baseSupport + supportPowerIncrease;
+
+    // Detect which key to update
+    const stats = character.stats || {};
+    const newStats = { ...stats } as any;
+
+    // Strict update: Always update 'Support'
+    newStats.Support = effectiveSupport;
 
     return {
         ...character,
-        stats: {
-            ...character.stats,
-            attack: effectiveAttack
-        } as any
+        stats: newStats
     };
 };
 

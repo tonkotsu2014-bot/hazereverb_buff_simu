@@ -233,12 +233,12 @@
       }
     ],
     "stats": {
-      "hp": 12921,
-      "attack": 64,
-      "defense": 5,
-      "critRate": 0,
-      "critDamage": 0,
-      "speed": 0
+      "Hp": 12921,
+      "Attack": 64,
+      "Armor": 5,
+      "CritRate": 0,
+      "CritDamage": 0,
+      "Mobility": 0
     },
     "name": "玉体革命(パラダイムシフト) 駿河朱々",
     "type": "防御",
@@ -541,12 +541,12 @@
       }
     ],
     "stats": {
-      "hp": 5290,
-      "attack": 1449,
-      "defense": 0,
-      "critRate": 20,
-      "critDamage": 65,
-      "speed": 0
+      "Hp": 5290,
+      "Attack": 1449,
+      "Armor": 0,
+      "CritRate": 20,
+      "CritDamage": 65,
+      "Mobility": 0
     },
     "name": "不安定化合物 ヴェリル",
     "type": "攻撃",
@@ -786,12 +786,12 @@
       }
     ],
     "stats": {
-      "hp": 9241,
-      "attack": 897,
-      "defense": 15,
-      "critRate": 0,
-      "critDamage": 0,
-      "speed": 0
+      "Hp": 9241,
+      "Attack": 897,
+      "Armor": 15,
+      "CritRate": 0,
+      "CritDamage": 0,
+      "Mobility": 0
     },
     "name": "清浄の騎士 コースガード",
     "type": "超越",
@@ -1049,12 +1049,12 @@
       }
     ],
     "stats": {
-      "hp": 9056,
-      "attack": 508,
-      "defense": 15,
-      "critRate": 0,
-      "critDamage": 0,
-      "speed": 20
+      "Hp": 9056,
+      "Attack": 508,
+      "Armor": 15,
+      "CritRate": 0,
+      "CritDamage": 0,
+      "Mobility": 20
     },
     "name": "輪廻を超える者 イリア",
     "type": "超越",
@@ -1370,12 +1370,12 @@
       }
     ],
     "stats": {
-      "hp": 8091,
-      "attack": 111,
-      "defense": 10,
-      "critRate": 0,
-      "critDamage": 0,
-      "speed": 25
+      "Hp": 8091,
+      "Attack": 111,
+      "Armor": 10,
+      "CritRate": 0,
+      "CritDamage": 0,
+      "Mobility": 25
     },
     "name": "神聖Trick メリア",
     "type": "支援",
@@ -1615,12 +1615,12 @@
       }
     ],
     "stats": {
-      "hp": 5194,
-      "attack": 96,
-      "defense": 0,
-      "critRate": 0,
-      "critDamage": 0,
-      "speed": 35
+      "Hp": 5194,
+      "Attack": 96,
+      "Armor": 0,
+      "CritRate": 0,
+      "CritDamage": 0,
+      "Mobility": 35
     },
     "name": "億千万の幸福 ドロリィス",
     "type": "支援",
@@ -1918,12 +1918,12 @@
       }
     ],
     "stats": {
-      "hp": 3138,
-      "attack": 89,
-      "defense": 0,
-      "critRate": 0,
-      "critDamage": 0,
-      "speed": 30
+      "Hp": 3138,
+      "Support": 89,
+      "Armor": 0,
+      "CritRate": 0,
+      "CritDamage": 0,
+      "Mobility": 30
     },
     "name": "きっと見つける(プロミス) 大川村寧",
     "type": "支援",
@@ -2266,12 +2266,12 @@
       }
     ],
     "stats": {
-      "hp": 6714,
-      "attack": 70,
-      "defense": 20,
-      "critRate": 0,
-      "critDamage": 0,
-      "speed": 0
+      "Hp": 6714,
+      "Attack": 70,
+      "Armor": 20,
+      "CritRate": 0,
+      "CritDamage": 0,
+      "Mobility": 0
     },
     "name": "懲罰の審問官 モニカ",
     "type": "支援",
@@ -2574,12 +2574,12 @@
       }
     ],
     "stats": {
-      "hp": 3624,
-      "attack": 1623,
-      "defense": 0,
-      "critRate": 40,
-      "critDamage": 100,
-      "speed": 0
+      "Hp": 3624,
+      "Attack": 1623,
+      "Armor": 0,
+      "CritRate": 40,
+      "CritDamage": 100,
+      "Mobility": 0
     },
     "name": "人たる天使 ボーリンナ",
     "type": "攻撃",

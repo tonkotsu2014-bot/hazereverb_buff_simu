@@ -77,7 +77,7 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
 
     const getEffectiveSupportPower = (supporter: ParsedCharacterData) => {
         const effective = calculateEffectiveStats(supporter, stackCounts, activeExSkills, activeSkillLevels);
-        return effective.stats?.attack || 0;
+        return (effective.stats as any)?.Support || 0;
     };
 
     const handleOpenConfig = (index: number) => {
@@ -125,6 +125,7 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                     <CharacterList
                         characters={characters}
                         onAdd={handleAddSupporter}
+                        onSelect={handleAddSupporter}
                     />
                 </Grid>
 
