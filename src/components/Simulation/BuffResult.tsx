@@ -34,7 +34,7 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results, onToggleBuff })
                 <Divider sx={{ mb: 2 }} />
 
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 4 }}>
-                    <Box sx={{ flex: '1 1 300px' }}>
+                    <Box sx={{ flex: '1 1' }}>
                         <Typography variant="subtitle2" color="text.secondary">
                             攻撃力上昇
                         </Typography>
@@ -43,7 +43,7 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results, onToggleBuff })
                         </Typography>
                     </Box>
 
-                    <Box sx={{ flex: '1 1 300px' }}>
+                    <Box sx={{ flex: '1 1' }}>
                         <Typography variant="subtitle2" color="text.secondary">
                             会心率 (合計)
                         </Typography>
@@ -52,7 +52,7 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results, onToggleBuff })
                         </Typography>
                     </Box>
 
-                    <Box sx={{ flex: '1 1 300px' }}>
+                    <Box sx={{ flex: '1 1' }}>
                         <Typography variant="subtitle2" color="text.secondary">
                             会心ダメージ (合計)
                         </Typography>
@@ -82,10 +82,10 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results, onToggleBuff })
                             <TableRow>
                                 <TableCell>対象 / ソース</TableCell>
                                 <TableCell>スキル</TableCell>
-                                <TableCell align="right">攻撃</TableCell>
-                                <TableCell align="right">会心率</TableCell>
-                                <TableCell align="right">会心ダメ</TableCell>
-                                <TableCell align="right">その他</TableCell>
+                                <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>攻撃</TableCell>
+                                <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>会心率</TableCell>
+                                <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>会心ダメ</TableCell>
+                                <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>その他</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -181,11 +181,13 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results, onToggleBuff })
                                             }}
                                         >
                                             <TableCell component="th" scope="row">
-                                                {first.sourceCharacterName}
+                                                <Typography variant="body2" sx={{ fontSize: '0.85em' }}>
+                                                    {first.sourceCharacterName}
+                                                </Typography>
                                             </TableCell>
                                             <TableCell>
                                                 <Tooltip title={<Typography variant="body2">{first.description || 'No description'}</Typography>} arrow>
-                                                    <Typography component="span" sx={{ borderBottom: '1px dotted' }}>
+                                                    <Typography component="span" sx={{ borderBottom: '1px dotted', fontSize: '0.85em' }}>
                                                         {first.skillName} {first.skillLevel && `(${first.skillLevel})`}
                                                         {first.stackCount && first.stackCount > 1 && (
                                                             <Box component="span" sx={{ color: 'text.secondary', ml: 1, fontSize: '0.85em' }}>
@@ -196,14 +198,23 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results, onToggleBuff })
                                                 </Tooltip>
                                             </TableCell>
 
-                                            <TableCell align="right" sx={{ color: 'success.main', fontWeight: attackVal ? 'bold' : 'normal', opacity: attackVal ? 1 : 0.3 }}>
-                                                {attackVal ? `+${attackVal.toFixed(2)}` : '-'}
+                                            <TableCell align="right" sx={{
+                                                color: attackVal > 0 ? 'success.main' : attackVal < 0 ? 'error.main' : 'text.disabled',
+                                                fontWeight: attackVal ? 'bold' : 'normal'
+                                            }}>
+                                                {attackVal ? (attackVal > 0 ? `+${attackVal.toFixed(2)}` : attackVal.toFixed(2)) : '-'}
                                             </TableCell>
-                                            <TableCell align="right" sx={{ color: 'text.primary', fontWeight: critRateVal ? 'bold' : 'normal', opacity: critRateVal ? 1 : 0.3 }}>
-                                                {critRateVal ? `+${critRateVal.toFixed(2)}` : '-'}
+                                            <TableCell align="right" sx={{
+                                                color: critRateVal > 0 ? 'success.main' : critRateVal < 0 ? 'error.main' : 'text.disabled',
+                                                fontWeight: critRateVal ? 'bold' : 'normal'
+                                            }}>
+                                                {critRateVal ? (critRateVal > 0 ? `+${critRateVal.toFixed(2)}` : critRateVal.toFixed(2)) : '-'}
                                             </TableCell>
-                                            <TableCell align="right" sx={{ color: 'text.primary', fontWeight: critDamageVal ? 'bold' : 'normal', opacity: critDamageVal ? 1 : 0.3 }}>
-                                                {critDamageVal ? `+${critDamageVal.toFixed(2)}` : '-'}
+                                            <TableCell align="right" sx={{
+                                                color: critDamageVal > 0 ? 'success.main' : critDamageVal < 0 ? 'error.main' : 'text.disabled',
+                                                fontWeight: critDamageVal ? 'bold' : 'normal'
+                                            }}>
+                                                {critDamageVal ? (critDamageVal > 0 ? `+${critDamageVal.toFixed(2)}` : critDamageVal.toFixed(2)) : '-'}
                                             </TableCell>
                                             <TableCell align="right" sx={{ fontSize: '0.85em', color: 'text.secondary' }}>
                                                 {others.length > 0 ? others.join(', ') : '-'}

@@ -62,7 +62,7 @@ export const MainLayout: React.FC = () => {
     );
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '72vw' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '80vw' }}>
             <AppBar position="static">
                 <Toolbar>
                     {isMobile && (
@@ -106,7 +106,7 @@ export const MainLayout: React.FC = () => {
                                     borderRadius: 0
                                 }}
                             >
-                                シミュ
+                                シミュレーター
                             </Button>
                             <Button
                                 color="inherit"

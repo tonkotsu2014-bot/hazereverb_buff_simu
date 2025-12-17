@@ -178,7 +178,7 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
 
 
     return (
-        <Box sx={{ p: 2, maxWidth: 1600, mx: 'auto', height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ p: 2, height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
             <Typography variant="h5" gutterBottom fontWeight={700}>
                 バフシミュレーション
             </Typography>
@@ -188,7 +188,7 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
 
             <Grid container spacing={2} sx={{ flex: 1, overflow: 'hidden' }}>
                 {/* Left Column: Character List */}
-                <Grid size={{ xs: 12, md: 3.6 }} sx={{ height: '100%', overflow: 'hidden' }}>
+                <Grid size={{ xs: 12, md: 4 }} sx={{ height: '100%', overflow: 'hidden' }}>
                     <CharacterList
                         characters={characters}
                         onAdd={handleAddSupporter}
@@ -197,11 +197,11 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                 </Grid>
 
                 {/* Right Column: Config & Results */}
-                <Grid size={{ xs: 12, md: 8.4 }} sx={{ height: '100%', overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Grid size={{ xs: 12, md: 8 }} sx={{ height: '100%', overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 2 }}>
                     {/* Simulation Config */}
                     <Grid container spacing={2}>
                         {/* Attacker Section - Smaller */}
-                        <Grid size={{ xs: 12, sm: 12, lg: 4.8 }}>
+                        <Grid size={{ xs: 12, sm: 12, lg: 4 }}>
                             <Paper sx={{ p: 2, height: '100%' }}>
                                 <Typography variant="subtitle1" gutterBottom fontWeight={600} sx={{ fontSize: '0.95rem' }}>
                                     攻撃役
@@ -247,8 +247,8 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                         </Grid>
 
                         {/* Party Section - Larger */}
-                        <Grid size={{ xs: 12, sm: 12, lg: 7.2 }}>
-                            <Paper sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
+                        <Grid size={{ xs: 12, sm: 12, lg: 8 }}>
+                            <Paper sx={{ p: 2, height: '24vh', display: 'flex', flexDirection: 'column' }}>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
                                     <Typography variant="subtitle1" fontWeight={600} sx={{ fontSize: '0.95rem' }}>
                                         パーティー {supporters.length}/9
@@ -260,14 +260,40 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                                         左のリストから追加してください
                                     </Typography>
                                 ) : (
-                                    <Grid container spacing={1} sx={{ flex: 1 }}>
+                                    <Grid container spacing={1} sx={{ flex: 1, alignContent: 'flex-start', overflowY: 'auto' }}>
                                         {supporters.map((supporter, index) => (
-                                            <Grid size={{ xs: 6, sm: 4, md: 3, lg: 2.4 }} key={index}>
+                                            <Grid size={{ xs: 12 }} key={index}>
                                                 {supporter && (
-                                                    <Card variant="outlined" sx={{ position: 'relative', height: '100%' }}>
-                                                        <CardContent sx={{ p: 1.25, pb: '12px !important', pr: 4.5 }}>
+                                                    <Card
+                                                        variant="outlined"
+                                                        sx={{
+                                                            position: 'relative',
+                                                            width: '100%',
+                                                            cursor: 'pointer',
+                                                            '&:hover': { bgcolor: 'action.hover' }
+                                                        }}
+                                                        onClick={() => handleOpenConfig(index)}
+                                                    >
+                                                        <CardContent
+                                                            sx={{
+                                                                p: '8px 12px 8px 12px !important',
+                                                                pr: '60px !important',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: 2
+                                                            }}
+                                                        >
+                                                            {hasStackableSkills(supporter) && (
+                                                                <Tooltip title="スタック可能スキル所持">
+                                                                    <LayersIcon
+                                                                        fontSize="small"
+                                                                        color="action"
+                                                                        sx={{ opacity: 0.6, fontSize: '1rem' }}
+                                                                    />
+                                                                </Tooltip>
+                                                            )}
                                                             <Typography
-                                                                variant="caption"
+                                                                variant="body2"
                                                                 title={supporter.name}
                                                                 sx={{
                                                                     fontWeight: 'bold',
@@ -280,39 +306,28 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                                                                             default: return 'text.primary';
                                                                         }
                                                                     })(),
-                                                                    display: 'block',
-                                                                    fontSize: '0.8rem',
-                                                                    lineHeight: 1.2,
                                                                     whiteSpace: 'nowrap',
                                                                     overflow: 'hidden',
                                                                     textOverflow: 'ellipsis',
-                                                                    mb: 0.5
+                                                                    maxWidth: '56%',
+                                                                    fontSize: '0.80rem'
                                                                 }}
                                                             >
                                                                 {supporter.name}
                                                             </Typography>
-                                                            {(supporter.role === '支援' || supporter.type?.includes('支援')) && (
-                                                                <Typography variant="caption" color="text.secondary" sx={{ mt: 0.25, display: 'block', fontSize: '0.7rem' }}>
-                                                                    支援力: {getEffectiveSupportPower(supporter)}%
+
+                                                            <Box sx={{ flex: 1, display: 'flex', gap: 2, alignItems: 'center' }}>
+                                                                {(supporter.role === '支援' || supporter.type?.includes('支援')) && (
+                                                                    <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>
+                                                                        支援: {getEffectiveSupportPower(supporter)}%
+                                                                    </Typography>
+                                                                )}
+                                                                <Typography variant="caption" color="text.secondary" sx={{ marginLeft: 'auto', whiteSpace: 'nowrap' }}>
+                                                                    Lv {activeSkillLevels[supporter.name || ''] || '10'} {isExEnabled(supporter.name) ? '+EX' : ''}
                                                                 </Typography>
-                                                            )}
-                                                            <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.25, fontSize: '0.65rem' }}>
-                                                                Lv {activeSkillLevels[supporter.name || ''] || '10'} {isExEnabled(supporter.name) ? '+ EX' : ''}
-                                                            </Typography>
+                                                            </Box>
                                                         </CardContent>
-                                                        <Box
-                                                            component="div"
-                                                            onClick={() => handleOpenConfig(index)}
-                                                            sx={{
-                                                                position: 'absolute',
-                                                                top: 0,
-                                                                left: 0,
-                                                                right: 0,
-                                                                bottom: 0,
-                                                                cursor: 'pointer',
-                                                                zIndex: 1
-                                                            }}
-                                                        />
+
                                                         <IconButton
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
@@ -320,19 +335,16 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                                                             }}
                                                             size="small"
                                                             color="default"
-                                                            sx={{ position: 'absolute', top: 4, right: 4, zIndex: 2 }}
+                                                            sx={{
+                                                                position: 'absolute',
+                                                                top: '50%',
+                                                                right: 4,
+                                                                transform: 'translateY(-50%)',
+                                                                zIndex: 2
+                                                            }}
                                                         >
                                                             <DeleteIcon fontSize="small" />
                                                         </IconButton>
-                                                        {hasStackableSkills(supporter) && (
-                                                            <Tooltip title="スタック可能スキル所持">
-                                                                <LayersIcon
-                                                                    fontSize="small"
-                                                                    color="action"
-                                                                    sx={{ position: 'absolute', top: 8, left: 8, zIndex: 2, opacity: 0.6 }}
-                                                                />
-                                                            </Tooltip>
-                                                        )}
                                                     </Card>
                                                 )}
                                             </Grid>
