@@ -99,7 +99,7 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
             } as any
         };
 
-        const activeSupporters = supporters.filter((s): s is ParsedCharacterData => s !== null);
+        const activeSupporters = supporters.filter((s): s is ParsedCharacterData => s !== null && s.name !== attacker.name);
         return calculateMaxBuffs(modifiedAttacker, activeSupporters, stackCounts, activeExSkills, activeSkillLevels, disabledBuffIds);
     }, [attacker, supporters, stackCounts, activeExSkills, activeSkillLevels, attackerStats, disabledBuffIds]);
 

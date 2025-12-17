@@ -20,7 +20,7 @@ const attributeMap: Record<string, string> = {
     DamageReduction: 'ダメージ軽減',
     DamageBoost: 'ダメージ増加',
     Armor: '装甲',
-    HyperCritDamage: 'ハイパー会心ダメージ'
+    HyperCritDamage: '超クリダメ'
 };
 
 export const BuffResult: React.FC<BuffResultProps> = ({ results, onToggleBuff }) => {
@@ -91,6 +91,7 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results, onToggleBuff })
                                 <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>攻撃</TableCell>
                                 <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>会心率</TableCell>
                                 <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>会心ダメ</TableCell>
+                                <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>超クリダメ</TableCell>
                                 <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>その他</TableCell>
                             </TableRow>
                         </TableHead>
@@ -129,13 +130,14 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results, onToggleBuff })
                                     let attackVal = 0;
                                     let critRateVal = 0;
                                     let critDamageVal = 0;
+                                    let hyperCritDamageVal = 0;
                                     const others: string[] = [];
 
                                     mods.forEach(m => {
                                         if (m.attribute === 'Attack') attackVal += m.value;
                                         else if (m.attribute === 'CritRate') critRateVal += m.value;
                                         else if (m.attribute === 'CritDamage') critDamageVal += m.value;
-                                        else if (m.attribute === 'HyperCritDamage') critDamageVal += m.value; // Combine Hyper into CritDamage column? Or show separate? User asked for columns. Let's combine for compact view or show as separate value? combining seems cleaner for "Crit Damage" column unless specified.
+                                        else if (m.attribute === 'HyperCritDamage') hyperCritDamageVal += m.value;
                                         else {
                                             // Format other attributes
                                             const label = attributeMap[m.attribute] || m.attribute;
@@ -144,8 +146,8 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results, onToggleBuff })
                                         }
                                     });
 
-                                    // Filter out logs that don't contribute to Attack, CritRate, or CritDamage
-                                    if (Math.abs(attackVal) < 0.001 && Math.abs(critRateVal) < 0.001 && Math.abs(critDamageVal) < 0.001) {
+                                    // Filter out logs that don't contribute to Attack, CritRate, CritDamage, or HyperCritDamage
+                                    if (Math.abs(attackVal) < 0.001 && Math.abs(critRateVal) < 0.001 && Math.abs(critDamageVal) < 0.001 && Math.abs(hyperCritDamageVal) < 0.001) {
                                         return null;
                                     }
 
@@ -224,6 +226,12 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results, onToggleBuff })
                                                 fontWeight: critDamageVal ? 'bold' : 'normal'
                                             }}>
                                                 {critDamageVal ? (critDamageVal > 0 ? `+${critDamageVal.toFixed(2)}` : critDamageVal.toFixed(2)) : '-'}
+                                            </TableCell>
+                                            <TableCell align="right" sx={{
+                                                color: hyperCritDamageVal > 0 ? 'success.main' : hyperCritDamageVal < 0 ? 'error.main' : 'text.disabled',
+                                                fontWeight: hyperCritDamageVal ? 'bold' : 'normal'
+                                            }}>
+                                                {hyperCritDamageVal ? (hyperCritDamageVal > 0 ? `+${hyperCritDamageVal.toFixed(2)}` : hyperCritDamageVal.toFixed(2)) : '-'}
                                             </TableCell>
                                             <TableCell align="right" sx={{ fontSize: '0.85em', color: 'text.secondary' }}>
                                                 {others.length > 0 ? others.join(', ') : '-'}
