@@ -20,7 +20,9 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
     const [stackCounts, setStackCounts] = useState<Record<string, number>>({});
     const [configOpen, setConfigOpen] = useState(false);
     const [configTargetIndex, setConfigTargetIndex] = useState<number | null>(null); // Index in supporters array
+    const [attackerStats, setAttackerStats] = useState({ critRate: 0, critDamage: 0 }); // Custom stats for attacker
 
+    // Sync state with characters prop to reflect edits
     // Sync state with characters prop to reflect edits
     useEffect(() => {
         if (attacker) {
@@ -45,6 +47,23 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
         });
     }, [characters, attacker]);
 
+    // Initialize stats when attacker changes selection
+    useEffect(() => {
+        if (attacker && attacker.stats) {
+            const stats = attacker.stats as any;
+            const getVal = (pascal: string, camel: string) => {
+                if (stats[pascal] !== undefined) return typeof stats[pascal] === 'number' ? stats[pascal] : parseFloat(stats[pascal]);
+                if (stats[camel] !== undefined) return typeof stats[camel] === 'number' ? stats[camel] : parseFloat(stats[camel]);
+                return 0;
+            };
+
+            setAttackerStats({
+                critRate: getVal('CritRate', 'critRate'),
+                critDamage: getVal('CritDamage', 'critDamage')
+            });
+        }
+    }, [attacker?.name]);
+
     const handleAddSupporter = (index: number) => {
         if (supporters.length < 9) {
             setSupporters([...supporters, characters[index]]);
@@ -65,9 +84,22 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
 
     const results = useMemo(() => {
         if (!attacker) return null;
+
+        // Use custom stats for calculation
+        const modifiedAttacker = {
+            ...attacker,
+            stats: {
+                ...attacker.stats,
+                CritRate: attackerStats.critRate,
+                CritDamage: attackerStats.critDamage,
+                critRate: attackerStats.critRate,
+                critDamage: attackerStats.critDamage
+            } as any
+        };
+
         const activeSupporters = supporters.filter((s): s is ParsedCharacterData => s !== null);
-        return calculateMaxBuffs(attacker, activeSupporters, stackCounts, activeExSkills, activeSkillLevels);
-    }, [attacker, supporters, stackCounts, activeExSkills, activeSkillLevels]);
+        return calculateMaxBuffs(modifiedAttacker, activeSupporters, stackCounts, activeExSkills, activeSkillLevels);
+    }, [attacker, supporters, stackCounts, activeExSkills, activeSkillLevels, attackerStats]);
 
     // Helper to get Ex toggle state (default true if undefined)
     const isExEnabled = (charName: string | undefined) => {
@@ -153,9 +185,25 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                                         />
                                         {attacker && (
                                             <Box sx={{ mt: 2, p: 2, bgcolor: '#f0f9ff', borderRadius: 1 }}>
-                                                <Typography variant="subtitle2">基本ステータス:</Typography>
-                                                <Typography variant="body2">会心率: {attacker.stats?.critRate || 0}%</Typography>
-                                                <Typography variant="body2">会心ダメージ: {attacker.stats?.critDamage || 0}%</Typography>
+                                                <Typography variant="subtitle2" gutterBottom>基本ステータス:</Typography>
+                                                <Box sx={{ display: 'flex', gap: 2 }}>
+                                                    <TextField
+                                                        label="会心率 (%)"
+                                                        type="number"
+                                                        size="small"
+                                                        value={attackerStats.critRate}
+                                                        onChange={(e) => setAttackerStats(prev => ({ ...prev, critRate: parseFloat(e.target.value) || 0 }))}
+                                                        slotProps={{ htmlInput: { step: 0.1 } }}
+                                                    />
+                                                    <TextField
+                                                        label="会心ダメージ (%)"
+                                                        type="number"
+                                                        size="small"
+                                                        value={attackerStats.critDamage}
+                                                        onChange={(e) => setAttackerStats(prev => ({ ...prev, critDamage: parseFloat(e.target.value) || 0 }))}
+                                                        slotProps={{ htmlInput: { step: 0.1 } }}
+                                                    />
+                                                </Box>
                                             </Box>
                                         )}
                                     </Box>

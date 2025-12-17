@@ -22,7 +22,7 @@ const attributeMap: Record<string, string> = {
 };
 
 export const BuffResult: React.FC<BuffResultProps> = ({ results }) => {
-    const formatPercent = (val: number) => `${Math.round(val)}%`;
+    const formatPercent = (val: number) => `${val.toFixed(2)}%`;
 
     return (
         <Card sx={{ mt: 3, bgcolor: '#f5f5f5' }}>
@@ -102,7 +102,7 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results }) => {
                                             {mod.effectType === 'Debuff' ? '▼ ' : ''}{attributeMap[mod.attribute] || mod.attribute}
                                         </TableCell>
                                         <TableCell align="right" sx={{ color: mod.value < 0 ? 'error.main' : 'success.main', fontWeight: 'bold' }}>
-                                            {mod.value > 0 ? '+' : ''}{mod.value}
+                                            {mod.value > 0 ? '+' : ''}{mod.value.toFixed(2)}
                                         </TableCell>
                                     </TableRow>
                                 ))
