@@ -54,16 +54,21 @@ const theme = createTheme({
   }
 });
 
+import defaultCharacters from './data/default_characters.json';
+// ...
 const STORAGE_KEY = 'hazreverb_simu_characters';
 
 function App() {
   const [characters, setCharacters] = useState<ParsedCharacterData[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : [];
+      if (saved) {
+        return JSON.parse(saved);
+      }
+      return defaultCharacters as ParsedCharacterData[];
     } catch (e) {
       console.error('Failed to load characters from localStorage:', e);
-      return [];
+      return defaultCharacters as ParsedCharacterData[];
     }
   });
 
@@ -93,6 +98,10 @@ function App() {
 
   const handleImportCharacters = (data: ParsedCharacterData[]) => {
     setCharacters(data);
+  };
+
+  const handleReset = () => {
+    setCharacters(defaultCharacters as ParsedCharacterData[]);
   };
 
   return (
@@ -128,6 +137,7 @@ function App() {
                 <SettingsPage
                   characters={characters}
                   onImport={handleImportCharacters}
+                  onReset={handleReset}
                 />
               }
             />
