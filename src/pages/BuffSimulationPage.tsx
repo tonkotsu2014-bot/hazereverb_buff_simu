@@ -178,17 +178,17 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
 
 
     return (
-        <Box sx={{ p: 3, maxWidth: 1600, mx: 'auto', height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
-            <Typography variant="h5" gutterBottom>
+        <Box sx={{ p: 2, maxWidth: 1600, mx: 'auto', height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
+            <Typography variant="h5" gutterBottom fontWeight={700}>
                 バフシミュレーション
             </Typography>
-            <Typography variant="body2" color="text.secondary" paragraph>
+            <Typography variant="body2" color="text.secondary" paragraph sx={{ mb: 2 }}>
                 左側のリストから「＋」ボタンでキャラを追加できます。(最大9人)
             </Typography>
 
-            <Grid container spacing={3} sx={{ flex: 1, overflow: 'hidden' }}>
+            <Grid container spacing={2} sx={{ flex: 1, overflow: 'hidden' }}>
                 {/* Left Column: Character List */}
-                <Grid size={{ xs: 12, md: 3 }} sx={{ height: '100%', overflow: 'hidden' }}>
+                <Grid size={{ xs: 12, md: 2.5 }} sx={{ height: '100%', overflow: 'hidden' }}>
                     <CharacterList
                         characters={characters}
                         onAdd={handleAddSupporter}
@@ -197,75 +197,77 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                 </Grid>
 
                 {/* Right Column: Config & Results */}
-                <Grid size={{ xs: 12, md: 9 }} sx={{ height: '100%', overflow: 'auto' }}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-
-                        {/* Simulation Config */}
-                        <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-                            <Box sx={{ flex: 1, minWidth: 300 }}>
-                                <Paper sx={{ p: 3 }}>
-                                    <Typography variant="h6" gutterBottom>
-                                        1. 攻撃役 (Attacker)
-                                    </Typography>
-                                    <Box sx={{ mb: 2 }}>
-                                        <CharacterSelector
-                                            label="攻撃役を選択"
-                                            characters={supporters.filter((s): s is ParsedCharacterData =>
-                                                s !== null &&
-                                                s.role !== 'Supporter' &&
-                                                !s.type?.includes('支援')
-                                            )}
-                                            selectedCharacter={attacker}
-                                            onSelect={setAttacker}
-                                        />
-                                        {attacker && (
-                                            <Box sx={{ mt: 2, p: 2, bgcolor: '#f0f9ff', borderRadius: 1 }}>
-                                                <Typography variant="subtitle2" gutterBottom>基本ステータス:</Typography>
-                                                <Box sx={{ display: 'flex', gap: 2 }}>
-                                                    <TextField
-                                                        label="会心率 (%)"
-                                                        type="number"
-                                                        size="small"
-                                                        value={attackerStats.critRate}
-                                                        onChange={(e) => setAttackerStats(prev => ({ ...prev, critRate: parseFloat(e.target.value) || 0 }))}
-                                                        slotProps={{ htmlInput: { step: 0.1 } }}
-                                                    />
-                                                    <TextField
-                                                        label="会心ダメージ (%)"
-                                                        type="number"
-                                                        size="small"
-                                                        value={attackerStats.critDamage}
-                                                        onChange={(e) => setAttackerStats(prev => ({ ...prev, critDamage: parseFloat(e.target.value) || 0 }))}
-                                                        slotProps={{ htmlInput: { step: 0.1 } }}
-                                                    />
-                                                </Box>
-                                            </Box>
+                <Grid size={{ xs: 12, md: 9.5 }} sx={{ height: '100%', overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {/* Simulation Config */}
+                    <Grid container spacing={2}>
+                        {/* Attacker Section - Smaller */}
+                        <Grid size={{ xs: 12, sm: 12, lg: 3 }}>
+                            <Paper sx={{ p: 2, height: '100%' }}>
+                                <Typography variant="subtitle1" gutterBottom fontWeight={600} sx={{ fontSize: '0.95rem' }}>
+                                    攻撃役
+                                </Typography>
+                                <Box sx={{ mb: 1.5 }}>
+                                    <CharacterSelector
+                                        label="攻撃役を選択"
+                                        characters={supporters.filter((s): s is ParsedCharacterData =>
+                                            s !== null &&
+                                            s.role !== 'Supporter' &&
+                                            !s.type?.includes('支援')
                                         )}
-                                    </Box>
-                                </Paper>
-                            </Box>
+                                        selectedCharacter={attacker}
+                                        onSelect={setAttacker}
+                                    />
+                                    {attacker && (
+                                        <Box sx={{ mt: 1.5, p: 1.5, bgcolor: '#f0f9ff', borderRadius: 1 }}>
+                                            <Typography variant="caption" fontWeight={600} sx={{ display: 'block', mb: 1, fontSize: '0.75rem' }}>ステータス:</Typography>
+                                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                                <TextField
+                                                    label="会心率 (%)"
+                                                    type="number"
+                                                    size="small"
+                                                    value={attackerStats.critRate}
+                                                    onChange={(e) => setAttackerStats(prev => ({ ...prev, critRate: parseFloat(e.target.value) || 0 }))}
+                                                    slotProps={{ htmlInput: { step: 0.1 } }}
+                                                    fullWidth
+                                                />
+                                                <TextField
+                                                    label="会心ダメ (%)"
+                                                    type="number"
+                                                    size="small"
+                                                    value={attackerStats.critDamage}
+                                                    onChange={(e) => setAttackerStats(prev => ({ ...prev, critDamage: parseFloat(e.target.value) || 0 }))}
+                                                    slotProps={{ htmlInput: { step: 0.1 } }}
+                                                    fullWidth
+                                                />
+                                            </Box>
+                                        </Box>
+                                    )}
+                                </Box>
+                            </Paper>
+                        </Grid>
 
-                            <Box sx={{ flex: 1, minWidth: 300 }}>
-                                <Paper sx={{ p: 3 }}>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                                        <Typography variant="h6">
-                                            2. パーティー (Party) {supporters.length}/9
-                                        </Typography>
-                                    </Box>
+                        {/* Party Section - Larger */}
+                        <Grid size={{ xs: 12, sm: 12, lg: 9 }}>
+                            <Paper sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+                                    <Typography variant="subtitle1" fontWeight={600} sx={{ fontSize: '0.95rem' }}>
+                                        パーティー {supporters.length}/9
+                                    </Typography>
+                                </Box>
 
-                                    {supporters.length === 0 ? (
-                                        <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
-                                            左のリストから追加してください
-                                        </Typography>
-                                    ) : (
-                                        <Grid container spacing={1}>
-                                            {supporters.map((supporter, index) => (
-                                                <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={index}>
+                                {supporters.length === 0 ? (
+                                    <Typography variant="caption" color="text.secondary" sx={{ py: 2 }}>
+                                        左のリストから追加してください
+                                    </Typography>
+                                ) : (
+                                    <Grid container spacing={1} sx={{ flex: 1 }}>
+                                        {supporters.map((supporter, index) => (
+                                            <Grid size={{ xs: 6, sm: 4, md: 3, lg: 2.4 }} key={index}>
                                                     {supporter && (
-                                                        <Card variant="outlined" sx={{ position: 'relative' }}>
-                                                            <CardContent sx={{ pb: '16px !important', pr: 5 }}>
+                                                        <Card variant="outlined" sx={{ position: 'relative', height: '100%' }}>
+                                                            <CardContent sx={{ p: 1.25, pb: '12px !important', pr: 4.5 }}>
                                                                 <Typography
-                                                                    variant="subtitle2"
+                                                                    variant="caption"
                                                                     title={supporter.name}
                                                                     sx={{
                                                                         fontWeight: 'bold',
@@ -277,18 +279,25 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                                                                                 case 'Transcendence': return '#000000'; // Black
                                                                                 default: return 'text.primary';
                                                                             }
-                                                                        })()
+                                                                        })(),
+                                                                        display: 'block',
+                                                                        fontSize: '0.8rem',
+                                                                        lineHeight: 1.2,
+                                                                        whiteSpace: 'nowrap',
+                                                                        overflow: 'hidden',
+                                                                        textOverflow: 'ellipsis',
+                                                                        mb: 0.5
                                                                     }}
                                                                 >
                                                                     {supporter.name}
                                                                 </Typography>
                                                                 {(supporter.role === '支援' || supporter.type?.includes('支援')) && (
-                                                                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                                                                    <Typography variant="caption" color="text.secondary" sx={{ mt: 0.25, display: 'block', fontSize: '0.7rem' }}>
                                                                         支援力: {getEffectiveSupportPower(supporter)}%
                                                                     </Typography>
                                                                 )}
-                                                                <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.5 }}>
-                                                                    スキルレベル {activeSkillLevels[supporter.name || ''] || '10'} {isExEnabled(supporter.name) ? '+ Ex' : ''}
+                                                                <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.25, fontSize: '0.65rem' }}>
+                                                                    Lv {activeSkillLevels[supporter.name || ''] || '10'} {isExEnabled(supporter.name) ? '+ EX' : ''}
                                                                 </Typography>
                                                             </CardContent>
                                                             <Box
@@ -331,21 +340,20 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                                         </Grid>
                                     )}
                                 </Paper>
-                            </Box>
-                        </Box>
+                        </Grid>
+                    </Grid>
 
-                        {/* Results */}
-                        <Box>
-                            {results ? (
-                                <BuffResult results={results} onToggleBuff={handleToggleBuff} />
-                            ) : (
-                                <Paper sx={{ p: 4, textAlign: 'center', bgcolor: '#f5f5f5' }}>
-                                    <Typography color="text.secondary">
-                                        攻撃役を選択すると結果が表示されます
-                                    </Typography>
-                                </Paper>
-                            )}
-                        </Box>
+                    {/* Results */}
+                    <Box sx={{ flex: 1, overflow: 'auto' }}>
+                        {results ? (
+                            <BuffResult results={results} onToggleBuff={handleToggleBuff} />
+                        ) : (
+                            <Paper sx={{ p: 3, textAlign: 'center', bgcolor: '#f5f5f5' }}>
+                                <Typography color="text.secondary" variant="body2">
+                                    攻撃役を選択すると結果が表示されます
+                                </Typography>
+                            </Paper>
+                        )}
                     </Box>
                 </Grid>
             </Grid>
