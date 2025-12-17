@@ -234,9 +234,9 @@ const ATTRIBUTE_MAP: { [key: string]: string } = {
     '防御力': 'Armor',
     '装甲': 'Armor',
     '装甲値': 'Armor',
-    // 'HP': 'MaxHP', // Excluded
-    // '体力': 'MaxHP', // Excluded
-    // '体力値': 'MaxHP', // Excluded
+    'HP': 'Hp',
+    '体力': 'Hp',
+    '体力値': 'Hp',
     'クリティカル': 'CritRate',
     'クリティカル率': 'CritRate',
     '会心率': 'CritRate',
@@ -248,6 +248,10 @@ const ATTRIBUTE_MAP: { [key: string]: string } = {
     'ダメージ回避率': 'Evasion',
     'ハイパークリティカルダメージ': 'CritDamage',
     '機動力': 'Mobility',
+    '攻撃': 'Attack',
+    '支援': 'Support',
+    '防御': 'Armor',
+    '機動': 'Mobility',
     // '効果命中': 'EffectHitRate', // Excluded
     // '効果抵抗': 'EffectResist', // Excluded
 };
@@ -271,6 +275,215 @@ export const parseAttribute = (raw: string): string | undefined => {
         }
     }
     return undefined;
+};
+
+// --- Extended Parsing Helpers ---
+
+// Parses the "Awakening Status" column from Table 1
+export const parseAwakeningStats = (doc: Document): { [key: string]: number } => {
+    const stats: { [key: string]: number } = {};
+    const wikiBody = doc.getElementById('wikibody');
+    if (!wikiBody) return stats;
+
+    // Find the stats table (same heuristic as parseStats or just look for '覚醒時ステータス')
+    const tables = Array.from(wikiBody.querySelectorAll('table'));
+    const statsTable = tables.find(table => {
+        const headerText = table.querySelector('thead')?.textContent || '';
+        return headerText.includes('覚醒時ステータス');
+    });
+
+    if (!statsTable) return stats;
+
+    const rows = Array.from(statsTable.querySelectorAll('tbody tr'));
+    // We are looking for the content under "覚醒時ステータス".
+    // In monika.html it is the last column.
+
+    // Iterate rows to find text in the relevant column.
+    // Since rowspan might make it tricky, we just look for text containing '+'.
+    // A more robust way: Find the column index of '覚醒時ステータス'
+    const headers = Array.from(statsTable.querySelectorAll('thead th'));
+    const awakeIndex = headers.findIndex(th => th.textContent?.includes('覚醒時ステータス'));
+
+    if (awakeIndex === -1) return stats;
+
+    // The logic to respect rowspans matches parseStats. 
+    // However, usually the awakening stat is listed once (with rowspan).
+    // We can collect ALL awakening stat texts found in that column and take the "max" or "last" one?
+    // Or just accumulate all unique ones?
+    // In Monika's case: "HP+884\nSupport+9".
+    // We can just parse the text content of any cell in that column that has content.
+
+    // Simplification: Grab all text from that column across all rows.
+    // Requires handling rowspans properly to identify which cell belongs to that column.
+    // Re-using the flatten logic from parseStats would be ideal, but let's just do a specific search.
+    // Or, since we just want the value, maybe regex the entire table content for that column? No.
+
+    // Let's iterate rows and try to find the cell.
+    // For each row, count cells. 
+    // This is hard without full table matrix.
+    // Let's try to just find cells that look like awakening stats in that table.
+    // "HP+884" etc.
+
+    // Actually, let's use the 'parseStats' flattening logic idea but simpler.
+    // Just find any cell in that table that contains "+" and looks like stats?
+    // Or closer: Parse text content of the cell at index 10 (if 11 cols).
+    // But index shifts.
+
+    // Let's assume the standard 11 col layout for now, or use the header map.
+    // For Monika, it is the last column.
+
+    const cellTexts: string[] = [];
+    rows.forEach(row => {
+        const cells = Array.from(row.querySelectorAll('td'));
+        cells.forEach(cell => {
+            // Heuristic: If it contains known stat names and '+', it might be it.
+            const text = cell.textContent || '';
+            if (text.includes('+') && (text.includes('HP') || text.includes('支援') || text.includes('攻撃') || text.includes('体') || text.includes('会心') || text.includes('機動'))) {
+                cellTexts.push(text);
+            }
+        });
+    });
+
+    // Parse the collected texts
+    cellTexts.forEach(text => {
+        // Use matchAll to find all "Stat+Value" occurrences
+        // Pattern: (StatName)(+)(Value)(optional %)
+        // But the input might be "HP+884支援力+9".
+        // Using global regex.
+        // Also handle potential spaces.
+        const matches = [...text.matchAll(/([^\+\d\s]+)\+?(\d+)/g)];
+        matches.forEach(m => {
+            const attrName = m[1];
+            const val = parseInt(m[2], 10);
+            const attrKey = parseAttribute(attrName);
+            if (attrKey && !isNaN(val)) {
+                // Take max value found
+                stats[attrKey] = Math.max(stats[attrKey] || 0, val);
+            }
+        });
+    });
+
+    return stats;
+};
+
+// Parses Table 2: Equipment
+export const parseEquipmentStats = (doc: Document): { [key: string]: number } => {
+    const stats: { [key: string]: number } = {};
+    const wikiBody = doc.getElementById('wikibody');
+    if (!wikiBody) return stats;
+
+    const tables = Array.from(wikiBody.querySelectorAll('table'));
+    const eqTable = tables.find(table => {
+        const headerText = table.querySelector('thead')?.textContent || '';
+        return headerText.includes('装備1') && headerText.includes('装備2');
+    });
+
+    if (!eqTable) return stats;
+
+    // Usually Row 2 has the values.
+    const rows = Array.from(eqTable.querySelectorAll('tbody tr'));
+    rows.forEach(row => {
+        const cells = Array.from(row.querySelectorAll('td'));
+        cells.forEach(cell => {
+            const text = cell.textContent || '';
+            // Example: "支援1～10%"
+            // We want Max: 10.
+            const match = text.match(/([^\d~～]+).*?[~～](\d+)%/); // greedy match for numbers?
+            // "支援1～10%" -> Group 1: "支援", Group 2: "10"
+            // Note: "1～10%" part might be "1~10%".
+
+            if (match) {
+                const attrName = match[1];
+                const maxVal = parseInt(match[2], 10);
+                const attrKey = parseAttribute(attrName);
+                if (attrKey && !isNaN(maxVal)) {
+                    // Sum up if multiple slots give same stat?
+                    // "Equipment 1: Support 10%", "Equipment 3: Support 10%".
+                    // User said "Add...". So total is 20% likely.
+                    stats[attrKey] = (stats[attrKey] || 0) + maxVal;
+                }
+            } else {
+                // Try parsing just "Stat +10%" format if exists?
+                // Or "Stat 10%"
+                const matchFixed = text.match(/([^\d]+)(\d+)%/);
+                if (matchFixed) {
+                    const attrName = matchFixed[1];
+                    const val = parseInt(matchFixed[2], 10);
+                    const attrKey = parseAttribute(attrName);
+                    if (attrKey && !isNaN(val)) {
+                        stats[attrKey] = (stats[attrKey] || 0) + val;
+                    }
+                }
+            }
+        });
+    });
+
+    return stats;
+};
+
+// Parses Table 3: Bond
+export const parseBondStats = (doc: Document): { [key: string]: number } => {
+    let stats: { [key: string]: number } = {};
+    const wikiBody = doc.getElementById('wikibody');
+    if (!wikiBody) return stats;
+
+    const tables = Array.from(wikiBody.querySelectorAll('table'));
+    const bondTable = tables.find(table => {
+        const headerText = table.querySelector('thead')?.textContent || '';
+        return headerText.includes('好感度') && headerText.includes('ステータス');
+    });
+
+    if (!bondTable) return stats;
+
+    const rows = Array.from(bondTable.querySelectorAll('tbody tr'));
+    let maxLevel = -1;
+
+    rows.forEach(row => {
+        const cells = Array.from(row.querySelectorAll('td'));
+        // Cell 1 is Level (好感度), Cell 2 is Status
+        if (cells.length >= 2) {
+            const levelText = cells[0].textContent?.trim() || '0';
+            const level = parseInt(levelText, 10);
+
+            if (!isNaN(level) && level > maxLevel) {
+                maxLevel = level;
+                // Reset stats for new max level
+                stats = {};
+
+                const text = cells[1].textContent || '';
+                // "支援+1", "支援+2,機動力+5%"
+                const parts = text.split(/[,、]+/);
+                parts.forEach(part => {
+                    const clean = part.trim();
+                    // Check if percentage
+                    const matchPercent = clean.match(/([^\+]+)\+(\d+)%/);
+                    if (matchPercent) {
+                        const attrName = matchPercent[1];
+                        const val = parseInt(matchPercent[2], 10);
+                        const attrKey = parseAttribute(attrName);
+                        if (attrKey) {
+                            const key = attrKey + '_Percent';
+                            stats[key] = (stats[key] || 0) + val;
+                            return;
+                        }
+                    }
+
+                    // Check flat
+                    const matchFlat = clean.match(/([^\+]+)\+(\d+)/);
+                    if (matchFlat) {
+                        const attrName = matchFlat[1];
+                        const val = parseInt(matchFlat[2], 10);
+                        const attrKey = parseAttribute(attrName);
+                        if (attrKey && !isNaN(val)) {
+                            stats[attrKey] = (stats[attrKey] || 0) + val;
+                        }
+                    }
+                });
+            }
+        }
+    });
+
+    return stats;
 };
 
 export const parseTarget = (sentence: string): string | undefined => {
@@ -518,7 +731,7 @@ export const parseCharacterData = (html: string): ParsedCharacterData => {
     let skills = parseSkills(doc);
     skills = processSkillAttributes(skills); // Post-processing step
 
-    const stats = parseStats(doc);
+    const baseStats = parseStats(doc);
     const { name, type } = parseBasicInfo(doc);
 
     // Map Type to Role
@@ -531,35 +744,145 @@ export const parseCharacterData = (html: string): ParsedCharacterData => {
         else if (type.includes('火力')) role = 'Firepower';
     }
 
-    // Clean Stats for consumption by Numeric Inputs
-    // We keep the original string stats if needed, but for the form we want clean numbers in the 'stats' object if possible.
-    // However, the interface defines stats as CharacterStats (strings) OR {[key:string]: number}.
-    // Let's iterate and convert to numbers where possible for the 'stats' object we return, 
-    // OR we can add a new step here to normalize stats.
+    // Extended Stats Parsing
+    const awakeningStats = parseAwakeningStats(doc);
+    const equipmentStats = parseEquipmentStats(doc);
+    const bondStats = parseBondStats(doc);
 
-    // For now, let's just make sure we strip '%' when parsing in the form OR do it here.
-    // Doing it here is safer for "Import" consistency.
+    // Clean Base Stats
     const numericStats: { [key: string]: number } = {};
-    if (stats) {
-        Object.entries(stats).forEach(([key, val]) => {
+    if (baseStats) {
+        // Map baseStats keys to standard keys used in extended parsing
+        const formatKey = (k: string) => {
+            switch (k) {
+                case 'hp': return 'Hp';
+                case 'attack': return 'Attack';
+                case 'defense': return 'Armor';
+                case 'critRate': return 'CritRate';
+                case 'critDamage': return 'CritDamage';
+                case 'speed': return 'Mobility';
+                default: return k; // Should not happen given interface
+            }
+        };
+
+        Object.entries(baseStats).forEach(([key, val]) => {
+            const standardKey = formatKey(key);
             if (typeof val === 'string') {
-                // Remove commas, %, and handle other potential artifacts
-                // Some stats might be like "1000" or "20%" or "150 (+10)"
-                // Just extracting the first number found seems safe for basic stats.
                 const match = val.replace(/,/g, '').match(/(\d+(\.\d+)?)/);
                 if (match) {
-                    numericStats[key] = parseFloat(match[1]);
+                    numericStats[standardKey] = parseFloat(match[1]);
                 } else {
-                    numericStats[key] = 0;
+                    numericStats[standardKey] = 0;
                 }
             } else {
-                numericStats[key] = val;
+                numericStats[standardKey] = val;
             }
         });
     }
 
-    // We can cast numericStats to any to satisfy the union type or update the interface to prefer numbers.
-    // The current interface allows `stats` to be `CharacterStats | { [key: string]: number }`.
+    // Fix: If role is Supporter, 'Attack' in base stats is actually 'Support'.
+    // The parser assigns column 5 to 'attack'.
+    if (role === 'Supporter' && numericStats['Attack'] !== undefined) {
+        numericStats['Support'] = numericStats['Attack'];
+        delete numericStats['Attack'];
+    }
+
+    // Aggregation Logic
+    // 1. Add Flat Stats (Awakening, Bond Flat) to Base
+    // 2. Add Percentage Stats (Equipment, Bond %) converted to flat values based on the NEW Base (Base + Flat Buffs)
+    //    Assumption: Modifiers generally apply to the character's "Sheet Stats" which includes permanent flat increases like Awakening/Bond.
+
+    // Step 1: Add Flat Increases
+    Object.entries(awakeningStats).forEach(([key, val]) => {
+        numericStats[key] = (numericStats[key] || 0) + val;
+    });
+
+    // Handle Bond Flat Stats (those without _Percent suffix)
+    Object.entries(bondStats).forEach(([key, val]) => {
+        if (!key.endsWith('_Percent')) {
+            numericStats[key] = (numericStats[key] || 0) + val;
+        }
+    });
+
+    // Step 2: Add Percentage Increases (Equipment, Bond %)
+    // We assume these apply to the result of Step 1.
+    // Equipment Stats are Percentage (based on parsing logic assumption "Support 10%").
+    // Bond Stats with _Percent suffix are Percentage.
+
+
+
+    // Rounding: Stats are typically integers?
+    // Let's round to nearest integer to avoid 3534.4000000001
+    // Except Crit Rate/Dmg which are %... but here they are stored as numbers (e.g. 20 means 20%).
+    // If we just add % to %, it's fine.
+    // If we scale % by % (e.g. CritRate + 10% * CritRate?), usually CritRate modifiers are additive (Flat %).
+    // Wait, Equipment text: "Support 10%". That's clearly multiplier.
+    // Bond text: "Mobility +5%". That's likely multiplier if Mobility is a value, or additive if Mobility is %.
+    // In this game, Mobility is usually 0 initially for many chars but Monika has 0%.
+    // If it's 0, +5% mult is 0. +5% flat is 5.
+    // Code above treats "Mobility_Percent" as `applyPercentage` -> Multiply.
+    // If Base is 0, result is 0.
+    // If "Mobility+5%" means "Add 5 to Mobility" (assuming Mobility is measured in %), then it should be flat.
+    // But `parseBondStats` separates valid % keys.
+    // Usually for `Rate` stats (CritRate, CritDamage), +10% means +10 flat value (since value is %).
+    // For `Power` stats (Attack, Support, HP, Armor), +10% means Multiplying base value.
+
+    // Refinement:
+    // If key is CritRate, CritDamage, Evasion, etc., usually modifiers act differently?
+    // Or does "Support 10%" mean +10 flat support? No, likely percent.
+    // "CritRate 10%" -> +10 flat.
+
+    // Let's refine `applyPercentage`:
+    // Keys that are definitely 'Rate' types: CritRate, CritDamage, Evasion...?
+    // Actually, `ATTRIBUTE_MAP` maps `会心率` to `CritRate`.
+    // If Base CritRate is 0, and Equipment gives "CritRate 10%", is it 0*1.1=0 or 0+10=10?
+    // It is almost certainly +10 (Add 10 to the percentage value).
+    // So for Rate stats, we should Treat "Percent" sources as FLAT additions if they represent the stat unit.
+
+    // Check keys.
+    const rateKeys = ['CritRate', 'CritDamage', 'Evasion', 'DamageReduction', 'DamageBoost', 'EffectHitRate', 'EffectResist', 'Support'];
+
+    const applyModifier = (key: string, val: number) => {
+        // If isPercentSource is true (coming from "10%"), 
+        // AND the stat itself is a Rate (e.g. CritRate), then it is an Additive increase to the rate (Flat addition in our number representation).
+        // e.g. Base 0(%) + Equipment 10(%) = 10(%).
+        // IF the stat is a Value (HP, Attack), then it is a Multiplier.
+        // e.g. Base 1000 + Equipment 10(%) = 1100.
+
+        if (rateKeys.includes(key)) {
+            // It's a rate. val is already "10" (representing 10%).
+            // Just add it.
+            numericStats[key] = (numericStats[key] || 0) + val;
+        } else {
+            // It's a value (HP, Support).
+            // Multiplier.
+            if (numericStats[key] !== undefined) {
+                const increase = numericStats[key] * (val / 100);
+                numericStats[key] += increase;
+            }
+        }
+    };
+
+    Object.entries(equipmentStats).forEach(([key, val]) => {
+        applyModifier(key, val);
+    });
+
+    Object.entries(bondStats).forEach(([key, val]) => {
+        if (key.endsWith('_Percent')) {
+            const actualKey = key.replace('_Percent', '');
+            applyModifier(actualKey, val);
+        }
+    });
+
+    // Finally round only Value stats, keep Rate stats (maybe?)
+    // Usually UI wants integers for HP/Atk.
+    Object.keys(numericStats).forEach(key => {
+        if (!rateKeys.includes(key)) {
+            numericStats[key] = Math.round(numericStats[key]);
+        }
+    });
+
+
 
     return { skills, stats: numericStats, name, type, role };
 };
