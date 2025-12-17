@@ -4,7 +4,7 @@ import type { CalculatedBuffs } from '../../logic/buffCalculation';
 
 interface BuffResultProps {
     results: CalculatedBuffs;
-    onToggleBuff: (id: string) => void;
+    onToggleBuff: (id: string | string[]) => void;
 }
 
 const attributeMap: Record<string, string> = {
@@ -82,58 +82,136 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results, onToggleBuff })
                             <TableRow>
                                 <TableCell>対象 / ソース</TableCell>
                                 <TableCell>スキル</TableCell>
-                                <TableCell>効果</TableCell>
-                                <TableCell align="right">値</TableCell>
+                                <TableCell align="right">攻撃</TableCell>
+                                <TableCell align="right">会心率</TableCell>
+                                <TableCell align="right">会心ダメ</TableCell>
+                                <TableCell align="right">その他</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {results.modifiers && results.modifiers.length > 0 ? (
-                                results.modifiers.map((mod, index) => (
-                                    <TableRow
-                                        key={index}
-                                        onClick={() => onToggleBuff(mod.id)}
-                                        sx={{
-                                            '&:last-child td, &:last-child th': { border: 0 },
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s',
-                                            opacity: mod.isActive ? 1 : 0.5,
-                                            filter: mod.isActive ? 'none' : 'grayscale(100%)',
-                                            bgcolor: mod.isActive ? 'transparent' : 'action.hover',
-                                            '&:hover': {
-                                                bgcolor: 'action.hover'
+                            {(() => {
+                                // Group modifiers by Source + Skill Name + Level
+                                const groupedMods: Record<string, typeof results.modifiers> = {};
+                                results.modifiers.forEach(mod => {
+                                    const key = `${mod.sourceCharacterName}-${mod.skillName}-${mod.skillLevel}`;
+                                    if (!groupedMods[key]) groupedMods[key] = [];
+                                    groupedMods[key].push(mod);
+                                });
+
+                                const groups = Object.entries(groupedMods);
+
+                                if (groups.length === 0) {
+                                    return (
+                                        <TableRow>
+                                            <TableCell colSpan={6} align="center" sx={{ py: 3, color: 'text.secondary' }}>
+                                                適用された効果はありません
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                }
+
+                                return groups.map(([key, mods]) => {
+                                    const first = mods[0];
+                                    // Determine group active state: active if ALL are active? Or ANY?
+                                    // Since toggling operates on the set, if we click a row, we want to toggle all.
+                                    // If currently Mixed, toggle should probably Disable All or Enable All.
+                                    // Let's rely on simple toggle logic: if we consider the row "Active", click should Disable.
+                                    // Consider Active if at least one is active.
+                                    const isGroupActive = mods.some(m => m.isActive);
+
+                                    // Aggregate values
+                                    let attackVal = 0;
+                                    let critRateVal = 0;
+                                    let critDamageVal = 0;
+                                    const others: string[] = [];
+
+                                    mods.forEach(m => {
+                                        if (m.attribute === 'Attack') attackVal += m.value;
+                                        else if (m.attribute === 'CritRate') critRateVal += m.value;
+                                        else if (m.attribute === 'CritDamage') critDamageVal += m.value;
+                                        else if (m.attribute === 'HyperCritDamage') critDamageVal += m.value; // Combine Hyper into CritDamage column? Or show separate? User asked for columns. Let's combine for compact view or show as separate value? combining seems cleaner for "Crit Damage" column unless specified.
+                                        else {
+                                            // Format other attributes
+                                            const label = attributeMap[m.attribute] || m.attribute;
+                                            const valStr = m.value > 0 ? `+${m.value.toFixed(2)}` : m.value.toFixed(2);
+                                            others.push(`${label} ${valStr}`);
+                                        }
+                                    });
+
+
+
+                                    // Local click handler to toggle all IDs
+                                    const handleRowClick = () => {
+                                        // If we want to strictly Sync them:
+                                        // If isGroupActive is true (some are on), we want to turn ALL OFF.
+                                        // If isGroupActive is false (all are off), we want to turn ALL ON.
+
+                                        // The parent 'handleToggleBuff' toggles existence in the set (Active -> Inactive).
+                                        // If we pass IDs that are currently Active, they become Inactive.
+                                        // If we pass IDs that are Inactive, they become Active.
+
+                                        // So we should identify which IDs need to change to match the target state.
+                                        // Target State: !isGroupActive
+
+                                        const idsToToggle: string[] = [];
+                                        mods.forEach(m => {
+                                            // If we want to reach Target State (e.g. False), and m.isActive is True, we toggle it.
+                                            // If m.isActive is False, we leave it (already match).
+                                            if (m.isActive !== !isGroupActive) {
+                                                idsToToggle.push(m.id);
                                             }
-                                        }}
-                                    >
-                                        <TableCell component="th" scope="row">
-                                            {mod.sourceCharacterName}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Tooltip title={<Typography variant="body2">{mod.description || 'No description'}</Typography>} arrow>
-                                                <Typography component="span" sx={{ borderBottom: '1px dotted' }}>
-                                                    {mod.skillName} {mod.skillLevel && `(${mod.skillLevel})`}
-                                                    {mod.stackCount && mod.stackCount > 1 && (
-                                                        <Box component="span" sx={{ color: 'text.secondary', ml: 1, fontSize: '0.85em' }}>
-                                                            ×{mod.stackCount}
-                                                        </Box>
-                                                    )}
-                                                </Typography>
-                                            </Tooltip>
-                                        </TableCell>
-                                        <TableCell>
-                                            {mod.effectType === 'Debuff' ? '▼ ' : ''}{attributeMap[mod.attribute] || mod.attribute}
-                                        </TableCell>
-                                        <TableCell align="right" sx={{ color: mod.value < 0 ? 'error.main' : 'success.main', fontWeight: 'bold' }}>
-                                            {mod.value > 0 ? '+' : ''}{mod.value.toFixed(2)}
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            ) : (
-                                <TableRow>
-                                    <TableCell colSpan={4} align="center" sx={{ py: 3, color: 'text.secondary' }}>
-                                        適用された効果はありません
-                                    </TableCell>
-                                </TableRow>
-                            )}
+                                        });
+
+                                        if (idsToToggle.length > 0) {
+                                            onToggleBuff(idsToToggle);
+                                        }
+                                    };
+
+                                    return (
+                                        <TableRow
+                                            key={key}
+                                            onClick={handleRowClick}
+                                            sx={{
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s',
+                                                opacity: isGroupActive ? 1 : 0.5,
+                                                filter: isGroupActive ? 'none' : 'grayscale(100%)',
+                                                bgcolor: isGroupActive ? 'transparent' : 'action.hover',
+                                                '&:hover': { bgcolor: 'action.hover' }
+                                            }}
+                                        >
+                                            <TableCell component="th" scope="row">
+                                                {first.sourceCharacterName}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Tooltip title={<Typography variant="body2">{first.description || 'No description'}</Typography>} arrow>
+                                                    <Typography component="span" sx={{ borderBottom: '1px dotted' }}>
+                                                        {first.skillName} {first.skillLevel && `(${first.skillLevel})`}
+                                                        {first.stackCount && first.stackCount > 1 && (
+                                                            <Box component="span" sx={{ color: 'text.secondary', ml: 1, fontSize: '0.85em' }}>
+                                                                ×{first.stackCount}
+                                                            </Box>
+                                                        )}
+                                                    </Typography>
+                                                </Tooltip>
+                                            </TableCell>
+
+                                            <TableCell align="right" sx={{ color: 'success.main', fontWeight: attackVal ? 'bold' : 'normal', opacity: attackVal ? 1 : 0.3 }}>
+                                                {attackVal ? `+${attackVal.toFixed(2)}` : '-'}
+                                            </TableCell>
+                                            <TableCell align="right" sx={{ color: 'text.primary', fontWeight: critRateVal ? 'bold' : 'normal', opacity: critRateVal ? 1 : 0.3 }}>
+                                                {critRateVal ? `+${critRateVal.toFixed(2)}` : '-'}
+                                            </TableCell>
+                                            <TableCell align="right" sx={{ color: 'text.primary', fontWeight: critDamageVal ? 'bold' : 'normal', opacity: critDamageVal ? 1 : 0.3 }}>
+                                                {critDamageVal ? `+${critDamageVal.toFixed(2)}` : '-'}
+                                            </TableCell>
+                                            <TableCell align="right" sx={{ fontSize: '0.85em', color: 'text.secondary' }}>
+                                                {others.length > 0 ? others.join(', ') : '-'}
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                });
+                            })()}
                         </TableBody>
                     </Table>
                 </TableContainer>

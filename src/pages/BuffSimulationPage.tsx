@@ -102,14 +102,36 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
         return calculateMaxBuffs(modifiedAttacker, activeSupporters, stackCounts, activeExSkills, activeSkillLevels, disabledBuffIds);
     }, [attacker, supporters, stackCounts, activeExSkills, activeSkillLevels, attackerStats, disabledBuffIds]);
 
-    const handleToggleBuff = (buffId: string) => {
+    const handleToggleBuff = (buffId: string | string[]) => {
         setDisabledBuffIds(prev => {
             const next = new Set(prev);
-            if (next.has(buffId)) {
-                next.delete(buffId);
-            } else {
-                next.add(buffId);
-            }
+            const ids = Array.isArray(buffId) ? buffId : [buffId];
+
+            // Check if all are currently disabled (if so, we enable all. If mixed or all enabled, we disable all?)
+            // Usually simpler: If we are bulk toggling, we check if *any* is enabled -> disable all. 
+            // If *all* are disabled -> enable all.
+            // But here the input comes from a click.
+            // If I click a row that has multiple effects:
+            // If the row is considered "active" (at least one active?), clicking should toggle it off?
+            // Actually the row state will likely be "Active" if at least one effect is active. 
+            // So clicking means "Disable All".
+            // If row is "Inactive" (all disabled), clicking means "Enable All".
+
+            // Let's implement this logic in the caller (BuffResult) and pass the explicit intent? 
+            // Or just make this a simple "toggle" which flips the state of each ID?
+            // No, flipping each individually might lead to weird mixed states if they were already mixed.
+            // Better to force strict On/Off based on current state.
+
+            // However, keeping this function simple (just xor existence in set) acts as a toggle.
+            // Let's assume the UI sends the IDs to be *toggled*.
+
+            ids.forEach(id => {
+                if (next.has(id)) {
+                    next.delete(id);
+                } else {
+                    next.add(id);
+                }
+            });
             return next;
         });
     };
