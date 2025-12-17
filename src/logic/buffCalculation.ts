@@ -151,20 +151,6 @@ export const calculateMaxBuffs = (
         });
     };
 
-    // Helper to find description with fallback
-    const findDescription = (skill: SkillData, targetLevel: any) => {
-        if (targetLevel.description) return targetLevel.description;
-
-        // Fallback: search backwards from current level
-        const index = skill.levels.indexOf(targetLevel);
-        if (index > 0) {
-            for (let i = index - 1; i >= 0; i--) {
-                if (skill.levels[i].description) return skill.levels[i].description;
-            }
-        }
-        return undefined;
-    };
-
     // 1. Process Attacker's own skills
     attacker.skills.forEach(skill => {
         const targetLevel = findLevel(skill, attacker.name || '');
@@ -173,8 +159,7 @@ export const calculateMaxBuffs = (
             if (targetLevel.level === 'Ex' && activeExSkills[attacker.name || ''] === false) {
                 return;
             }
-            const description = findDescription(skill, targetLevel);
-            processEffects(targetLevel.effects, attacker, true, skill.name, targetLevel.level || 'Max', description);
+            processEffects(targetLevel.effects, attacker, true, skill.name, targetLevel.level || 'Max', targetLevel.description);
         }
     });
 
@@ -187,8 +172,7 @@ export const calculateMaxBuffs = (
                 if (targetLevel.level === 'Ex' && activeExSkills[supporter.name || ''] === false) {
                     return;
                 }
-                const description = findDescription(skill, targetLevel);
-                processEffects(targetLevel.effects, supporter, false, skill.name, targetLevel.level || 'Max', description);
+                processEffects(targetLevel.effects, supporter, false, skill.name, targetLevel.level || 'Max', targetLevel.description);
             }
         });
     });
@@ -291,27 +275,8 @@ export const findSkillLevel = (
 ) => {
     const preferredLevel = activeSkillLevels[charName];
     if (preferredLevel) {
-        // 1. Try exact match
         const found = skill.levels.find((l: any) => l.level === preferredLevel);
         if (found) return found;
-
-        // 2. Try numeric fallback
-        const preferredNum = parseInt(preferredLevel, 10);
-        if (!isNaN(preferredNum)) {
-            // Find valid numeric levels
-            const numericLevels = skill.levels
-                .map(l => ({ l, num: parseInt(l.level, 10) }))
-                .filter(x => !isNaN(x.num))
-                .sort((a, b) => a.num - b.num);
-
-            // Find highest level <= preferredNum
-            // Iterate backwards
-            for (let i = numericLevels.length - 1; i >= 0; i--) {
-                if (numericLevels[i].num <= preferredNum) {
-                    return numericLevels[i].l;
-                }
-            }
-        }
     }
     // Fallback to max level logic or last available
     // Note: The original logic in calculateMaxBuffs used search for "effects > 0" reversed.

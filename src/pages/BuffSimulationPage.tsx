@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Box, Typography, Paper, IconButton, Grid, FormControlLabel, Checkbox, Card, CardContent, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem, Button, TextField, Tooltip } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LayersIcon from '@mui/icons-material/Layers';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { CharacterSelector } from '../components/Simulation/CharacterSelector';
 import { CharacterList } from '../components/CharacterList';
 import { BuffResult } from '../components/Simulation/BuffResult';
@@ -175,6 +176,10 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
         return getStackableSkills(character, activeSkillLevels, activeExSkills).length > 0;
     };
 
+    const handleClearParty = () => {
+        setSupporters([]);
+    };
+
 
 
     return (
@@ -201,12 +206,12 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                     {/* Simulation Config */}
                     <Grid container spacing={2}>
                         {/* Attacker Section - Smaller */}
-                        <Grid size={{ xs: 12, sm: 12, lg: 4 }}>
+                        <Grid size={{ xs: 12, sm: 12, lg: 5 }}>
                             <Paper sx={{ p: 2, height: '100%' }}>
                                 <Typography variant="subtitle1" gutterBottom fontWeight={600} sx={{ fontSize: '0.95rem' }}>
                                     攻撃役
                                 </Typography>
-                                <Box sx={{ mb: 1.5 }}>
+                                <Box sx={{ lg: 1 }}>
                                     <CharacterSelector
                                         label="攻撃役を選択"
                                         characters={supporters.filter((s): s is ParsedCharacterData =>
@@ -247,12 +252,26 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                         </Grid>
 
                         {/* Party Section - Larger */}
-                        <Grid size={{ xs: 12, sm: 12, lg: 8 }}>
+                        <Grid size={{ xs: 12, sm: 12, lg: 7 }}>
                             <Paper sx={{ p: 2, height: '24vh', display: 'flex', flexDirection: 'column' }}>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-                                    <Typography variant="subtitle1" fontWeight={600} sx={{ fontSize: '0.95rem' }}>
-                                        パーティー {supporters.length}/9
-                                    </Typography>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Typography variant="subtitle1" fontWeight={600} sx={{ fontSize: '0.95rem' }}>
+                                            パーティー {supporters.length}/9
+                                        </Typography>
+                                        <Tooltip title="キャラをクリックすると、スキルレベルや覚醒スキル(Ex)の有効/無効を設定できます。" arrow>
+                                            <HelpOutlineIcon fontSize="small" color="action" sx={{ cursor: 'help', opacity: 0.7 }} />
+                                        </Tooltip>
+                                    </Box>
+                                    <Button
+                                        size="small"
+                                        color="error"
+                                        onClick={handleClearParty}
+                                        disabled={supporters.length === 0}
+                                        sx={{ minWidth: 'auto', p: '2px 8px', fontSize: '0.75rem' }}
+                                    >
+                                        一括解除
+                                    </Button>
                                 </Box>
 
                                 {supporters.length === 0 ? (

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, CardContent, Typography, Divider, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Tooltip } from '@mui/material';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import type { CalculatedBuffs } from '../../logic/buffCalculation';
 
 interface BuffResultProps {
@@ -73,9 +74,14 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results, onToggleBuff })
                     </Typography>
                 </Box>
 
-                <Typography variant="subtitle1" gutterBottom sx={{ mt: 2, fontWeight: 'bold' }}>
-                    適用された効果詳細
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2, mb: 1 }}>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                        適用された効果詳細
+                    </Typography>
+                    <Tooltip title="表示されている行をクリックすると、その効果の有効/無効を切り替えられます。" arrow>
+                        <HelpOutlineIcon fontSize="small" color="action" sx={{ cursor: 'help', opacity: 0.7 }} />
+                    </Tooltip>
+                </Box>
                 <TableContainer component={Paper} elevation={0} sx={{ bgcolor: 'transparent' }}>
                     <Table size="small" aria-label="buff modifiers table">
                         <TableHead>
@@ -138,7 +144,10 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results, onToggleBuff })
                                         }
                                     });
 
-
+                                    // Filter out logs that don't contribute to Attack, CritRate, or CritDamage
+                                    if (Math.abs(attackVal) < 0.001 && Math.abs(critRateVal) < 0.001 && Math.abs(critDamageVal) < 0.001) {
+                                        return null;
+                                    }
 
                                     // Local click handler to toggle all IDs
                                     const handleRowClick = () => {
