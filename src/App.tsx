@@ -11,6 +11,8 @@ import {
   ThemeProvider
 } from '@mui/material';
 import './App.css';
+import defaultCharacters from './data/default_characters.json';
+import { calculateHash } from './logic/hashUtils';
 
 const theme = createTheme({
   palette: {
@@ -54,8 +56,6 @@ const theme = createTheme({
   }
 });
 
-import defaultCharacters from './data/default_characters.json';
-// ...
 const STORAGE_KEY = 'hazreverb_simu_characters';
 
 function App() {
@@ -63,21 +63,37 @@ function App() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // Only support new format ({ hash, data })
+        // Legacy (array) format is deliberately ignored to enforce migration/reset
+        if (parsed.data && Array.isArray(parsed.data)) {
+          return parsed.data;
+        }
       }
-      return defaultCharacters as ParsedCharacterData[];
+      // Initial load or empty/invalid storage -> use default characters
+      // default_characters.json uses the new structure: { hash: "...", data: [...] }
+      return defaultCharacters.data as ParsedCharacterData[];
     } catch (e) {
       console.error('Failed to load characters from localStorage:', e);
-      return defaultCharacters as ParsedCharacterData[];
+      // Fallback
+      return defaultCharacters.data as ParsedCharacterData[];
     }
   });
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(characters));
-    } catch (e) {
-      console.error('Failed to save characters to localStorage:', e);
-    }
+    const saveToStorage = async () => {
+      try {
+        const hash = await calculateHash(characters);
+        const dataToSave = {
+          hash: hash,
+          data: characters
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+      } catch (e) {
+        console.error('Failed to save characters to localStorage:', e);
+      }
+    };
+    saveToStorage();
   }, [characters]);
 
   const handleAddCharacter = (character: ParsedCharacterData) => {
@@ -101,7 +117,7 @@ function App() {
   };
 
   const handleReset = () => {
-    setCharacters(defaultCharacters as ParsedCharacterData[]);
+    setCharacters(defaultCharacters.data as ParsedCharacterData[]);
   };
 
   return (
