@@ -348,6 +348,130 @@ describe('calculateMaxBuffs', () => {
         const skillNames = result.modifiers.map(m => m.skillName);
 
         // console.log('Modifiers:', JSON.stringify(result.modifiers, null, 2));
+        /*
+        Expected Log Output:
+        [
+          {
+            "sourceCharacterName": "清浄の騎士 コースガード",
+            "skillName": "スキル2/天険のごとく",
+            "skillLevel": "10",
+            "description": "♦防護障壁 軽減   バフ\n毎ラウンド開始時に、自身のダメージ軽減\n率が165%増加する。これは12ターン持続す\nる。\n♦出力増幅 強化   バフ\n毎ラウンド開始時に、すべての味方のクリ\nティカルダメージが50%増加する。これは\n18ターン持続する。",
+            "effectType": "Buff",
+            "attribute": "DamageReduction",
+            "value": 165
+          },
+          {
+            "sourceCharacterName": "清浄の騎士 コースガード",
+            "skillName": "スキル2/天険のごとく",
+            "skillLevel": "10",
+            "description": "♦防護障壁 軽減   バフ\n毎ラウンド開始時に、自身のダメージ軽減\n率が165%増加する。これは12ターン持続す\nる。\n♦出力増幅 強化   バフ\n毎ラウンド開始時に、すべての味方のクリ\nティカルダメージが50%増加する。これは\n18ターン持続する。",
+            "effectType": "Buff",
+            "attribute": "CritDamage",
+            "value": 50
+          },
+          {
+            "sourceCharacterName": "神聖Trick メリア",
+            "skillName": "スキル1/武運の恩恵",
+            "skillLevel": "10",
+            "effectType": "Buff",
+            "attribute": "Attack",
+            "value": 123.6
+          },
+          {
+            "sourceCharacterName": "神聖Trick メリア",
+            "skillName": "スキル1/武運の恩恵",
+            "skillLevel": "10",
+            "effectType": "Buff",
+            "attribute": "CritDamage",
+            "value": 72.1
+          },
+          {
+            "sourceCharacterName": "神聖Trick メリア",
+            "skillName": "スキル4/運命を掠め取る  覚醒開放",
+            "skillLevel": "10",
+            "effectType": "Debuff",
+            "attribute": "Mobility",
+            "value": -30
+          },
+          {
+            "sourceCharacterName": "神聖Trick メリア",
+            "skillName": "スキル4/運命を掠め取る  覚醒開放",
+            "skillLevel": "10",
+            "effectType": "Buff",
+            "attribute": "CritRate",
+            "value": 51.5
+          },
+          {
+            "sourceCharacterName": "神聖Trick メリア",
+            "skillName": "スキル4/運命を掠め取る  覚醒開放",
+            "skillLevel": "10",
+            "effectType": "Buff",
+            "attribute": "CritDamage",
+            "value": 103
+          },
+          {
+            "sourceCharacterName": "懲罰の審問官 モニカ",
+            "skillName": "究極審問!",
+            "skillLevel": "Ex",
+            "description": "♦究極審問!\n自身行動前、味方が2名かそれ以上戦闘不\n能となった場合、すべての味方の攻撃力が\n支援力×60%、会心ダメージが支援力\n×80%アップし、18ターン持続する。",
+            "effectType": "Buff",
+            "attribute": "Attack",
+            "value": 42
+          },
+          {
+            "sourceCharacterName": "懲罰の審問官 モニカ",
+            "skillName": "究極審問!",
+            "skillLevel": "Ex",
+            "description": "♦究極審問!\n自身行動前、味方が2名かそれ以上戦闘不\n能となった場合、すべての味方の攻撃力が\n支援力×60%、会心ダメージが支援力\n×80%アップし、18ターン持続する。",
+            "effectType": "Buff",
+            "attribute": "CritDamage",
+            "value": 56
+          },
+          {
+            "sourceCharacterName": "懲罰の審問官 モニカ",
+            "skillName": "スキル1/激励",
+            "skillLevel": "10",
+            "effectType": "Debuff",
+            "attribute": "Armor",
+            "value": -10
+          },
+          {
+            "sourceCharacterName": "懲罰の審問官 モニカ",
+            "skillName": "スキル1/激励",
+            "skillLevel": "10",
+            "effectType": "Buff",
+            "attribute": "Attack",
+            "value": 49
+          },
+          {
+            "sourceCharacterName": "懲罰の審問官 モニカ",
+            "skillName": "スキル4/臨戦態勢   覚醒開放",
+            "skillLevel": "10",
+            "description": "♦激発\n永続的にターゲットの機動力を30%ダウン\nする。\n♦弱点・出力アシスト\nターゲットの会心率が支援力×20%、会心\nダメージが支援力×70%アップし、18ター\nン持続する。",
+            "effectType": "Debuff",
+            "attribute": "Mobility",
+            "value": -30
+          },
+          {
+            "sourceCharacterName": "懲罰の審問官 モニカ",
+            "skillName": "スキル4/臨戦態勢   覚醒開放",
+            "skillLevel": "10",
+            "description": "♦激発\n永続的にターゲットの機動力を30%ダウン\nする。\n♦弱点・出力アシスト\nターゲットの会心率が支援力×20%、会心\nダメージが支援力×70%アップし、18ター\nン持続する。",
+            "effectType": "Buff",
+            "attribute": "CritRate",
+            "value": 14
+          },
+          {
+            "sourceCharacterName": "懲罰の審問官 モニカ",
+            "skillName": "スキル4/臨戦態勢   覚醒開放",
+            "skillLevel": "10",
+            "description": "♦激発\n永続的にターゲットの機動力を30%ダウン\nする。\n♦弱点・出力アシスト\nターゲットの会心率が支援力×20%、会心\nダメージが支援力×70%アップし、18ター\nン持続する。",
+            "effectType": "Buff",
+            "attribute": "CritDamage",
+            "value": 49
+          }
+        ]
+        */
 
         expect(modifierNames).toContain(attacker.name);
         expect(modifierNames).toContain(melia.name);
