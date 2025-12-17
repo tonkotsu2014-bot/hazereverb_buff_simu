@@ -403,17 +403,16 @@ export const parseEquipmentStats = (doc: Document): { [key: string]: number } =>
                     stats[attrKey] = (stats[attrKey] || 0) + maxVal;
                 }
             } else {
-                // Try parsing just "Stat +10%" format if exists?
-                // Or "Stat 10%"
-                const matchFixed = text.match(/([^\d]+)(\d+)%/);
-                if (matchFixed) {
-                    const attrName = matchFixed[1];
-                    const val = parseInt(matchFixed[2], 10);
+                // Try parsing multiple "Stat +10%" entries
+                const matches = [...text.matchAll(/([^\d\+]+)\+?(\d+)%/g)];
+                matches.forEach(m => {
+                    const attrName = m[1].trim();
+                    const val = parseInt(m[2], 10);
                     const attrKey = parseAttribute(attrName);
                     if (attrKey && !isNaN(val)) {
                         stats[attrKey] = (stats[attrKey] || 0) + val;
                     }
-                }
+                });
             }
         });
     });
@@ -840,7 +839,7 @@ export const parseCharacterData = (html: string): ParsedCharacterData => {
     // So for Rate stats, we should Treat "Percent" sources as FLAT additions if they represent the stat unit.
 
     // Check keys.
-    const rateKeys = ['CritRate', 'CritDamage', 'Evasion', 'DamageReduction', 'DamageBoost', 'EffectHitRate', 'EffectResist', 'Support'];
+    const rateKeys = ['CritRate', 'CritDamage', 'Evasion', 'DamageReduction', 'DamageBoost', 'EffectHitRate', 'EffectResist', 'Support', 'Mobility', 'Armor'];
 
     const applyModifier = (key: string, val: number) => {
         // If isPercentSource is true (coming from "10%"), 

@@ -68,9 +68,16 @@ export const ParserOverlay: React.FC<Props> = ({ onAddCharacter }) => {
             try {
                 const text = await file.text();
                 setHtmlSource(text);
-                // Optional: Auto-parse
-                // const data = parseCharacterData(text);
-                // setResult(data);
+
+                // Auto-parse on drop
+                setError(null);
+                setResult(null);
+                try {
+                    const data = parseCharacterData(text);
+                    setResult(data);
+                } catch (parseErr) {
+                    setError('解析エラー: ' + (parseErr instanceof Error ? parseErr.message : String(parseErr)));
+                }
             } catch (err) {
                 setError('ファイルの読み込みに失敗しました: ' + (err instanceof Error ? err.message : String(err)));
             }

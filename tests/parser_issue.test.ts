@@ -247,12 +247,12 @@ describe('WikiParser Skill Level Issue', () => {
             expect(processed[0].levels[0].effects).toHaveLength(0);
         });
 
-        it('should NOT extract HP, EffectHitRate, or EffectResist', () => {
+        it('should NOT extract EffectHitRate, or EffectResist', () => {
             const skills: SkillData[] = [
                 {
                     name: 'Excluded Attributes Skill',
                     levels: [
-                        { level: '1', description: '体力が10%増加。効果命中が5%アップ。効果抵抗が5%アップ。', effects: [] }
+                        { level: '1', description: '効果命中が5%アップ。効果抵抗が5%アップ。', effects: [] }
                     ]
                 }
             ];

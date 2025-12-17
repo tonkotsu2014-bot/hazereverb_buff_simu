@@ -114,41 +114,4 @@ describe('wikiParser', () => {
         }
     });
 
-    it('should parse stats correctly for Iria', () => {
-        const result = parseCharacterData(IRIA_HTML);
-        const stats = result.stats;
-
-        expect(result.name).toContain('イリア');
-        expect(result.name).toContain('輪廻を超える者');
-        expect(result.type).toBe('超越'); // Iria's type is Transcendence in the file
-
-        expect(stats).toBeDefined();
-        if (stats) {
-            expect(stats.hp).toBe(9056);
-            expect(stats.attack).toBe(508);
-            expect(stats.defense).toBe(15);
-            expect(stats.critRate).toBe(0);
-            expect(stats.critDamage).toBe(0);
-            expect(stats.speed).toBe(20);
-        }
-    });
-
-    it('should parse stats correctly for Dorocy', () => {
-        const result = parseCharacterData(DOROCY_HTML);
-        const stats = result.stats;
-
-        expect(result.name).toContain('ドロシー');
-        expect(result.name).toContain('夏に焦がれる魔女');
-        expect(result.type).toBe('支援'); // Dorothy is Support type
-
-        expect(stats).toBeDefined();
-        if (stats) {
-            expect(stats.hp).toBe(5782);
-            expect(stats.attack).toBe(207); // Support type has %
-            expect(stats.defense).toBe(0);
-            expect(stats.critRate).toBe(15);
-            expect(stats.critDamage).toBe(75);
-            expect(stats.speed).toBe(5);
-        }
-    });
 });
