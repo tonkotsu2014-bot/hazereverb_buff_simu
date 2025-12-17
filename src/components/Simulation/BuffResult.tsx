@@ -70,7 +70,7 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results, onToggleBuff })
 
                 <Box sx={{ mb: 4, px: 2, py: 1, bgcolor: '#fff3e0', borderRadius: 1 }}>
                     <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                        ※ゲーム内上限: 攻撃力+200%, 会心率+100%, 会心ダメージ+1250%
+                        ※ゲーム内上限: 攻撃力:+200%, 会心率:100%, 会心ダメージ:1000%+ハイパークリティカルダメージ
                     </Typography>
                 </Box>
 
