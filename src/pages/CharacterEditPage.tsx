@@ -52,6 +52,7 @@ export const CharacterEditPage: React.FC<Props> = ({ characters, onDelete, onUpd
                         characters={characters}
                         onDelete={onDelete}
                         onCreateNew={handleCreateNew}
+                        onCharacterImported={handleNewCharacterAdded}
                         onSelect={handleSelect}
                         selectedIndex={selectedIndex}
                     />
