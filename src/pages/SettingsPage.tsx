@@ -107,13 +107,15 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ characters, onImport
 
                 <Grid container spacing={3}>
                     <Grid size={{ xs: 12, md: 6 }}>
-                        <Box sx={{ p: 2, bgcolor: 'background.default', borderRadius: 2 }}>
-                            <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-                                エクスポート
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" paragraph>
-                                現在のキャラクタデータをJSONファイルとしてダウンロードします。
-                            </Typography>
+                        <Box sx={{ p: 2, bgcolor: 'background.default', borderRadius: 2, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                            <Box>
+                                <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                                    エクスポート
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary" paragraph>
+                                    現在のキャラクタデータをJSONファイルとしてダウンロードします。
+                                </Typography>
+                            </Box>
                             <Button
                                 variant="outlined"
                                 startIcon={<DownloadIcon />}
@@ -126,14 +128,16 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ characters, onImport
                         </Box>
                     </Grid>
                     <Grid size={{ xs: 12, md: 6 }}>
-                        <Box sx={{ p: 2, bgcolor: 'background.default', borderRadius: 2 }}>
-                            <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-                                インポート
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" paragraph>
-                                JSONファイルを読み込んでキャラクタデータを復元します。<br />
-                                ※現在のデータはすべて上書きされます。
-                            </Typography>
+                        <Box sx={{ p: 2, bgcolor: 'background.default', borderRadius: 2, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                            <Box>
+                                <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                                    インポート
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary" paragraph>
+                                    JSONファイルを読み込んでキャラクタデータを復元します。<br />
+                                    ※現在のデータはすべて上書きされます。
+                                </Typography>
+                            </Box>
                             <Button
                                 variant="outlined"
                                 component="label"
