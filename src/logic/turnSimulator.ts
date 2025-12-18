@@ -5,6 +5,13 @@ export interface Action {
     globalTurn: number;
     actorIndex: number;
     actorName: string;
+    actorRole: string; // 'Attacker', 'Supporter', 'Defender', 'Boss', etc.
+    actorType: string; // '攻撃型', '支援型', etc.
+}
+
+export interface DeathInfo {
+    characterIndex: number;
+    deathRound: number;
 }
 
 /**
@@ -12,11 +19,28 @@ export interface Action {
  * 
  * @param party The list of characters in the party (max 9). Order in array determines action order within a round.
  * @param maxRounds The number of rounds to simulate.
+ * @param deaths Optional list of death information (character index and round they die).
  * @returns An array of Actions representing the turn order.
  */
-export const simulateTurns = (party: (ParsedCharacterData | null)[], maxRounds: number): Action[] => {
+export const simulateTurns = (
+    party: (ParsedCharacterData | null)[],
+    maxRounds: number,
+    deaths: DeathInfo[] = []
+): Action[] => {
     const actions: Action[] = [];
     let globalTurn = 1;
+
+    // Helper to get Japanese type name from Role
+    const getTypeName = (role: string): string => {
+        switch (role) {
+            case 'Attacker': return '攻撃型';
+            case 'Supporter': return '支援型';
+            case 'Defender': return '防御型';
+            case 'Transcendence': return '超越型';
+            case 'Boss': return 'Boss';
+            default: return 'その他';
+        }
+    };
 
     for (let round = 1; round <= maxRounds; round++) {
         let bossActed = false;
@@ -25,11 +49,19 @@ export const simulateTurns = (party: (ParsedCharacterData | null)[], maxRounds: 
                 throw new Error(`Invalid character in party at index ${index}`);
             }
 
+            // Check if character is dead in this round
+            const isDead = deaths.some(d => d.characterIndex === index && round >= d.deathRound);
+            if (isDead) {
+                return; // Skip this character
+            }
+
             actions.push({
                 round,
                 globalTurn,
                 actorIndex: index,
-                actorName: character.name || `Character ${index + 1}`
+                actorName: character.name || `Character ${index + 1}`,
+                actorRole: character.role || 'Unknown',
+                actorType: character.type?.replace(/型$/, '型') || getTypeName(character.role || '')
             });
             globalTurn++;
 
@@ -41,7 +73,9 @@ export const simulateTurns = (party: (ParsedCharacterData | null)[], maxRounds: 
                         round,
                         globalTurn,
                         actorIndex: -1,
-                        actorName: 'Boss'
+                        actorName: 'Boss',
+                        actorRole: 'Boss',
+                        actorType: 'Boss'
                     });
                     globalTurn++;
                     bossActed = true;
@@ -49,17 +83,19 @@ export const simulateTurns = (party: (ParsedCharacterData | null)[], maxRounds: 
             }
         });
 
-        // Safety fallback: if boss hasn't acted by end of round (e.g. all supporters), boss acts at end?
-        // User spec didn't explicitly say what happens if ONLY supporters are present.
-        // "Boss character acts after non-support character... acts."
-        // If there are no non-support characters, strictly speaking the condition is never met.
-        // However, in a game, the boss presumably acts *sometime*.
-        // But let's stick to the strict requirement first: "After ... moves".
-        // If the user meant "At the end of round if not acted", that's an assumption.
-        // I will stick to the explicit instruction. If the party is all supporters, Boss might not act based on this logic.
-        // Wait, "Boss acts after ... first non-supporter ... acts".
-        // Let's assume standard behavior constitutes at least one derived non-supporter or Boss acts at end.
-        // For now, I'll implement exactly as requested.
+        // If Boss hasn't acted yet (e.g., all characters were Supporters or dead Attacker), Boss acts at the end of the round
+        if (!bossActed) {
+            actions.push({
+                round,
+                globalTurn,
+                actorIndex: -1,
+                actorName: 'Boss',
+                actorRole: 'Boss',
+                actorType: 'Boss'
+            });
+            globalTurn++;
+            bossActed = true;
+        }
     }
 
     return actions;
