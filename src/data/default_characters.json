@@ -1,5 +1,5 @@
 {
-  "hash": "ae0a6adc1c7dfcb2376da3a681b72184b0a0ee49535173b13a84b28a3e281ecb",
+  "hash": "657de1fe036566dcad54f0069513e8f9c87d8d5bcba64d196330137f7bf8a417",
   "data": [
     {
       "skills": [
@@ -691,7 +691,17 @@
             {
               "level": "1",
               "description": "♦オーバードラフトダメージ追加通常攻撃前に、自身のその時点での体力値の25%を消耗する(体力値の消耗は最低1ポイントまで)。♦弱点増幅強化バフ通常攻撃前に、永続的に自身のクリティカル率が2.5%上昇する。例外事項",
-              "effects": []
+              "effects": [
+                {
+                  "type": "Buff",
+                  "attribute": "CritRate",
+                  "value": 2.5,
+                  "duration": -1,
+                  "calculationType": "Fixed",
+                  "target": "Self",
+                  "isStackable": true
+                }
+              ]
             },
             {
               "level": "2",
@@ -747,6 +757,15 @@
                   "attribute": "CritDamage",
                   "value": 35,
                   "duration": -1,
+                  "target": "Self",
+                  "isStackable": true
+                },
+                {
+                  "type": "Buff",
+                  "attribute": "CritRate",
+                  "value": 7.5,
+                  "duration": -1,
+                  "calculationType": "Fixed",
                   "target": "Self",
                   "isStackable": true
                 }
@@ -856,39 +875,6 @@
                   "isStackable": true
                 }
               ]
-            },
-            {
-              "level": "10",
-              "description": null,
-              "effects": [
-                {
-                  "calculationType": "Fixed",
-                  "attribute": "Attack",
-                  "value": 25,
-                  "type": "Buff",
-                  "duration": -1,
-                  "target": "Self",
-                  "isStackable": true
-                },
-                {
-                  "calculationType": "Fixed",
-                  "attribute": "CritRate",
-                  "value": 10,
-                  "type": "Buff",
-                  "duration": -1,
-                  "target": "Self",
-                  "isStackable": true
-                },
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "CritDamage",
-                  "value": 55,
-                  "duration": -1,
-                  "target": "Self",
-                  "isStackable": true
-                }
-              ]
             }
           ]
         },
@@ -906,18 +892,8 @@
               "effects": []
             },
             {
-              "level": "3",
-              "description": null,
-              "effects": []
-            },
-            {
               "level": "4",
               "description": "♦「蒼青」刻印デバフ通常攻撃後、ターゲットに「蒼青」を付与する。ターゲットにすでに「蒼青」が付与されている場合、全ての蒼青」を解除し、新たに「蒼青」を付与する。「蒼青」が消えるか除去された時、ターゲットに攻撃力×クリティカル率×205%のダメージを与える。例外事項",
-              "effects": []
-            },
-            {
-              "level": "5",
-              "description": null,
               "effects": []
             },
             {
@@ -926,43 +902,13 @@
               "effects": []
             },
             {
-              "level": "7",
-              "description": null,
-              "effects": []
-            },
-            {
               "level": "8",
               "description": "♦「蒼青」刻印デバフ通常攻撃後、ターゲットに「蒼青」を付与する。ターゲットにすでに「蒼青」が付与されている場合、全ての蒼青」を解除し、新たに「蒼青」を付与する。「蒼青」が消えるか除去された時、ターゲットに攻撃力×クリティカル率×295%のダメージを与える(相手の装甲値は無視する)。例外事項",
               "effects": []
             },
             {
-              "level": "9",
-              "description": null,
-              "effects": []
-            },
-            {
               "level": "10",
               "description": "♦「蒼青」刻印デバフ通常攻撃後、ターゲットに「蒼青」を付与する。ターゲットにすでに「蒼青」が付与されている場合、全ての蒼青」を解除し、新たに「蒼青」を付与する。「蒼青」が消えるか除去された時、ターゲットに攻撃力×クリティカル率×345%のダメージを与える(相手の装甲値は無視する)。例外事項",
-              "effects": []
-            },
-            {
-              "level": "7",
-              "description": null,
-              "effects": []
-            },
-            {
-              "level": "8",
-              "description": null,
-              "effects": []
-            },
-            {
-              "level": "9",
-              "description": null,
-              "effects": []
-            },
-            {
-              "level": "10",
-              "description": null,
               "effects": []
             }
           ]
@@ -1007,12 +953,16 @@
             {
               "level": "1",
               "description": "♦機動増幅強化バフ毎ラウンド開始時に、永続的にラビットボイス効果を獲得する。自身の機動力が3.5%増加する。例外事項",
-              "effects": []
-            },
-            {
-              "level": "2",
-              "description": null,
-              "effects": []
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "Mobility",
+                  "value": 3.5,
+                  "target": "Self",
+                  "duration": -1
+                }
+              ]
             },
             {
               "level": "3",
@@ -1029,44 +979,8 @@
               ]
             },
             {
-              "level": "4",
-              "description": null,
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Mobility",
-                  "value": 5,
-                  "target": "Self",
-                  "duration": -1
-                }
-              ]
-            },
-            {
               "level": "5",
               "description": "♦攻撃・機動増幅強化バフ毎ラウンド開始時に、永続的にラビットボイス効果を獲得する。自身の機動力が6%増加する。自身の攻撃力が9%増加する。例外事項",
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Mobility",
-                  "value": 6,
-                  "target": "Self",
-                  "duration": -1
-                },
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Attack",
-                  "value": 9,
-                  "target": "Self",
-                  "duration": -1
-                }
-              ]
-            },
-            {
-              "level": "6",
-              "description": null,
               "effects": [
                 {
                   "type": "Buff",
@@ -1109,52 +1023,8 @@
               ]
             },
             {
-              "level": "8",
-              "description": null,
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Mobility",
-                  "value": 8,
-                  "target": "Self",
-                  "duration": -1
-                },
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Attack",
-                  "value": 12,
-                  "target": "Self",
-                  "duration": -1
-                }
-              ]
-            },
-            {
               "level": "9",
               "description": "♦攻撃・機動増幅強化バフ毎ラウンド開始時に、永続的にラビットボイス効果を獲得する。自身の機動力が10%増加する。自身の攻撃力が15%増加する。例外事項",
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Mobility",
-                  "value": 10,
-                  "target": "Self",
-                  "duration": -1
-                },
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Attack",
-                  "value": 15,
-                  "target": "Self",
-                  "duration": -1
-                }
-              ]
-            },
-            {
-              "level": "10",
-              "description": null,
               "effects": [
                 {
                   "type": "Buff",
@@ -1187,11 +1057,6 @@
             {
               "level": "2",
               "description": "♦コア出力ダメージ追加通常攻撃後、ターゲットに機動力×攻撃力×50%のダメージを与える。",
-              "effects": []
-            },
-            {
-              "level": "3",
-              "description": null,
               "effects": []
             },
             {
@@ -1371,7 +1236,17 @@
             {
               "level": "2",
               "description": "♦攻撃増幅強化バフ通常攻撃前に、すべての味方ユニットの攻撃力をラビットボイス効果の数×7.5%増加させる。これは12ターン持続する。",
-              "effects": []
+              "effects": [
+                {
+                  "type": "Buff",
+                  "attribute": "Attack",
+                  "value": 7.5,
+                  "duration": 12,
+                  "calculationType": "Fixed",
+                  "target": "AllAllies",
+                  "isStackable": true
+                }
+              ]
             },
             {
               "level": "3",
@@ -1454,7 +1329,26 @@
             {
               "level": "8",
               "description": "♦攻撃・出力増幅強化バフ通常攻撃前に、すべての味方ユニットの攻撃力をラビットボイス効果の数×12.5%、クリティカルダメージをラビットボイスの効果の数×17.5%増加させる。これは12ターン持続する。",
-              "effects": []
+              "effects": [
+                {
+                  "type": "Buff",
+                  "attribute": "Attack",
+                  "value": 12.5,
+                  "duration": 12,
+                  "calculationType": "Fixed",
+                  "target": "AllAllies",
+                  "isStackable": true
+                },
+                {
+                  "type": "Buff",
+                  "attribute": "CritDamage",
+                  "value": 17.5,
+                  "duration": 12,
+                  "calculationType": "Fixed",
+                  "target": "AllAllies",
+                  "isStackable": true
+                }
+              ]
             },
             {
               "level": "9",
@@ -7021,531 +6915,6 @@
     {
       "skills": [
         {
-          "name": "恨み、忘れることなく",
-          "levels": [
-            {
-              "level": "Ex",
-              "description": "♦恨み、忘れることなく自身の行動前で、自身が静寂効果を2層持っている時、ターゲットに機動力×攻撃力×300%の固定ダメージを与える。♦恨み、忘れることなく自身の行動前で、自身が静寂効果を2層持っている時、またダメージ吸収シールドを獲得する。ダメージ吸収シールドは通常攻撃を複数回受けると消失する。2回の通常攻撃を防ぐことができる。",
-              "effects": []
-            }
-          ]
-        },
-        {
-          "name": "スキル1/静かな心",
-          "levels": [
-            {
-              "level": "1",
-              "description": "♦機動増幅毎ラウンド開始時に、永続的にサイレンス効果を獲得する。自身の機動力が15%増加する。",
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Mobility",
-                  "value": 15,
-                  "target": "Self",
-                  "duration": -1
-                }
-              ]
-            },
-            {
-              "level": "2",
-              "description": null,
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Mobility",
-                  "value": 15,
-                  "target": "Self",
-                  "duration": -1
-                }
-              ]
-            },
-            {
-              "level": "3",
-              "description": null,
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Mobility",
-                  "value": 15,
-                  "target": "Self",
-                  "duration": -1
-                }
-              ]
-            },
-            {
-              "level": "4",
-              "description": "♦機動増幅毎ラウンド開始時に、永続的にサイレンス効果を獲得する。自身の機動力が20%増加する。",
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Mobility",
-                  "value": 20,
-                  "target": "Self",
-                  "duration": -1
-                }
-              ]
-            },
-            {
-              "level": "5",
-              "description": null,
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Mobility",
-                  "value": 20,
-                  "target": "Self",
-                  "duration": -1
-                }
-              ]
-            },
-            {
-              "level": "6",
-              "description": null,
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Mobility",
-                  "value": 20,
-                  "target": "Self",
-                  "duration": -1
-                }
-              ]
-            },
-            {
-              "level": "7",
-              "description": null,
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Mobility",
-                  "value": 20,
-                  "target": "Self",
-                  "duration": -1
-                }
-              ]
-            },
-            {
-              "level": "8",
-              "description": null,
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Mobility",
-                  "value": 20,
-                  "target": "Self",
-                  "duration": -1
-                }
-              ]
-            },
-            {
-              "level": "9",
-              "description": null,
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Mobility",
-                  "value": 20,
-                  "target": "Self",
-                  "duration": -1
-                }
-              ]
-            },
-            {
-              "level": "10",
-              "description": null,
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Mobility",
-                  "value": 20,
-                  "target": "Self",
-                  "duration": -1
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "スキル2/復讐者の怒り",
-          "levels": [
-            {
-              "level": "1",
-              "description": "♦コア出力通常攻撃後、ターゲットに機動力×攻撃力×50%の固定ダメージを与える。",
-              "effects": []
-            },
-            {
-              "level": "2",
-              "description": "♦コア出力通常攻撃後、ターゲットに機動力×攻撃力×100%の固定ダメージを与える。",
-              "effects": []
-            },
-            {
-              "level": "3",
-              "description": null,
-              "effects": []
-            },
-            {
-              "level": "4",
-              "description": null,
-              "effects": []
-            },
-            {
-              "level": "5",
-              "description": "♦コア出力通常攻撃後、ターゲットに機動力×攻撃力×150%の固定ダメージを与える。",
-              "effects": []
-            },
-            {
-              "level": "6",
-              "description": null,
-              "effects": []
-            },
-            {
-              "level": "7",
-              "description": null,
-              "effects": []
-            },
-            {
-              "level": "8",
-              "description": "♦コア出力通常攻撃後、ターゲットに機動力×攻撃力×200%の固定ダメージを与える。",
-              "effects": []
-            },
-            {
-              "level": "9",
-              "description": null,
-              "effects": []
-            },
-            {
-              "level": "10",
-              "description": null,
-              "effects": []
-            }
-          ]
-        },
-        {
-          "name": "スキル3/怒りに呑まれない自己   ドライバー☆ランク3で開放",
-          "levels": [
-            {
-              "level": "1",
-              "description": "♦回避増幅・永続戦闘開始時に、永続的に自身のダメージ回避率が25%増加する。",
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Evasion",
-                  "value": 25,
-                  "duration": -1,
-                  "target": "Self"
-                }
-              ]
-            },
-            {
-              "level": "2",
-              "description": null,
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Evasion",
-                  "value": 25,
-                  "duration": -1,
-                  "target": "Self"
-                }
-              ]
-            },
-            {
-              "level": "3",
-              "description": "♦回避増幅・永続戦闘開始時に、永続的に自身のダメージ回避率が45%増加する。",
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Evasion",
-                  "value": 45,
-                  "duration": -1,
-                  "target": "Self"
-                }
-              ]
-            },
-            {
-              "level": "4",
-              "description": null,
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Evasion",
-                  "value": 45,
-                  "duration": -1,
-                  "target": "Self"
-                }
-              ]
-            },
-            {
-              "level": "5",
-              "description": null,
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Evasion",
-                  "value": 45,
-                  "duration": -1,
-                  "target": "Self"
-                }
-              ]
-            },
-            {
-              "level": "6",
-              "description": "♦回避増幅・永続戦闘開始時に、永続的に自身のダメージ回避率が45%増加する。♦解除・コントロール自身の行動前に(コントロールは無視する)、自身のすべてのコントロールスキル効果を解除する。",
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Evasion",
-                  "value": 45,
-                  "duration": -1,
-                  "target": "Self"
-                }
-              ]
-            },
-            {
-              "level": "7",
-              "description": null,
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Evasion",
-                  "value": 45,
-                  "duration": -1,
-                  "target": "Self"
-                }
-              ]
-            },
-            {
-              "level": "8",
-              "description": null,
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Evasion",
-                  "value": 45,
-                  "duration": -1,
-                  "target": "Self"
-                }
-              ]
-            },
-            {
-              "level": "9",
-              "description": "♦回避増幅・永続戦闘開始時に、永続的に自身のダメージ回避率が65%増加する。♦解除・コントロール自身の行動前に(コントロールは無視する)、自身のすべてのコントロールスキル効果を解除する。",
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Evasion",
-                  "value": 65,
-                  "duration": -1,
-                  "target": "Self"
-                }
-              ]
-            },
-            {
-              "level": "10",
-              "description": null,
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "Evasion",
-                  "value": 65,
-                  "duration": -1,
-                  "target": "Self"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "スキル4/大切なひとのために   覚醒開放",
-          "levels": [
-            {
-              "level": "1",
-              "description": "♦ハイパー出力アシスト通常攻撃前に、すべての味方のハイパークリティカルダメージが静寂効果の数×20%増加する。これは18ターン持続する。",
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "CritDamage",
-                  "value": 20,
-                  "scalingFactor": "静寂効果の数",
-                  "target": "AllAllies",
-                  "duration": 18
-                }
-              ]
-            },
-            {
-              "level": "2",
-              "description": null,
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "CritDamage",
-                  "value": 20,
-                  "scalingFactor": "静寂効果の数",
-                  "target": "AllAllies",
-                  "duration": 18
-                }
-              ]
-            },
-            {
-              "level": "3",
-              "description": null,
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "CritDamage",
-                  "value": 20,
-                  "scalingFactor": "静寂効果の数",
-                  "target": "AllAllies",
-                  "duration": 18
-                }
-              ]
-            },
-            {
-              "level": "4",
-              "description": "♦ハイパー出力アシスト通常攻撃前に、すべての味方のハイパークリティカルダメージが静寂効果の数×30%増加する。これは18ターン持続する。",
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "CritDamage",
-                  "value": 30,
-                  "scalingFactor": "静寂効果の数",
-                  "target": "AllAllies",
-                  "duration": 18
-                }
-              ]
-            },
-            {
-              "level": "5",
-              "description": null,
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "CritDamage",
-                  "value": 30,
-                  "scalingFactor": "静寂効果の数",
-                  "target": "AllAllies",
-                  "duration": 18
-                }
-              ]
-            },
-            {
-              "level": "6",
-              "description": null,
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "CritDamage",
-                  "value": 30,
-                  "scalingFactor": "静寂効果の数",
-                  "target": "AllAllies",
-                  "duration": 18
-                }
-              ]
-            },
-            {
-              "level": "7",
-              "description": "♦ハイパー出力アシスト通常攻撃前に、すべての味方のハイパークリティカルダメージが静寂効果の数×40%増加する。これは18ターン持続する。",
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "CritDamage",
-                  "value": 40,
-                  "scalingFactor": "静寂効果の数",
-                  "target": "AllAllies",
-                  "duration": 18
-                }
-              ]
-            },
-            {
-              "level": "8",
-              "description": null,
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "CritDamage",
-                  "value": 40,
-                  "scalingFactor": "静寂効果の数",
-                  "target": "AllAllies",
-                  "duration": 18
-                }
-              ]
-            },
-            {
-              "level": "9",
-              "description": null,
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "CritDamage",
-                  "value": 40,
-                  "scalingFactor": "静寂効果の数",
-                  "target": "AllAllies",
-                  "duration": 18
-                }
-              ]
-            },
-            {
-              "level": "10",
-              "description": "♦ハイパー出力アシスト通常攻撃前に、すべての味方のハイパークリティカルダメージが静寂効果の数×50%増加する。これは18ターン持続する。",
-              "effects": [
-                {
-                  "type": "Buff",
-                  "calculationType": "Fixed",
-                  "attribute": "CritDamage",
-                  "value": 50,
-                  "scalingFactor": "静寂効果の数",
-                  "target": "AllAllies",
-                  "duration": 18
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "stats": {
-        "Hp": 12638,
-        "Attack": 635,
-        "Armor": 20,
-        "CritRate": 0,
-        "CritDamage": 0,
-        "Mobility": 20
-      },
-      "name": "輪廻を超える者 イリア",
-      "type": "超越",
-      "role": "Transcendence"
-    },
-    {
-      "skills": [
-        {
           "name": "尽きない聖水の杯",
           "levels": [
             {
@@ -7557,7 +6926,7 @@
                   "calculationType": "Fixed",
                   "attribute": "Support",
                   "value": 20,
-                  "target": "Self",
+                  "target": "AllAllies",
                   "duration": 18
                 }
               ]
@@ -9109,6 +8478,541 @@
       "name": "きっと見つける(プロミス) 大川村寧",
       "type": "支援",
       "role": "Supporter"
+    },
+    {
+      "skills": [
+        {
+          "name": "恨み、忘れることなく",
+          "levels": [
+            {
+              "level": "Ex",
+              "description": "♦恨み、忘れることなく自身の行動前で、自身が静寂効果を2層持っている時、ターゲットに機動力×攻撃力×300%の固定ダメージを与える。♦恨み、忘れることなく自身の行動前で、自身が静寂効果を2層持っている時、またダメージ吸収シールドを獲得する。ダメージ吸収シールドは通常攻撃を複数回受けると消失する。2回の通常攻撃を防ぐことができる。",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "name": "スキル1/静かな心",
+          "levels": [
+            {
+              "level": "1",
+              "description": "♦機動増幅毎ラウンド開始時に、永続的にサイレンス効果を獲得する。自身の機動力が15%増加する。",
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "Mobility",
+                  "value": 15,
+                  "target": "Self",
+                  "duration": -1
+                }
+              ]
+            },
+            {
+              "level": "2",
+              "description": null,
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "Mobility",
+                  "value": 15,
+                  "target": "Self",
+                  "duration": -1
+                }
+              ]
+            },
+            {
+              "level": "3",
+              "description": null,
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "Mobility",
+                  "value": 15,
+                  "target": "Self",
+                  "duration": -1
+                }
+              ]
+            },
+            {
+              "level": "4",
+              "description": "♦機動増幅毎ラウンド開始時に、永続的にサイレンス効果を獲得する。自身の機動力が20%増加する。",
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "Mobility",
+                  "value": 20,
+                  "target": "Self",
+                  "duration": -1
+                }
+              ]
+            },
+            {
+              "level": "5",
+              "description": null,
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "Mobility",
+                  "value": 20,
+                  "target": "Self",
+                  "duration": -1
+                }
+              ]
+            },
+            {
+              "level": "6",
+              "description": null,
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "Mobility",
+                  "value": 20,
+                  "target": "Self",
+                  "duration": -1
+                }
+              ]
+            },
+            {
+              "level": "7",
+              "description": null,
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "Mobility",
+                  "value": 20,
+                  "target": "Self",
+                  "duration": -1
+                }
+              ]
+            },
+            {
+              "level": "8",
+              "description": null,
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "Mobility",
+                  "value": 20,
+                  "target": "Self",
+                  "duration": -1
+                }
+              ]
+            },
+            {
+              "level": "9",
+              "description": null,
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "Mobility",
+                  "value": 20,
+                  "target": "Self",
+                  "duration": -1
+                }
+              ]
+            },
+            {
+              "level": "10",
+              "description": null,
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "Mobility",
+                  "value": 20,
+                  "target": "Self",
+                  "duration": -1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "スキル2/復讐者の怒り",
+          "levels": [
+            {
+              "level": "1",
+              "description": "♦コア出力通常攻撃後、ターゲットに機動力×攻撃力×50%の固定ダメージを与える。",
+              "effects": []
+            },
+            {
+              "level": "2",
+              "description": "♦コア出力通常攻撃後、ターゲットに機動力×攻撃力×100%の固定ダメージを与える。",
+              "effects": []
+            },
+            {
+              "level": "3",
+              "description": null,
+              "effects": []
+            },
+            {
+              "level": "4",
+              "description": null,
+              "effects": []
+            },
+            {
+              "level": "5",
+              "description": "♦コア出力通常攻撃後、ターゲットに機動力×攻撃力×150%の固定ダメージを与える。",
+              "effects": []
+            },
+            {
+              "level": "6",
+              "description": null,
+              "effects": []
+            },
+            {
+              "level": "7",
+              "description": null,
+              "effects": []
+            },
+            {
+              "level": "8",
+              "description": "♦コア出力通常攻撃後、ターゲットに機動力×攻撃力×200%の固定ダメージを与える。",
+              "effects": []
+            },
+            {
+              "level": "9",
+              "description": null,
+              "effects": []
+            },
+            {
+              "level": "10",
+              "description": null,
+              "effects": []
+            }
+          ]
+        },
+        {
+          "name": "スキル3/怒りに呑まれない自己   ドライバー☆ランク3で開放",
+          "levels": [
+            {
+              "level": "1",
+              "description": "♦回避増幅・永続戦闘開始時に、永続的に自身のダメージ回避率が25%増加する。",
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "Evasion",
+                  "value": 25,
+                  "duration": -1,
+                  "target": "Self"
+                }
+              ]
+            },
+            {
+              "level": "2",
+              "description": null,
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "Evasion",
+                  "value": 25,
+                  "duration": -1,
+                  "target": "Self"
+                }
+              ]
+            },
+            {
+              "level": "3",
+              "description": "♦回避増幅・永続戦闘開始時に、永続的に自身のダメージ回避率が45%増加する。",
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "Evasion",
+                  "value": 45,
+                  "duration": -1,
+                  "target": "Self"
+                }
+              ]
+            },
+            {
+              "level": "4",
+              "description": null,
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "Evasion",
+                  "value": 45,
+                  "duration": -1,
+                  "target": "Self"
+                }
+              ]
+            },
+            {
+              "level": "5",
+              "description": null,
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "Evasion",
+                  "value": 45,
+                  "duration": -1,
+                  "target": "Self"
+                }
+              ]
+            },
+            {
+              "level": "6",
+              "description": "♦回避増幅・永続戦闘開始時に、永続的に自身のダメージ回避率が45%増加する。♦解除・コントロール自身の行動前に(コントロールは無視する)、自身のすべてのコントロールスキル効果を解除する。",
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "Evasion",
+                  "value": 45,
+                  "duration": -1,
+                  "target": "Self"
+                }
+              ]
+            },
+            {
+              "level": "7",
+              "description": null,
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "Evasion",
+                  "value": 45,
+                  "duration": -1,
+                  "target": "Self"
+                }
+              ]
+            },
+            {
+              "level": "8",
+              "description": null,
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "Evasion",
+                  "value": 45,
+                  "duration": -1,
+                  "target": "Self"
+                }
+              ]
+            },
+            {
+              "level": "9",
+              "description": "♦回避増幅・永続戦闘開始時に、永続的に自身のダメージ回避率が65%増加する。♦解除・コントロール自身の行動前に(コントロールは無視する)、自身のすべてのコントロールスキル効果を解除する。",
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "Evasion",
+                  "value": 65,
+                  "duration": -1,
+                  "target": "Self"
+                }
+              ]
+            },
+            {
+              "level": "10",
+              "description": null,
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "Evasion",
+                  "value": 65,
+                  "duration": -1,
+                  "target": "Self"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "スキル4/大切なひとのために   覚醒開放",
+          "levels": [
+            {
+              "level": "1",
+              "description": "♦ハイパー出力アシスト通常攻撃前に、すべての味方のハイパークリティカルダメージが静寂効果の数×20%増加する。これは18ターン持続する。",
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "HyperCritDamage",
+                  "value": 20,
+                  "scalingFactor": "静寂効果の数",
+                  "target": "AllAllies",
+                  "duration": 18,
+                  "isStackable": true
+                }
+              ]
+            },
+            {
+              "level": "2",
+              "description": null,
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "HyperCritDamage",
+                  "value": 20,
+                  "scalingFactor": "静寂効果の数",
+                  "target": "AllAllies",
+                  "duration": 18,
+                  "isStackable": true
+                }
+              ]
+            },
+            {
+              "level": "3",
+              "description": null,
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "HyperCritDamage",
+                  "value": 20,
+                  "scalingFactor": "静寂効果の数",
+                  "target": "AllAllies",
+                  "duration": 18,
+                  "isStackable": true
+                }
+              ]
+            },
+            {
+              "level": "4",
+              "description": "♦ハイパー出力アシスト通常攻撃前に、すべての味方のハイパークリティカルダメージが静寂効果の数×30%増加する。これは18ターン持続する。",
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "HyperCritDamage",
+                  "value": 30,
+                  "scalingFactor": "静寂効果の数",
+                  "target": "AllAllies",
+                  "duration": 18,
+                  "isStackable": true
+                }
+              ]
+            },
+            {
+              "level": "5",
+              "description": null,
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "HyperCritDamage",
+                  "value": 30,
+                  "scalingFactor": "静寂効果の数",
+                  "target": "AllAllies",
+                  "duration": 18,
+                  "isStackable": true
+                }
+              ]
+            },
+            {
+              "level": "6",
+              "description": null,
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "HyperCritDamage",
+                  "value": 30,
+                  "scalingFactor": "静寂効果の数",
+                  "target": "AllAllies",
+                  "duration": 18,
+                  "isStackable": true
+                }
+              ]
+            },
+            {
+              "level": "7",
+              "description": "♦ハイパー出力アシスト通常攻撃前に、すべての味方のハイパークリティカルダメージが静寂効果の数×40%増加する。これは18ターン持続する。",
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "HyperCritDamage",
+                  "value": 40,
+                  "scalingFactor": "静寂効果の数",
+                  "target": "AllAllies",
+                  "duration": 18,
+                  "isStackable": true
+                }
+              ]
+            },
+            {
+              "level": "8",
+              "description": null,
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "HyperCritDamage",
+                  "value": 40,
+                  "scalingFactor": "静寂効果の数",
+                  "target": "AllAllies",
+                  "duration": 18,
+                  "isStackable": true
+                }
+              ]
+            },
+            {
+              "level": "9",
+              "description": null,
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "HyperCritDamage",
+                  "value": 40,
+                  "scalingFactor": "静寂効果の数",
+                  "target": "AllAllies",
+                  "duration": 18,
+                  "isStackable": true
+                }
+              ]
+            },
+            {
+              "level": "10",
+              "description": "♦ハイパー出力アシスト通常攻撃前に、すべての味方のハイパークリティカルダメージが静寂効果の数×50%増加する。これは18ターン持続する。",
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "Fixed",
+                  "attribute": "HyperCritDamage",
+                  "value": 50,
+                  "scalingFactor": "静寂効果の数",
+                  "target": "AllAllies",
+                  "duration": 18,
+                  "isStackable": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "stats": {
+        "Hp": 12638,
+        "Attack": 635,
+        "Armor": 20,
+        "CritRate": 0,
+        "CritDamage": 0,
+        "Mobility": 20
+      },
+      "name": "輪廻を超える者 イリア",
+      "type": "超越",
+      "role": "Transcendence"
     }
   ]
 }

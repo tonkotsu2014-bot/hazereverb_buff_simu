@@ -159,7 +159,22 @@ export const calculateMaxBuffs = (
             if (targetLevel.level === 'Ex' && activeExSkills[attacker.name || ''] === false) {
                 return;
             }
-            processEffects(targetLevel.effects, attacker, true, skill.name, targetLevel.level || 'Max', targetLevel.description);
+
+            let description = targetLevel.description;
+            if (!description) {
+                const targetNum = parseInt(targetLevel.level, 10);
+                if (!isNaN(targetNum)) {
+                    const fallback = skill.levels
+                        .filter(l => l.description)
+                        .map(l => ({ l, num: parseInt(l.level, 10) }))
+                        .filter(x => !isNaN(x.num) && x.num <= targetNum)
+                        .sort((a, b) => b.num - a.num)[0]; // Sort descending
+
+                    if (fallback) description = fallback.l.description;
+                }
+            }
+
+            processEffects(targetLevel.effects, attacker, true, skill.name, targetLevel.level || 'Max', description);
         }
     });
 
@@ -172,7 +187,22 @@ export const calculateMaxBuffs = (
                 if (targetLevel.level === 'Ex' && activeExSkills[supporter.name || ''] === false) {
                     return;
                 }
-                processEffects(targetLevel.effects, supporter, false, skill.name, targetLevel.level || 'Max', targetLevel.description);
+
+                let description = targetLevel.description;
+                if (!description) {
+                    const targetNum = parseInt(targetLevel.level, 10);
+                    if (!isNaN(targetNum)) {
+                        const fallback = skill.levels
+                            .filter(l => l.description)
+                            .map(l => ({ l, num: parseInt(l.level, 10) }))
+                            .filter(x => !isNaN(x.num) && x.num <= targetNum)
+                            .sort((a, b) => b.num - a.num)[0]; // Sort descending
+
+                        if (fallback) description = fallback.l.description;
+                    }
+                }
+
+                processEffects(targetLevel.effects, supporter, false, skill.name, targetLevel.level || 'Max', description);
             }
         });
     });
@@ -275,8 +305,27 @@ export const findSkillLevel = (
 ) => {
     const preferredLevel = activeSkillLevels[charName];
     if (preferredLevel) {
+        // 1. Try exact match
         const found = skill.levels.find((l: any) => l.level === preferredLevel);
         if (found) return found;
+
+        // 2. Try numeric fallback
+        const preferredNum = parseInt(preferredLevel, 10);
+        if (!isNaN(preferredNum)) {
+            // Find valid numeric levels
+            const numericLevels = skill.levels
+                .map(l => ({ l, num: parseInt(l.level, 10) }))
+                .filter(x => !isNaN(x.num))
+                .sort((a, b) => a.num - b.num);
+
+            // Find highest level <= preferredNum
+            // Iterate backwards
+            for (let i = numericLevels.length - 1; i >= 0; i--) {
+                if (numericLevels[i].num <= preferredNum) {
+                    return numericLevels[i].l;
+                }
+            }
+        }
     }
     // Fallback to max level logic or last available
     // Note: The original logic in calculateMaxBuffs used search for "effects > 0" reversed.

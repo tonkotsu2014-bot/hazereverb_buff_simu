@@ -901,4 +901,42 @@ describe('calculateMaxBuffs', () => {
         expect(resultSelf.hyperCritDamageBuff).toBe(50);
         expect(resultSelf.critDamageTotal).toBe(200);
     });
+
+    // 18. Verify Skill Description Fallback (Lv1, 3, 7 case)
+    it('should fallback skill description and effects to nearest lower level', () => {
+        // Supporter with gaps in levels: 1, 3, 7
+        const attacker: ParsedCharacterData = {
+            name: 'DescAttacker',
+            skills: [{
+                name: 'GapSkill',
+                levels: [
+                    { level: '1', description: 'Desc Lv1', effects: [{ type: 'Buff', attribute: 'Attack', value: 10, target: 'Self' }] },
+                    { level: '3', description: 'Desc Lv3', effects: [{ type: 'Buff', attribute: 'Attack', value: 30, target: 'Self' }] },
+                    { level: '7', description: 'Desc Lv7', effects: [{ type: 'Buff', attribute: 'Attack', value: 70, target: 'Self' }] },
+                    { level: '9', description: 'Desc Lv9', effects: [{ type: 'Buff', attribute: 'Attack', value: 90, target: 'Self' }] },
+                    { level: '10', description: null, effects: [{ type: 'Buff', attribute: 'Attack', value: 90, target: 'Self' }] }
+                ]
+            }]
+        } as any;
+
+        const checkDesc = (reqLevel: string, expectedDesc: string, expectedVal: number) => {
+            const activeLevels = { 'DescAttacker': reqLevel };
+            const result = calculateMaxBuffs(attacker, [], {}, {}, activeLevels);
+            const mod = result.modifiers.find(m => m.skillName === 'GapSkill');
+            expect(mod).toBeDefined();
+            expect(mod?.description).toBe(expectedDesc);
+            expect(mod?.value).toBe(expectedVal);
+        };
+
+        checkDesc('1', 'Desc Lv1', 10);
+        checkDesc('2', 'Desc Lv1', 10);
+        checkDesc('3', 'Desc Lv3', 30);
+        checkDesc('4', 'Desc Lv3', 30);
+        checkDesc('5', 'Desc Lv3', 30);
+        checkDesc('6', 'Desc Lv3', 30);
+        checkDesc('7', 'Desc Lv7', 70);
+        checkDesc('8', 'Desc Lv7', 70);
+        checkDesc('9', 'Desc Lv9', 90);
+        checkDesc('10', 'Desc Lv9', 90);
+    });
 });
