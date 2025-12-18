@@ -95,7 +95,20 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
     }, [character]);
 
     const handleChangeBasic = (field: keyof ParsedCharacterData, value: any) => {
-        const updated = { ...formData, [field]: value };
+        let updated = { ...formData, [field]: value };
+
+        if (field === 'role') {
+            let newType = formData.type;
+            switch (value) {
+                case 'Attacker': newType = '攻撃型'; break;
+                case 'Supporter': newType = '支援型'; break;
+                case 'Defender': newType = '防御型'; break;
+                case 'Transcendence': newType = '超越型'; break;
+                case 'Firepower': newType = '火力型'; break;
+            }
+            updated = { ...updated, type: newType };
+        }
+
         setFormData(updated);
         onUpdate(updated);
     };
