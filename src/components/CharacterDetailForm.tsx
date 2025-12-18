@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { ParsedCharacterData, SkillEffect } from '../logic/wikiParser';
+import { JsonEditor } from 'json-edit-react';
 import {
     Box,
     TextField,
@@ -23,7 +24,8 @@ import {
     CardContent,
     Chip,
     Tooltip,
-    alpha
+    alpha,
+    Alert
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -67,6 +69,8 @@ const calculationTypeLabels: Record<string, string> = {
 export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) => {
     const [formData, setFormData] = useState<ParsedCharacterData>(character);
     const [selectedLevels, setSelectedLevels] = useState<{ [key: number]: number }>({});
+    const [isJsonEditable, setIsJsonEditable] = useState(false);
+    const [showJsonViewer, setShowJsonViewer] = useState(false);
 
     const getStatLabel = (key: string, role?: string) => {
         let label = '';
@@ -548,6 +552,66 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                     );
                 })}
             </Box>
-        </Paper>
+
+
+            <Divider sx={{ my: 3 }} />
+
+            <Box sx={{ mt: 2 }}>
+                <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => setShowJsonViewer(!showJsonViewer)}
+                    sx={{ mb: 1.5, width: '100%' }}
+                >
+                    {showJsonViewer ? 'JSONデータを隠す' : 'JSONデータを確認 (デバッグ用)'}
+                </Button>
+
+                {showJsonViewer && (
+                    <Box sx={{ mt: 1 }}>
+                        <Alert severity="warning" sx={{ mb: 1.5, fontSize: '0.85rem' }}>
+                            JSONデータを直接編集すると表示できなくなる場合があります。事前に必ず設定からバックアップとしてエクスポートしてください。
+                        </Alert>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                            <Typography variant="subtitle2" fontWeight={600}>
+                                JSONデータ
+                            </Typography>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={isJsonEditable}
+                                        onChange={(e) => setIsJsonEditable(e.target.checked)}
+                                        size="small"
+                                    />
+                                }
+                                label={<Typography variant="caption" sx={{ fontSize: '0.8rem' }}>編集モード</Typography>}
+                            />
+                        </Box>
+                        <Paper
+                            variant="outlined"
+                            sx={{
+                                p: 1,
+                                bgcolor: '#fafafa',
+                                borderRadius: 1,
+                                overflow: 'hidden',
+                                fontSize: '0.85rem',
+                                textAlign: 'left',
+                                '& .json-view': { bgcolor: 'transparent' }
+                            }}
+                        >
+                            <JsonEditor
+                                data={formData}
+                                onUpdate={({ newData }) => {
+                                    setFormData(newData as ParsedCharacterData);
+                                    onUpdate(newData as ParsedCharacterData);
+                                }}
+                                restrictEdit={!isJsonEditable}
+                                restrictAdd={!isJsonEditable}
+                                restrictDelete={!isJsonEditable}
+                            />
+                        </Paper>
+                    </Box>
+                )}
+            </Box>
+        </Paper >
     );
 };
