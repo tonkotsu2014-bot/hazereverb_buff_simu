@@ -65,6 +65,7 @@ interface PartyMember extends ParsedCharacterData {
     deathRound?: string;
     supportTargets?: string[]; // IDs of target characters
     exSkillRounds?: string; // Comma separated rounds
+    activeSkillLevel?: string; // Selected level for all skills (e.g. '5')
 }
 
 const ATTRIBUTE_TRANSLATION: Record<string, string> = {
@@ -90,9 +91,10 @@ interface SortableItemProps {
     onDeathChange: (id: string, value: string) => void;
     onSupportTargetsChange: (id: string, targets: string[]) => void;
     onExRoundsChange: (id: string, value: string) => void;
+    onSkillLevelChange: (id: string, level: string) => void;
 }
 
-const SortableItem: React.FC<SortableItemProps> = ({ member, index, maxRounds, party, onRemove, onDeathChange, onSupportTargetsChange, onExRoundsChange }) => {
+const SortableItem: React.FC<SortableItemProps> = ({ member, index, maxRounds, party, onRemove, onDeathChange, onSupportTargetsChange, onExRoundsChange, onSkillLevelChange }) => {
     const {
         attributes,
         listeners,
@@ -150,6 +152,24 @@ const SortableItem: React.FC<SortableItemProps> = ({ member, index, maxRounds, p
                                 <Typography variant="caption" color="text.secondary">
                                     {member.role === 'Supporter' ? '支援型' : 'その他'}
                                 </Typography>
+
+                                {/* Skill Level Selector (Common for all skills) */}
+                                {/* Skill Level Selector (Common for all skills) */}
+                                <FormControl size="small" variant="standard" sx={{ mt: 1, minWidth: 100 }}>
+                                    <InputLabel sx={{ fontSize: '0.75rem' }}>スキルレベル</InputLabel>
+                                    <Select
+                                        value={member.activeSkillLevel || '10'}
+                                        label="スキルレベル"
+                                        onChange={(e) => onSkillLevelChange(member.id, e.target.value)}
+                                        sx={{ fontSize: '0.8rem' }}
+                                    >
+                                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((level) => (
+                                            <MenuItem key={level} value={String(level)} sx={{ fontSize: '0.8rem' }}>
+                                                Lv.{level}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
                             </Box>
 
                             {/* Support Target Selector */}
@@ -231,7 +251,7 @@ const SortableItem: React.FC<SortableItemProps> = ({ member, index, maxRounds, p
                     <DeleteIcon fontSize="small" />
                 </IconButton>
             </Card>
-        </Grid>
+        </Grid >
     );
 };
 
@@ -263,7 +283,8 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                 id: `${characters[index].name}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
                 deathRound: '',
                 supportTargets: [],
-                exSkillRounds: ''
+                exSkillRounds: '',
+                activeSkillLevel: '10' // Default to Max Level (10) as per request
             };
             setParty([...party, newMember]);
         }
@@ -289,6 +310,13 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
 
     const handleSupportTargetsChange = (id: string, targets: string[]) => {
         setParty(prevParty => prevParty.map(p => p.id === id ? { ...p, supportTargets: targets } : p));
+    };
+
+    const handleSkillLevelChange = (id: string, level: string) => {
+        setParty(prevParty => prevParty.map(p => {
+            if (p.id !== id) return p;
+            return { ...p, activeSkillLevel: level };
+        }));
     };
 
     const handleDragEnd = (event: DragEndEvent) => {
@@ -317,12 +345,24 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                     ? p.exSkillRounds.split(/[,\s]+/).map(r => parseInt(r)).filter(n => !isNaN(n))
                     : [];
 
-                return {
+                const simChar = {
                     ...p,
                     deathRound: p.deathRound ? parseInt(p.deathRound) : undefined,
                     supportTargetIndices,
                     exSkillRounds
                 };
+
+                // Apply active levels to skills
+                if (p.activeSkillLevel) {
+                    simChar.skills = simChar.skills.map(skill => {
+                        // Check if this skill actually has the selected level? 
+                        // Or just assume it does (simulator should handle fallback if exact level string missing, 
+                        // though here we assume standard leveling)
+                        return { ...skill, activeLevel: p.activeSkillLevel };
+                    });
+                }
+
+                return simChar;
             });
 
             const results = simulateTurns(simulationParty, maxRounds);
@@ -429,6 +469,7 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                                 onDeathChange={handleDeathRoundChange}
                                                 onSupportTargetsChange={handleSupportTargetsChange}
                                                 onExRoundsChange={handleExRoundsChange}
+                                                onSkillLevelChange={handleSkillLevelChange}
                                             />
                                         ))}
                                     </Grid>

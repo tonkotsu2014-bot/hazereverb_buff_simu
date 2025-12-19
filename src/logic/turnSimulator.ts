@@ -1,5 +1,5 @@
 
-import type { ParsedCharacterData, SkillEffect } from './wikiParser';
+import type { ParsedCharacterData, SkillEffect, SkillLevel } from './wikiParser';
 
 export interface ReceivedSkillEffect {
     attribute: string;

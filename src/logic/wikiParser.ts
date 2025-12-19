@@ -19,6 +19,7 @@ export interface SkillLevel {
 export interface SkillData {
     name: string;
     levels: SkillLevel[];
+    activeLevel?: string; // Selected level for simulation (e.g., 'Lv.5')
 }
 
 export interface CharacterStats {
