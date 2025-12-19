@@ -1,3 +1,4 @@
+
 import type { ParsedCharacterData, SkillEffect } from './wikiParser';
 
 export interface ReceivedSkillEffect {
@@ -9,6 +10,7 @@ export interface ReceivedSkillEffect {
 
 export interface ReceivedSkill {
     name: string;
+    source: string; // Actor who provided the skill
     effects: ReceivedSkillEffect[];
 }
 
@@ -73,6 +75,7 @@ export const simulateTurns = (
             name: p?.name || `Character ${idx + 1}`,
             receivedSkills: accumulatedSkills[idx].map(s => ({
                 name: s.name,
+                source: s.source,
                 effects: s.effects.map(e => ({ ...e })) // Deep clone effects
             }))
         }));
@@ -111,13 +114,21 @@ export const simulateTurns = (
             const isSupporter = character.role === 'Supporter' || character.type?.includes('支援');
 
             // Helper to add skill if stackable or unique
-            const addSkill = (targetIndex: number, skillName: string, effects: SkillEffect[], isStackable: boolean) => {
+            const addSkill = (targetIndex: number, skillName: string, source: string, effects: SkillEffect[], isStackable: boolean) => {
                 // Check if already received
-                const hasSkill = accumulatedSkills[targetIndex].some(s => s.name === skillName);
+                const hasSkill = accumulatedSkills[targetIndex].some(s => s.name === skillName && (isStackable || s.source === source));
+                // Note: Originally we just checked name. Now that we track source, "unique" usually means unique per source OR unique global?
+                // The prompt for "stackable" usually implies "can stack with itself".
+                // If it's NOT stackable, it usually means "cannot stack duplicate instances".
+                // The previous logic was `!hasSkill` where hasSkill checked `s.name === skillName`.
+                // Let's keep the logic simple: if not stackable, check if we already have a skill with this name.
 
-                if (isStackable || !hasSkill) {
+                const alreadyHasSameName = accumulatedSkills[targetIndex].some(s => s.name === skillName);
+
+                if (isStackable || !alreadyHasSameName) {
                     accumulatedSkills[targetIndex].push({
                         name: skillName,
+                        source: source,
                         effects: effects.map(e => ({
                             attribute: e.attribute,
                             value: e.value,
@@ -149,88 +160,93 @@ export const simulateTurns = (
                 if (!currentLevel) return;
 
                 const effects = currentLevel.effects;
-                // Determine if skill is stackable (if any effect is stackable)
-                // Handle both boolean and string "true" values, while avoiding truthy "false" strings
-                const isStackable = effects.some(e => e.isStackable === true || String(e.isStackable) === 'true');
 
-                if (isSupporter) {
-                    // Supporter: Apply to support targets
-                    if (character.supportTargetIndices) {
-                        character.supportTargetIndices.forEach(targetIdx => {
-                            // Check if target is alive is mostly handled by player choice, but strictly we should check again
-                            const target = party[targetIdx];
-                            if (target) {
-                                const dRound = target.deathRound;
-                                if (dRound === undefined || dRound <= 0 || round < dRound) {
-                                    addSkill(targetIdx, skillName, effects, isStackable);
-                                }
+                // Determine target and apply
+                const target = effects[0]?.target;
+
+                // Filter stackable
+                const isStackable = effects[0]?.isStackable ?? false;
+
+                if (target) {
+                    if (target === 'Self') {
+                        addSkill(index, skillName, character.name || 'Unknown', effects, isStackable);
+                    } else if (target === 'AllAllies') {
+                        // Apply to everyone including self
+                        party.forEach((_, pIdx) => {
+                            if (!party[pIdx]?.deathRound || party[pIdx]!.deathRound! > round) {
+                                addSkill(pIdx, skillName, character.name || 'Unknown', effects, isStackable);
                             }
                         });
+                    } else if ((target === 'Support' || target === 'Default') && isSupporter && character.supportTargetIndices && character.supportTargetIndices.length > 0) {
+                        // Apply to support targets
+                        character.supportTargetIndices.forEach(tIdx => {
+                            // Check if target alive
+                            const tChar = party[tIdx];
+                            if (tChar && (!tChar.deathRound || tChar.deathRound > round)) {
+                                addSkill(tIdx, skillName, character.name || 'Unknown', effects, isStackable);
+                            }
+                        });
+                    } else {
+                        // Default / other targets (Self)
+                        addSkill(index, skillName, character.name || 'Unknown', effects, isStackable);
                     }
                 } else {
-                    // Non-Supporter: Check for Self or AllAllies targets
-                    // We assume if *any* effect targets Self/AllAllies, the skill is applied to them.
-                    // (Actually we should check each effect, but we track SKILL NAME, so if it hits, it hits)
-
-                    const targetsSelf = effects.some(e => e.target === 'Self');
-                    const targetsAll = effects.some(e => e.target === 'AllAllies');
-
-                    if (targetsAll) {
-                        party.forEach((p, pIdx) => {
-                            if (p && (!p.deathRound || p.deathRound <= 0 || round < p.deathRound)) {
-                                addSkill(pIdx, skillName, effects, isStackable);
+                    // If no target specified (e.g. passive), usually Self
+                    // But if it's a Supporter with targets, assume Support target?
+                    if (isSupporter && character.supportTargetIndices && character.supportTargetIndices.length > 0) {
+                        character.supportTargetIndices.forEach(tIdx => {
+                            const tChar = party[tIdx];
+                            if (tChar && (!tChar.deathRound || tChar.deathRound > round)) {
+                                addSkill(tIdx, skillName, character.name || 'Unknown', effects, isStackable);
                             }
                         });
-                    } else if (targetsSelf) {
-                        addSkill(index, skillName, effects, isStackable);
+                    } else {
+                        addSkill(index, skillName, character.name || 'Unknown', effects, isStackable);
                     }
                 }
             });
 
-
+            // Action Snapshot
             actions.push({
                 round,
-                globalTurn,
+                globalTurn: globalTurn++,
                 actorIndex: index,
-                actorName: character.name || `Character ${index + 1}`,
+                actorName: character.name || 'Unknown',
                 actorRole: character.role || 'Unknown',
-                actorType: character.type?.replace(/型$/, '型') || getTypeName(character.role || ''),
+                actorType: getTypeName(character.role || ''),
                 supportTargetNames,
                 characterStates: getSnapshot()
             });
-            globalTurn++;
 
-            // Boss acts after the first non-supporter acts
-            if (!bossActed) {
-                if (!isSupporter) {
-                    actions.push({
-                        round,
-                        globalTurn,
-                        actorIndex: -1,
-                        actorName: 'Boss',
-                        actorRole: 'Boss',
-                        actorType: 'Boss',
-                        characterStates: getSnapshot()
-                    });
-                    globalTurn++;
-                    bossActed = true;
-                }
+            // Boss Action Check
+            const allowsContinuous = character.role === 'Supporter';
+
+            if (!allowsContinuous && !bossActed) {
+                // Boss Turn
+                bossActed = true;
+                actions.push({
+                    round,
+                    globalTurn: globalTurn++,
+                    actorIndex: -1,
+                    actorName: 'Boss',
+                    actorRole: 'Boss',
+                    actorType: 'Boss',
+                    characterStates: getSnapshot()
+                });
             }
         });
 
-        // If Boss hasn't acted yet (e.g., all characters were Supporters or dead Attacker), Boss acts at the end of the round
+        // If Boss hasn't acted by end of round
         if (!bossActed) {
             actions.push({
                 round,
-                globalTurn,
+                globalTurn: globalTurn++,
                 actorIndex: -1,
                 actorName: 'Boss',
                 actorRole: 'Boss',
                 actorType: 'Boss',
                 characterStates: getSnapshot()
             });
-            globalTurn++;
-            bossActed = true;
         }
     }
 

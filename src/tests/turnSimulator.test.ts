@@ -212,4 +212,29 @@ describe('Turn Simulator Logic', () => {
         expect(getSkillCount(pureState?.receivedSkills, 'PureBuff2')).toBe(1);
         expect(getSkillCount(pureState?.receivedSkills, 'PureBuff3')).toBe(1);
     });
+
+    it('should correctly set the source of received skills', () => {
+        const party = [
+            mockCharacter('Buffer', 'Supporter', {
+                skills: [createSkill('BuffSkill', 'AllAllies')]
+            }),
+            mockCharacter('Receiver', 'Attacker')
+        ];
+
+        const actions = simulateTurns(party, 1);
+        const state = actions[0].characterStates; // Buffer acts first
+
+        const buffer = state.find(c => c.name === 'Buffer');
+        const receiver = state.find(c => c.name === 'Receiver');
+
+        // Check Buffer (Self from AllAllies)
+        const buffOnBuffer = buffer?.receivedSkills.find(s => s.name === 'BuffSkill');
+        expect(buffOnBuffer).toBeDefined();
+        expect(buffOnBuffer?.source).toBe('Buffer');
+
+        // Check Receiver
+        const buffOnReceiver = receiver?.receivedSkills.find(s => s.name === 'BuffSkill');
+        expect(buffOnReceiver).toBeDefined();
+        expect(buffOnReceiver?.source).toBe('Buffer');
+    });
 });

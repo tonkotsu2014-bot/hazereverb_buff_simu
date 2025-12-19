@@ -22,14 +22,21 @@ import {
     InputLabel,
     OutlinedInput,
     Chip,
-    Stack
+    Stack,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    List,
+    ListItem,
+    // ListItemText, // Removed
+    // Divider // Removed
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { CharacterList } from '../components/CharacterList';
 import type { ParsedCharacterData } from '../logic/wikiParser';
-import { simulateTurns, type Action } from '../logic/turnSimulator';
+import { simulateTurns, type Action, type ReceivedSkill } from '../logic/turnSimulator';
 import {
     DndContext,
     closestCenter,
@@ -58,6 +65,19 @@ interface PartyMember extends ParsedCharacterData {
     deathRound?: string;
     supportTargets?: string[]; // IDs of target characters
 }
+
+const ATTRIBUTE_TRANSLATION: Record<string, string> = {
+    'Attack': '攻撃力',
+    'Support': '支援力',
+    'Armor': '防御力',
+    'Hp': 'HP',
+    'CritRate': 'クリティカル率',
+    'CritDamage': 'クリティカルダメージ',
+    'DamageReduction': 'ダメージ軽減',
+    'Evasion': 'ダメージ回避',
+    'HyperCritDamage': 'ハイパークリティカルダメージ',
+    'Mobility': '機動力'
+};
 
 // Sortable Item Component
 const SortableItem = ({
@@ -214,6 +234,11 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
     const [error, setError] = useState<string | null>(null);
     const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
 
+    // Popup state
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [selectedSkills, setSelectedSkills] = useState<ReceivedSkill[]>([]);
+    const [selectedTurnInfo, setSelectedTurnInfo] = useState<{ round: number; turn: number } | null>(null);
+
     // DnD Sensors
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -287,6 +312,20 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
             setError(e instanceof Error ? e.message : 'Unknown error occurred');
             setSimulationResults(null);
         }
+    };
+
+    const handleRowClick = (skills: ReceivedSkill[], round: number, turn: number) => {
+        if (skills.length > 0) {
+            setSelectedSkills(skills);
+            setSelectedTurnInfo({ round, turn });
+            setDialogOpen(true);
+        }
+    };
+
+    const handleCloseDialog = () => {
+        setDialogOpen(false);
+        setSelectedSkills([]);
+        setSelectedTurnInfo(null);
     };
 
     return (
@@ -507,8 +546,7 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                                 <TableCell>Round</TableCell>
                                                 <TableCell>Turn</TableCell>
                                                 <TableCell>Context Actor</TableCell>
-                                                <TableCell>受けたスキル</TableCell>
-                                                <TableCell>効果</TableCell>
+                                                <TableCell>効果 (合算)</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
@@ -520,61 +558,46 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                                     const state = action.characterStates[charIndex];
                                                     const skills = state ? state.receivedSkills : [];
 
-                                                    // Only show rows where state changes? Or all? User said "per turn".
-                                                    // Let's show all for clarity so they can see the timeline.
+                                                    // Aggregate effects
+                                                    const aggregatedEffects: Record<string, { value: number; type: string }> = {};
+                                                    skills.forEach(skill => {
+                                                        skill.effects.forEach(effect => {
+                                                            if (!aggregatedEffects[effect.attribute]) {
+                                                                aggregatedEffects[effect.attribute] = { value: 0, type: effect.type };
+                                                            }
+                                                            aggregatedEffects[effect.attribute].value += effect.value;
+                                                        });
+                                                    });
 
                                                     return (
-                                                        <TableRow key={idx} hover>
+                                                        <TableRow
+                                                            key={idx}
+                                                            hover
+                                                            onClick={() => handleRowClick(skills, action.round, action.globalTurn)}
+                                                            sx={{
+                                                                cursor: skills.length > 0 ? 'pointer' : 'default',
+                                                                '&:hover': skills.length > 0 ? { bgcolor: 'action.hover' } : {}
+                                                            }}
+                                                        >
                                                             <TableCell>{action.round}</TableCell>
                                                             <TableCell>{action.globalTurn}</TableCell>
                                                             <TableCell sx={{ color: 'text.secondary', fontSize: '0.8rem' }}>
                                                                 {action.actorName} の行動時
                                                             </TableCell>
                                                             <TableCell>
-                                                                <Stack spacing={0.5}>
-                                                                    {skills.length > 0 ? skills.map((skill, sIdx) => (
-                                                                        <Chip
-                                                                            key={sIdx}
-                                                                            label={skill.name}
-                                                                            size="small"
-                                                                            sx={{ fontSize: '0.7rem', height: '24px' }}
-                                                                        />
-                                                                    )) : (
-                                                                        <Typography variant="caption" color="text.secondary">-</Typography>
-                                                                    )}
-                                                                </Stack>
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                <Stack spacing={0.5}>
-                                                                    {skills.length > 0 ? skills.map((skill, sIdx) => {
-                                                                        const effectsText = skill.effects.map(e => {
-                                                                            const sign = e.type === 'Buff' ? '+' : '-';
-
-                                                                            // Translation Map
-                                                                            const attrMap: Record<string, string> = {
-                                                                                'Attack': '攻撃力',
-                                                                                'Support': '支援力',
-                                                                                'Armor': '防御力',
-                                                                                'Hp': 'HP',
-                                                                                'CritRate': 'クリティカル率',
-                                                                                'CritDamage': 'クリティカルダメージ',
-                                                                                'DamageReduction': 'ダメージ軽減',
-                                                                                'Evasion': 'ダメージ回避',
-                                                                                'HyperCritDamage': 'ハイパークリティカルダメージ',
-                                                                                'Mobility': '機動力'
-                                                                            };
-
-                                                                            const translatedAttr = attrMap[e.attribute] || e.attribute;
-                                                                            return `${translatedAttr} ${sign}${e.value}%`;
-                                                                        }).join(', ');
+                                                                <Stack spacing={0.5} direction="row" flexWrap="wrap" gap={0.5}>
+                                                                    {Object.keys(aggregatedEffects).length > 0 ? Object.entries(aggregatedEffects).map(([attr, data], sIdx) => {
+                                                                        const sign = data.type === 'Buff' ? '+' : '-';
+                                                                        const translatedAttr = ATTRIBUTE_TRANSLATION[attr] || attr;
+                                                                        const text = `${translatedAttr} ${sign}${Math.round(data.value * 100) / 100}%`;
 
                                                                         return (
                                                                             <Chip
                                                                                 key={sIdx}
-                                                                                label={effectsText || "効果なし"}
+                                                                                label={text}
                                                                                 variant="outlined"
                                                                                 size="small"
-                                                                                sx={{ fontSize: '0.7rem', height: '24px', justifyContent: 'flex-start', border: 'none' }}
+                                                                                sx={{ fontSize: '0.7rem', height: '24px', border: '1px solid #e0e0e0', bgcolor: 'white' }}
                                                                             />
                                                                         );
                                                                     }) : (
@@ -600,6 +623,60 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                     )}
                 </Grid>
             </Grid>
+
+            {/* Detail Popup */}
+            <Dialog
+                open={dialogOpen}
+                onClose={handleCloseDialog}
+                maxWidth="sm"
+                fullWidth
+                PaperProps={{
+                    sx: { height: '80vh', maxHeight: '800px' }
+                }}
+            >
+                <DialogTitle>
+                    {selectedTurnInfo && `詳細: R${selectedTurnInfo.round} - Turn ${selectedTurnInfo.turn}`}
+                </DialogTitle>
+                <DialogContent dividers sx={{ p: 0 }}>
+                    <List disablePadding dense>
+                        {selectedSkills.map((skill, index) => (
+                            <React.Fragment key={index}>
+                                <ListItem sx={{
+                                    flexDirection: 'column',
+                                    alignItems: 'flex-start',
+                                    py: 1,
+                                    px: 2,
+                                    borderBottom: index < selectedSkills.length - 1 ? '1px solid #eee' : 'none'
+                                }}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', mb: 0.5 }}>
+                                        <Typography variant="subtitle2" fontWeight="bold">
+                                            {skill.name}
+                                        </Typography>
+                                        <Typography variant="caption" color="text.secondary">
+                                            from: {skill.source}
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {skill.effects.map((e, eIdx) => {
+                                            const sign = e.type === 'Buff' ? '+' : '-';
+                                            const translatedAttr = ATTRIBUTE_TRANSLATION[e.attribute] || e.attribute;
+                                            return (
+                                                <Chip
+                                                    key={eIdx}
+                                                    label={`${translatedAttr} ${sign}${e.value}%`}
+                                                    size="small"
+                                                    variant="outlined"
+                                                    sx={{ height: 20, fontSize: '0.65rem' }}
+                                                />
+                                            );
+                                        })}
+                                    </Box>
+                                </ListItem>
+                            </React.Fragment>
+                        ))}
+                    </List>
+                </DialogContent>
+            </Dialog>
         </Box>
     );
 };
