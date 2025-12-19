@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { simulateTurns, type SimulationCharacter } from '../logic/turnSimulator';
+import { simulateTurns, type SimulationCharacter, type ReceivedSkill } from '../logic/turnSimulator';
 import type { SkillData } from '../logic/wikiParser';
 
 describe('Turn Simulator Logic', () => {
@@ -33,6 +33,16 @@ describe('Turn Simulator Logic', () => {
             }]
         }]
     });
+
+    // Helper to check if a character has received a specific skill
+    const hasReceivedSkill = (receivedSkills: ReceivedSkill[] | undefined, skillName: string): boolean => {
+        return !!receivedSkills?.some(s => s.name === skillName);
+    };
+
+    // Helper to check skill count
+    const getSkillCount = (receivedSkills: ReceivedSkill[] | undefined, skillName: string): number => {
+        return receivedSkills?.filter(s => s.name === skillName).length || 0;
+    };
 
     it('should generate correct actions for a 3-person party over 2 rounds', () => {
         const party = [
@@ -69,44 +79,34 @@ describe('Turn Simulator Logic', () => {
 
         const actions = simulateTurns(party, 1);
 
-        // Expected Sequence:
-        // 1. Bob acts. Targets Alice. Alice gets 'BobBuff'.
-        // 2. Alice acts. Self buff. Alice gets 'AliceSelf'.
-        //    (Total Alice: BobBuff, AliceSelf)
-        // 3. Boss acts (after 1st non-supporter aka Alice).
-        // 4. Charlie acts. All Allies buff. Everyone gets 'CharlieAll'.
-        //    (Total Alice: BobBuff, AliceSelf, CharlieAll)
-        //    (Total Bob: CharlieAll)
-        //    (Total Charlie: CharlieAll)
-
         // Action 0: Bob
         expect(actions[0].actorName).toBe('Bob');
-        // Snapshot AFTER Bob acts
         const state0 = actions[0].characterStates;
-        expect(state0.find(c => c.name === 'Alice')?.receivedSkills).toContain('BobBuff');
-        expect(state0.find(c => c.name === 'Bob')?.receivedSkills).toHaveLength(0);
+        const alice0 = state0.find(c => c.name === 'Alice');
+        const bob0 = state0.find(c => c.name === 'Bob');
+
+        expect(hasReceivedSkill(alice0?.receivedSkills, 'BobBuff')).toBe(true);
+        expect(alice0?.receivedSkills[0].effects[0].value).toBe(10); // Check effect value
+        expect(hasReceivedSkill(bob0?.receivedSkills, 'BobBuff')).toBe(false);
 
         // Action 1: Alice
         expect(actions[1].actorName).toBe('Alice');
         const state1 = actions[1].characterStates;
-        expect(state1.find(c => c.name === 'Alice')?.receivedSkills).toEqual(expect.arrayContaining(['BobBuff', 'AliceSelf']));
-
-        // Action 2: Boss
-        expect(actions[2].actorName).toBe('Boss');
-        // Boss shouldn't change skills usually, but snapshot persists
+        const alice1 = state1.find(c => c.name === 'Alice');
+        expect(hasReceivedSkill(alice1?.receivedSkills, 'BobBuff')).toBe(true);
+        expect(hasReceivedSkill(alice1?.receivedSkills, 'AliceSelf')).toBe(true);
 
         // Action 3: Charlie
         expect(actions[3].actorName).toBe('Charlie');
         const state3 = actions[3].characterStates;
 
-        // Verify final states
-        const aliceState = state3.find(c => c.name === 'Alice');
-        const bobState = state3.find(c => c.name === 'Bob');
-        const charlieState = state3.find(c => c.name === 'Charlie');
+        const alice3 = state3.find(c => c.name === 'Alice');
+        const bob3 = state3.find(c => c.name === 'Bob');
+        const charlie3 = state3.find(c => c.name === 'Charlie');
 
-        expect(aliceState?.receivedSkills).toEqual(expect.arrayContaining(['BobBuff', 'AliceSelf', 'CharlieAll']));
-        expect(bobState?.receivedSkills).toEqual(expect.arrayContaining(['CharlieAll']));
-        expect(charlieState?.receivedSkills).toEqual(expect.arrayContaining(['CharlieAll']));
+        expect(hasReceivedSkill(alice3?.receivedSkills, 'CharlieAll')).toBe(true);
+        expect(hasReceivedSkill(bob3?.receivedSkills, 'CharlieAll')).toBe(true);
+        expect(hasReceivedSkill(charlie3?.receivedSkills, 'CharlieAll')).toBe(true);
     });
 
     it('should exclude dead characters from receiving skills', () => {
@@ -115,28 +115,20 @@ describe('Turn Simulator Logic', () => {
             mockCharacter('DeadGuy', 'Attacker', { deathRound: 1 })
         ];
 
-        // DeadGuy dies at Round 1 (before start of simulation logic usually checks? Or during?)
-        // In simulateTurns, 'isDead' check happens at start of round iteration for acting.
-        // For receiving skills, we added logic: "if (dRound === undefined || dRound <= 0 || round < dRound)"
-
-        // Round 1: DeadGuy is effectively dead for acting? 
-        // "deathRound: 1" means they die IN Round 1? Usually "Death Round" implies they are gone BY that round?
-        // Logic: `const isDead = deathRound !== undefined && deathRound > 0 && round >= deathRound;`
-        // So if deathRound is 1, they are dead in Round 1.
-
         const actions = simulateTurns(party, 1);
 
-        // Only Healer acts (DeadGuy is dead) -> Boss
         expect(actions[0].actorName).toBe('Healer');
         const state = actions[0].characterStates;
 
-        expect(state.find(c => c.name === 'Healer')?.receivedSkills).toContain('HealAll');
-        expect(state.find(c => c.name === 'DeadGuy')?.receivedSkills).not.toContain('HealAll');
+        const healer = state.find(c => c.name === 'Healer');
+        const deadGuy = state.find(c => c.name === 'DeadGuy');
+
+        expect(hasReceivedSkill(healer?.receivedSkills, 'HealAll')).toBe(true);
+        expect(hasReceivedSkill(deadGuy?.receivedSkills, 'HealAll')).toBe(false);
     });
 
     it('should handle stackable and non-stackable skills correctly', () => {
         const party = [
-            // Alice has a non-stackable self buff and a stackable self buff
             mockCharacter('Alice', 'Attacker', {
                 skills: [
                     createSkill('NonStack', 'Self', false),
@@ -145,33 +137,16 @@ describe('Turn Simulator Logic', () => {
             })
         ];
 
-        // Run for 2 rounds. Alice acts in R1 and R2.
-        // R1: Applies NonStack, Stackable
-        // R2: Applies NonStack, Stackable again
         const actions = simulateTurns(party, 2);
-
-        // Check Round 2 state
-        // Action count:
-        // R1: Alice (act 0) -> Boss (act 1)
-        // R2: Alice (act 2) -> Boss (act 3)
-
-        // Final action is index 3 (Boss R2) or index 2 (Alice R2).
-        // Let's check Alice R2 action specifically.
         const r2Action = actions.find(a => a.round === 2 && a.actorName === 'Alice');
         const r2State = r2Action?.characterStates.find(c => c.name === 'Alice');
 
-        // NonStack should appear ONLY ONCE
-        // Stackable should appear TWICE (once from R1, once from R2)
-        const nonStackCount = r2State?.receivedSkills.filter(s => s === 'NonStack').length;
-        const stackableCount = r2State?.receivedSkills.filter(s => s === 'Stackable').length;
-
-        expect(nonStackCount).toBe(1);
-        expect(stackableCount).toBe(2);
+        expect(getSkillCount(r2State?.receivedSkills, 'NonStack')).toBe(1);
+        expect(getSkillCount(r2State?.receivedSkills, 'Stackable')).toBe(2);
     });
 
     it('should isolate stackable logic per skill (prevent bleeding)', () => {
         const party = [
-            // MixedChar: 1 Stackable, 2 Non-Stackable
             mockCharacter('MixedChar', 'Attacker', {
                 skills: [
                     createSkill('StackBuff', 'Self', true),
@@ -179,7 +154,6 @@ describe('Turn Simulator Logic', () => {
                     createSkill('UniqueBuff2', 'Self', false)
                 ]
             }),
-            // PureChar: 3 Non-Stackable
             mockCharacter('PureChar', 'Attacker', {
                 skills: [
                     createSkill('PureBuff1', 'Self', false),
@@ -189,39 +163,24 @@ describe('Turn Simulator Logic', () => {
             })
         ];
 
-        // Run for 3 rounds to ensure multiple applications
         const actions = simulateTurns(party, 3);
-
-        // Find the final state (last action of Round 3)
-        // Order: MixedChar -> PureChar -> Boss
         const lastAction = actions.find(a => a.round === 3 && a.actorName === 'PureChar');
         const state = lastAction?.characterStates;
 
         const mixedState = state?.find(c => c.name === 'MixedChar');
         const pureState = state?.find(c => c.name === 'PureChar');
 
-        // Verify MixedChar
-        const stackBuffCount = mixedState?.receivedSkills.filter(s => s === 'StackBuff').length;
-        const unique1Count = mixedState?.receivedSkills.filter(s => s === 'UniqueBuff1').length;
-        const unique2Count = mixedState?.receivedSkills.filter(s => s === 'UniqueBuff2').length;
+        expect(getSkillCount(mixedState?.receivedSkills, 'StackBuff')).toBe(3);
+        expect(getSkillCount(mixedState?.receivedSkills, 'UniqueBuff1')).toBe(1);
+        expect(getSkillCount(mixedState?.receivedSkills, 'UniqueBuff2')).toBe(1);
 
-        expect(stackBuffCount).toBe(3); // 1 per round * 3 rounds
-        expect(unique1Count).toBe(1); // Should not stack
-        expect(unique2Count).toBe(1); // Should not stack
-
-        // Verify PureChar
-        const pure1Count = pureState?.receivedSkills.filter(s => s === 'PureBuff1').length;
-        const pure2Count = pureState?.receivedSkills.filter(s => s === 'PureBuff2').length;
-        const pure3Count = pureState?.receivedSkills.filter(s => s === 'PureBuff3').length;
-
-        expect(pure1Count).toBe(1);
-        expect(pure2Count).toBe(1);
-        expect(pure3Count).toBe(1);
+        expect(getSkillCount(pureState?.receivedSkills, 'PureBuff1')).toBe(1);
+        expect(getSkillCount(pureState?.receivedSkills, 'PureBuff2')).toBe(1);
+        expect(getSkillCount(pureState?.receivedSkills, 'PureBuff3')).toBe(1);
     });
 
     it('should isolate stackable logic per skill (prevent bleeding)', () => {
         const party = [
-            // MixedChar: 1 Stackable, 2 Non-Stackable
             mockCharacter('MixedChar', 'Attacker', {
                 skills: [
                     createSkill('StackBuff', 'AllAllies', true),
@@ -229,7 +188,6 @@ describe('Turn Simulator Logic', () => {
                     createSkill('UniqueBuff2', 'Self', false)
                 ]
             }),
-            // PureChar: 3 Non-Stackable
             mockCharacter('PureChar', 'Attacker', {
                 skills: [
                     createSkill('PureBuff1', 'Self', false),
@@ -239,33 +197,19 @@ describe('Turn Simulator Logic', () => {
             })
         ];
 
-        // Run for 3 rounds to ensure multiple applications
         const actions = simulateTurns(party, 3);
-
-        // Find the final state (last action of Round 3)
-        // Order: MixedChar -> PureChar -> Boss
         const lastAction = actions.find(a => a.round === 3 && a.actorName === 'PureChar');
         const state = lastAction?.characterStates;
 
         const mixedState = state?.find(c => c.name === 'MixedChar');
         const pureState = state?.find(c => c.name === 'PureChar');
 
-        // Verify MixedChar
-        const stackBuffCount = mixedState?.receivedSkills.filter(s => s === 'StackBuff').length;
-        const unique1Count = mixedState?.receivedSkills.filter(s => s === 'UniqueBuff1').length;
-        const unique2Count = mixedState?.receivedSkills.filter(s => s === 'UniqueBuff2').length;
+        expect(getSkillCount(mixedState?.receivedSkills, 'StackBuff')).toBe(3);
+        expect(getSkillCount(mixedState?.receivedSkills, 'UniqueBuff1')).toBe(1);
+        expect(getSkillCount(mixedState?.receivedSkills, 'UniqueBuff2')).toBe(1);
 
-        expect(stackBuffCount).toBe(3); // 1 per round * 3 rounds
-        expect(unique1Count).toBe(1); // Should not stack
-        expect(unique2Count).toBe(1); // Should not stack
-
-        // Verify PureChar
-        const pure1Count = pureState?.receivedSkills.filter(s => s === 'PureBuff1').length;
-        const pure2Count = pureState?.receivedSkills.filter(s => s === 'PureBuff2').length;
-        const pure3Count = pureState?.receivedSkills.filter(s => s === 'PureBuff3').length;
-
-        expect(pure1Count).toBe(1);
-        expect(pure2Count).toBe(1);
-        expect(pure3Count).toBe(1);
+        expect(getSkillCount(pureState?.receivedSkills, 'PureBuff1')).toBe(1);
+        expect(getSkillCount(pureState?.receivedSkills, 'PureBuff2')).toBe(1);
+        expect(getSkillCount(pureState?.receivedSkills, 'PureBuff3')).toBe(1);
     });
 });

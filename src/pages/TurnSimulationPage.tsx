@@ -21,7 +21,8 @@ import {
     FormControl,
     InputLabel,
     OutlinedInput,
-    Chip
+    Chip,
+    Stack
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
@@ -507,6 +508,7 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                                 <TableCell>Turn</TableCell>
                                                 <TableCell>Context Actor</TableCell>
                                                 <TableCell>受けたスキル</TableCell>
+                                                <TableCell>効果</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
@@ -529,18 +531,56 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                                                 {action.actorName} の行動時
                                                             </TableCell>
                                                             <TableCell>
-                                                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                                                <Stack spacing={0.5}>
                                                                     {skills.length > 0 ? skills.map((skill, sIdx) => (
                                                                         <Chip
                                                                             key={sIdx}
-                                                                            label={skill}
+                                                                            label={skill.name}
                                                                             size="small"
-                                                                            sx={{ fontSize: '0.7rem', height: 20 }}
+                                                                            sx={{ fontSize: '0.7rem', height: '24px' }}
                                                                         />
                                                                     )) : (
                                                                         <Typography variant="caption" color="text.secondary">-</Typography>
                                                                     )}
-                                                                </Box>
+                                                                </Stack>
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <Stack spacing={0.5}>
+                                                                    {skills.length > 0 ? skills.map((skill, sIdx) => {
+                                                                        const effectsText = skill.effects.map(e => {
+                                                                            const sign = e.type === 'Buff' ? '+' : '-';
+
+                                                                            // Translation Map
+                                                                            const attrMap: Record<string, string> = {
+                                                                                'Attack': '攻撃力',
+                                                                                'Support': '支援力',
+                                                                                'Armor': '防御力',
+                                                                                'Hp': 'HP',
+                                                                                'CritRate': 'クリティカル率',
+                                                                                'CritDamage': 'クリティカルダメージ',
+                                                                                'DamageReduction': 'ダメージ軽減',
+                                                                                'Evasion': 'ダメージ回避',
+                                                                                'HyperCritDamage': 'ハイパークリティカルダメージ',
+                                                                                'Mobility': '機動力'
+                                                                            };
+
+                                                                            const translatedAttr = attrMap[e.attribute] || e.attribute;
+                                                                            return `${translatedAttr} ${sign}${e.value}%`;
+                                                                        }).join(', ');
+
+                                                                        return (
+                                                                            <Chip
+                                                                                key={sIdx}
+                                                                                label={effectsText || "効果なし"}
+                                                                                variant="outlined"
+                                                                                size="small"
+                                                                                sx={{ fontSize: '0.7rem', height: '24px', justifyContent: 'flex-start', border: 'none' }}
+                                                                            />
+                                                                        );
+                                                                    }) : (
+                                                                        <Typography variant="caption" color="text.secondary">-</Typography>
+                                                                    )}
+                                                                </Stack>
                                                             </TableCell>
                                                         </TableRow>
                                                     );

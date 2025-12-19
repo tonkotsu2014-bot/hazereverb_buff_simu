@@ -1,8 +1,20 @@
 import type { ParsedCharacterData, SkillEffect } from './wikiParser';
 
+export interface ReceivedSkillEffect {
+    attribute: string;
+    value: number;
+    type: string; // 'Buff' | 'Debuff'
+    scalingFactor?: string;
+}
+
+export interface ReceivedSkill {
+    name: string;
+    effects: ReceivedSkillEffect[];
+}
+
 export interface CharacterState {
     name: string;
-    receivedSkills: string[];
+    receivedSkills: ReceivedSkill[];
 }
 
 export interface Action {
@@ -37,7 +49,7 @@ export const simulateTurns = (
     let globalTurn = 1;
 
     // Track accumulated skills for each character index
-    const accumulatedSkills: string[][] = party.map(() => []);
+    const accumulatedSkills: ReceivedSkill[][] = party.map(() => []);
 
     // Helper to get Japanese type name from Role
     const getTypeName = (role: string): string => {
@@ -59,7 +71,10 @@ export const simulateTurns = (
     const getSnapshot = (): CharacterState[] => {
         return party.map((p, idx) => ({
             name: p?.name || `Character ${idx + 1}`,
-            receivedSkills: [...accumulatedSkills[idx]] // Clone array
+            receivedSkills: accumulatedSkills[idx].map(s => ({
+                name: s.name,
+                effects: s.effects.map(e => ({ ...e })) // Deep clone effects
+            }))
         }));
     };
 
@@ -96,25 +111,47 @@ export const simulateTurns = (
             const isSupporter = character.role === 'Supporter' || character.type?.includes('支援');
 
             // Helper to add skill if stackable or unique
-            const addSkill = (targetIndex: number, skillName: string, isStackable: boolean) => {
-                if (isStackable || !accumulatedSkills[targetIndex].includes(skillName)) {
-                    accumulatedSkills[targetIndex].push(skillName);
+            const addSkill = (targetIndex: number, skillName: string, effects: SkillEffect[], isStackable: boolean) => {
+                // Check if already received
+                const hasSkill = accumulatedSkills[targetIndex].some(s => s.name === skillName);
+
+                if (isStackable || !hasSkill) {
+                    accumulatedSkills[targetIndex].push({
+                        name: skillName,
+                        effects: effects.map(e => ({
+                            attribute: e.attribute,
+                            value: e.value,
+                            type: e.type,
+                            scalingFactor: e.scalingFactor
+                        }))
+                    });
                 }
             };
 
-            // Get skills to use (Assume all active skills for now, using 1st level)
+            // Get skills to use
             const skillsToUse = character.skills;
 
             skillsToUse.forEach(skill => {
                 const skillName = skill.name;
-                // Use first level for targeting check. If levels differ in target, this might be inaccurate but sufficient for now.
-                // Usually target type doesn't change between levels.
-                const firstLevel = skill.levels[0];
-                if (!firstLevel) return;
 
-                const effects = firstLevel.effects;
+                // Find Level 10 or fallback to highest level available
+                let targetLevel = skill.levels.find(l => String(l.level) === '10');
+                if (!targetLevel) {
+                    // Fallback: finding max level if 10 is missing
+                    targetLevel = skill.levels.reduce((prev, current) => {
+                        const pLev = parseInt(String(prev.level)) || 0;
+                        const cLev = parseInt(String(current.level)) || 0;
+                        return (pLev > cLev) ? prev : current;
+                    }, skill.levels[0]);
+                }
+
+                const currentLevel = targetLevel;
+                if (!currentLevel) return;
+
+                const effects = currentLevel.effects;
                 // Determine if skill is stackable (if any effect is stackable)
-                const isStackable = effects.some(e => e.isStackable);
+                // Handle both boolean and string "true" values, while avoiding truthy "false" strings
+                const isStackable = effects.some(e => e.isStackable === true || String(e.isStackable) === 'true');
 
                 if (isSupporter) {
                     // Supporter: Apply to support targets
@@ -125,7 +162,7 @@ export const simulateTurns = (
                             if (target) {
                                 const dRound = target.deathRound;
                                 if (dRound === undefined || dRound <= 0 || round < dRound) {
-                                    addSkill(targetIdx, skillName, isStackable);
+                                    addSkill(targetIdx, skillName, effects, isStackable);
                                 }
                             }
                         });
@@ -141,11 +178,11 @@ export const simulateTurns = (
                     if (targetsAll) {
                         party.forEach((p, pIdx) => {
                             if (p && (!p.deathRound || p.deathRound <= 0 || round < p.deathRound)) {
-                                addSkill(pIdx, skillName, isStackable);
+                                addSkill(pIdx, skillName, effects, isStackable);
                             }
                         });
                     } else if (targetsSelf) {
-                        addSkill(index, skillName, isStackable);
+                        addSkill(index, skillName, effects, isStackable);
                     }
                 }
             });
