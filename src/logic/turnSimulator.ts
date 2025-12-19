@@ -1,4 +1,9 @@
-import type { ParsedCharacterData } from './wikiParser';
+import type { ParsedCharacterData, SkillEffect } from './wikiParser';
+
+export interface CharacterState {
+    name: string;
+    receivedSkills: string[];
+}
 
 export interface Action {
     round: number;
@@ -8,6 +13,7 @@ export interface Action {
     actorRole: string; // 'Attacker', 'Supporter', 'Defender', 'Boss', etc.
     actorType: string; // '攻撃型', '支援型', etc.
     supportTargetNames?: string[];
+    characterStates: CharacterState[];
 }
 
 export interface SimulationCharacter extends ParsedCharacterData {
@@ -30,6 +36,9 @@ export const simulateTurns = (
     const actions: Action[] = [];
     let globalTurn = 1;
 
+    // Track accumulated skills for each character index
+    const accumulatedSkills: string[][] = party.map(() => []);
+
     // Helper to get Japanese type name from Role
     const getTypeName = (role: string): string => {
         switch (role) {
@@ -45,6 +54,13 @@ export const simulateTurns = (
     const getCharacterName = (index: number): string => {
         const char = party[index];
         return char?.name || `Character ${index + 1}`;
+    };
+
+    const getSnapshot = (): CharacterState[] => {
+        return party.map((p, idx) => ({
+            name: p?.name || `Character ${idx + 1}`,
+            receivedSkills: [...accumulatedSkills[idx]] // Clone array
+        }));
     };
 
     for (let round = 1; round <= maxRounds; round++) {
@@ -76,6 +92,65 @@ export const simulateTurns = (
                     .map(idx => getCharacterName(idx));
             }
 
+            // Logic to Apply Skills
+            const isSupporter = character.role === 'Supporter' || character.type?.includes('支援');
+
+            // Helper to add skill if stackable or unique
+            const addSkill = (targetIndex: number, skillName: string, isStackable: boolean) => {
+                if (isStackable || !accumulatedSkills[targetIndex].includes(skillName)) {
+                    accumulatedSkills[targetIndex].push(skillName);
+                }
+            };
+
+            // Get skills to use (Assume all active skills for now, using 1st level)
+            const skillsToUse = character.skills;
+
+            skillsToUse.forEach(skill => {
+                const skillName = skill.name;
+                // Use first level for targeting check. If levels differ in target, this might be inaccurate but sufficient for now.
+                // Usually target type doesn't change between levels.
+                const firstLevel = skill.levels[0];
+                if (!firstLevel) return;
+
+                const effects = firstLevel.effects;
+                // Determine if skill is stackable (if any effect is stackable)
+                const isStackable = effects.some(e => e.isStackable);
+
+                if (isSupporter) {
+                    // Supporter: Apply to support targets
+                    if (character.supportTargetIndices) {
+                        character.supportTargetIndices.forEach(targetIdx => {
+                            // Check if target is alive is mostly handled by player choice, but strictly we should check again
+                            const target = party[targetIdx];
+                            if (target) {
+                                const dRound = target.deathRound;
+                                if (dRound === undefined || dRound <= 0 || round < dRound) {
+                                    addSkill(targetIdx, skillName, isStackable);
+                                }
+                            }
+                        });
+                    }
+                } else {
+                    // Non-Supporter: Check for Self or AllAllies targets
+                    // We assume if *any* effect targets Self/AllAllies, the skill is applied to them.
+                    // (Actually we should check each effect, but we track SKILL NAME, so if it hits, it hits)
+
+                    const targetsSelf = effects.some(e => e.target === 'Self');
+                    const targetsAll = effects.some(e => e.target === 'AllAllies');
+
+                    if (targetsAll) {
+                        party.forEach((p, pIdx) => {
+                            if (p && (!p.deathRound || p.deathRound <= 0 || round < p.deathRound)) {
+                                addSkill(pIdx, skillName, isStackable);
+                            }
+                        });
+                    } else if (targetsSelf) {
+                        addSkill(index, skillName, isStackable);
+                    }
+                }
+            });
+
+
             actions.push({
                 round,
                 globalTurn,
@@ -83,13 +158,13 @@ export const simulateTurns = (
                 actorName: character.name || `Character ${index + 1}`,
                 actorRole: character.role || 'Unknown',
                 actorType: character.type?.replace(/型$/, '型') || getTypeName(character.role || ''),
-                supportTargetNames
+                supportTargetNames,
+                characterStates: getSnapshot()
             });
             globalTurn++;
 
             // Boss acts after the first non-supporter acts
             if (!bossActed) {
-                const isSupporter = character.role === 'Supporter' || character.type?.includes('支援');
                 if (!isSupporter) {
                     actions.push({
                         round,
@@ -97,7 +172,8 @@ export const simulateTurns = (
                         actorIndex: -1,
                         actorName: 'Boss',
                         actorRole: 'Boss',
-                        actorType: 'Boss'
+                        actorType: 'Boss',
+                        characterStates: getSnapshot()
                     });
                     globalTurn++;
                     bossActed = true;
@@ -113,7 +189,8 @@ export const simulateTurns = (
                 actorIndex: -1,
                 actorName: 'Boss',
                 actorRole: 'Boss',
-                actorType: 'Boss'
+                actorType: 'Boss',
+                characterStates: getSnapshot()
             });
             globalTurn++;
             bossActed = true;

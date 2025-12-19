@@ -211,6 +211,7 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
     const [maxRounds, setMaxRounds] = useState(5);
     const [simulationResults, setSimulationResults] = useState<Action[] | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
 
     // DnD Sensors
     const sensors = useSensors(
@@ -288,7 +289,7 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
     };
 
     return (
-        <Box sx={{ p: 2, height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ p: 2, height: 'auto', minHeight: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
             <Typography variant="h5" gutterBottom fontWeight={700}>
                 ターンシミュレーター
             </Typography>
@@ -296,9 +297,9 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                 左側のリストから「＋」ボタンでキャラを追加できます。(最大9人)
             </Typography>
 
-            <Grid container spacing={2} sx={{ flex: 1, overflow: 'hidden' }}>
+            <Grid container spacing={2} sx={{ flex: 1 }}>
                 {/* Left Column: Character List */}
-                <Grid size={{ xs: 12, md: 4 }} sx={{ height: '100%', overflow: 'hidden' }}>
+                <Grid size={{ xs: 12, md: 4 }}>
                     <CharacterList
                         characters={characters}
                         onAdd={handleAddCharacter}
@@ -307,7 +308,7 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                 </Grid>
 
                 {/* Right Column: Config & Results */}
-                <Grid size={{ xs: 12, md: 8 }} sx={{ height: '100%', overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Grid size={{ xs: 12, md: 8 }} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     {/* Party Config */}
                     <Paper sx={{ p: 2, minHeight: '200px', display: 'flex', flexDirection: 'column' }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -477,9 +478,88 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                             </Paper>
                         )}
                     </Box>
+
+                    {/* Skill Detail View */}
+                    {simulationResults && (
+                        <Paper sx={{ p: 2, height: '900px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                            <Typography variant="subtitle1" gutterBottom fontWeight={600}>
+                                受けたスキル履歴
+                            </Typography>
+                            <Box sx={{ mb: 2, display: 'flex', gap: 1, overflowX: 'auto', pb: 1 }}>
+                                {party.map((p) => (
+                                    <Chip
+                                        key={p.id}
+                                        label={p.name}
+                                        onClick={() => setSelectedCharacterId(p.id)}
+                                        color={selectedCharacterId === p.id ? 'primary' : 'default'}
+                                        variant={selectedCharacterId === p.id ? 'filled' : 'outlined'}
+                                        clickable
+                                    />
+                                ))}
+                            </Box>
+
+                            {selectedCharacterId ? (
+                                <TableContainer sx={{ flex: 1, overflow: 'auto' }}>
+                                    <Table stickyHeader size="small">
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>Round</TableCell>
+                                                <TableCell>Turn</TableCell>
+                                                <TableCell>Context Actor</TableCell>
+                                                <TableCell>受けたスキル</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {(() => {
+                                                const charIndex = party.findIndex(p => p.id === selectedCharacterId);
+                                                if (charIndex === -1) return null;
+
+                                                return simulationResults.map((action, idx) => {
+                                                    const state = action.characterStates[charIndex];
+                                                    const skills = state ? state.receivedSkills : [];
+
+                                                    // Only show rows where state changes? Or all? User said "per turn".
+                                                    // Let's show all for clarity so they can see the timeline.
+
+                                                    return (
+                                                        <TableRow key={idx} hover>
+                                                            <TableCell>{action.round}</TableCell>
+                                                            <TableCell>{action.globalTurn}</TableCell>
+                                                            <TableCell sx={{ color: 'text.secondary', fontSize: '0.8rem' }}>
+                                                                {action.actorName} の行動時
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                                                    {skills.length > 0 ? skills.map((skill, sIdx) => (
+                                                                        <Chip
+                                                                            key={sIdx}
+                                                                            label={skill}
+                                                                            size="small"
+                                                                            sx={{ fontSize: '0.7rem', height: 20 }}
+                                                                        />
+                                                                    )) : (
+                                                                        <Typography variant="caption" color="text.secondary">-</Typography>
+                                                                    )}
+                                                                </Box>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    );
+                                                });
+                                            })()}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                            ) : (
+                                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f5f5f5', borderRadius: 1 }}>
+                                    <Typography color="text.secondary" variant="body2">
+                                        履歴を確認したいキャラを選択してください
+                                    </Typography>
+                                </Box>
+                            )}
+                        </Paper>
+                    )}
                 </Grid>
             </Grid>
         </Box>
     );
 };
-

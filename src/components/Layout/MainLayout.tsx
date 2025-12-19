@@ -70,7 +70,7 @@ export const MainLayout: React.FC = () => {
     );
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', width: { xs: '100%', md: '80vw' }, mx: 'auto' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: { xs: '100%', md: '80vw' }, mx: 'auto' }}>
             <AppBar position="static">
                 <Toolbar>
                     {isMobile && (
@@ -173,7 +173,7 @@ export const MainLayout: React.FC = () => {
                 </Drawer>
             </Box>
 
-            <Box component="main" sx={{ flexGrow: 1, overflow: 'hidden', bgcolor: 'background.default' }}>
+            <Box component="main" sx={{ flexGrow: 1, bgcolor: 'background.default' }}>
                 <Outlet />
             </Box>
         </Box>
