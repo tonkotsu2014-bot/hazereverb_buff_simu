@@ -140,9 +140,31 @@ export const simulateTurns = (
                 let targetLevel: SkillLevel | undefined;
 
                 if (skill.activeLevel) {
+                    // 1. Try exact match
                     targetLevel = skill.levels.find(l => String(l.level) === String(skill.activeLevel));
+
+                    // 2. Try floor match (highest level <= activeLevel)
+                    if (!targetLevel) {
+                        const targetVal = parseInt(skill.activeLevel);
+                        if (!isNaN(targetVal)) {
+                            // Helper to parse level safely
+                            const parseLevel = (l: string) => {
+                                const v = parseInt(l);
+                                return isNaN(v) ? -1 : v;
+                            };
+
+                            const candidate = skill.levels
+                                .filter(l => l.level.toLowerCase() !== 'ex' && parseLevel(l.level) <= targetVal)
+                                .sort((a, b) => parseLevel(b.level) - parseLevel(a.level))[0]; // Descending sort, take first
+
+                            if (candidate) {
+                                targetLevel = candidate;
+                            }
+                        }
+                    }
                 }
 
+                // 3. Fallback: try '10' (legacy default) or highest available
                 if (!targetLevel) {
                     targetLevel = skill.levels.find(l => String(l.level) === '10');
                 }
