@@ -7,11 +7,15 @@ export interface ReceivedSkillEffect {
     type: string; // 'Buff' | 'Debuff'
     scalingFactor?: string;
     actuatorSupportPower?: number;
+    duration?: number;
+    remainingTurn?: number;
 }
 
 export interface ReceivedSkill {
     name: string;
     source: string; // Actor who provided the skill
+    startRound: number;
+    startGlobalTurn: number;
     effects: ReceivedSkillEffect[];
 }
 
@@ -72,14 +76,31 @@ export const simulateTurns = (
         return char?.name || `Character ${index + 1}`;
     };
 
-    const getSnapshot = (): CharacterState[] => {
+    const getSnapshot = (currentRound: number, currentGlobalTurn: number): CharacterState[] => {
         return party.map((p, idx) => ({
             name: p?.name || `Character ${idx + 1}`,
-            receivedSkills: accumulatedSkills[idx].map(s => ({
-                name: s.name,
-                source: s.source,
-                effects: s.effects.map(e => ({ ...e })) // Deep clone effects
-            }))
+            receivedSkills: accumulatedSkills[idx].map(s => {
+                // Determine remaining turns for each effect using GLOBAL TURN
+                // Calculation: Rem = Duration - (CurrentGlobalTurn - StartGlobalTurn)
+                const elapsed = currentGlobalTurn - s.startGlobalTurn;
+
+                return {
+                    name: s.name,
+                    source: s.source,
+                    startRound: s.startRound,
+                    startGlobalTurn: s.startGlobalTurn,
+                    effects: s.effects.map(e => {
+                        let rem: number | undefined;
+                        if (e.duration !== undefined) {
+                            rem = Math.max(0, e.duration - elapsed);
+                        }
+                        return {
+                            ...e,
+                            remainingTurn: rem
+                        };
+                    })
+                };
+            })
         }));
     };
 
@@ -112,13 +133,20 @@ export const simulateTurns = (
             const isEx = !!exLevel;
 
             if (isEx) {
-                // Only add EX skill if active this round
                 if (isExActive && exLevel) {
                     skillsToApply.push({ skillName, level: exLevel });
                 }
             } else {
-                // Normal Skill Logic
-                let targetLevel = skill.levels.find(l => String(l.level) === '10');
+                let targetLevel: SkillLevel | undefined;
+
+                if (skill.activeLevel) {
+                    targetLevel = skill.levels.find(l => String(l.level) === String(skill.activeLevel));
+                }
+
+                if (!targetLevel) {
+                    targetLevel = skill.levels.find(l => String(l.level) === '10');
+                }
+
                 if (!targetLevel) {
                     targetLevel = skill.levels.reduce((prev, current) => {
                         if (current.level.toLowerCase() === 'ex') return prev;
@@ -133,7 +161,7 @@ export const simulateTurns = (
             }
         });
 
-        // Ensure EX skills are applied first if multiple skills selected (EX + Normal)
+        // Ensure EX skills are applied first
         skillsToApply.sort((a, b) => {
             const aIsEx = a.level.level.toLowerCase() === 'ex';
             const bIsEx = b.level.level.toLowerCase() === 'ex';
@@ -142,13 +170,6 @@ export const simulateTurns = (
             return 0;
         });
 
-        // If no skills to apply (shouldn't happen for valid char unless passing), but check.
-        // For Normal turn, usually at least one skill.
-        if (skillsToApply.length === 0) {
-            // Acted even if pass?
-        }
-
-        // Logic to apply skills...
         const isSupporter = character.role === 'Supporter' || character.type?.includes('支援');
         let supportTargetNames: string[] | undefined;
         if (character.supportTargetIndices && character.supportTargetIndices.length > 0) {
@@ -168,34 +189,40 @@ export const simulateTurns = (
             type: string;
             scalingFactor?: string;
             actuatorSupportPower?: number;
+            duration?: number;
         }[], isStackable: boolean) => {
             const alreadyHasSameNameIndex = accumulatedSkills[targetIndex].findIndex(s => s.name === skillName);
 
+            const newSkill: ReceivedSkill = {
+                name: skillName,
+                source: source,
+                startRound: round, // Capture start round
+                startGlobalTurn: globalTurn, // Capture start global turn
+                effects: effects.map(e => ({
+                    attribute: e.attribute,
+                    value: e.value,
+                    type: e.type,
+                    scalingFactor: e.scalingFactor,
+                    actuatorSupportPower: e.actuatorSupportPower,
+                    duration: e.duration,
+                    // remainingTurn will be calculated in snapshot
+                }))
+            };
+
             if (isStackable) {
-                accumulatedSkills[targetIndex].push({
-                    name: skillName,
-                    source: source,
-                    effects: effects.map(e => ({ ...e }))
-                });
+                accumulatedSkills[targetIndex].push(newSkill);
             } else if (alreadyHasSameNameIndex !== -1) {
-                accumulatedSkills[targetIndex][alreadyHasSameNameIndex] = {
-                    name: skillName,
-                    source: source,
-                    effects: effects.map(e => ({ ...e }))
-                };
+                // Overwrite existing (Resetting startRound and duration implicitly by replacement)
+                accumulatedSkills[targetIndex][alreadyHasSameNameIndex] = newSkill;
             } else {
-                accumulatedSkills[targetIndex].push({
-                    name: skillName,
-                    source: source,
-                    effects: effects.map(e => ({ ...e }))
-                });
+                accumulatedSkills[targetIndex].push(newSkill);
             }
         };
 
         // Apply Steps
         skillsToApply.forEach(({ skillName, level: currentLevel }) => {
             const originalEffects = currentLevel.effects;
-            const resolvedEffects: SkillEffect[] = [];
+            const resolvedEffects: ReceivedSkillEffect[] = []; // Reuse interface for ease
             const intraSkillSupportBuffs: number[] = [];
 
             const calculateCurrentSupportPower = (): number => {
@@ -209,8 +236,23 @@ export const simulateTurns = (
                 })();
                 let supportIncrease = 0;
                 accumulatedSkills[index].forEach(receivedSkill => {
+                    // Check logic for expired buffs here?
+                    // Currently logic assumes all buffs valid?
+                    // Better to check expiration logic here too.
+                    // Check logic for expired buffs here?
+                    // Currently logic assumes all buffs valid?
+                    // Better to check expiration logic here too.
+                    // NOTE: Intra-turn support calculation should use globalTurn too?
+                    // For now keeping consistent with snapshot logic:
+                    const elapsed = globalTurn - receivedSkill.startGlobalTurn;
+
                     receivedSkill.effects.forEach(eff => {
-                        if (eff.attribute === 'Support') {
+                        let isActive = true;
+                        if (eff.duration !== undefined) {
+                            if (elapsed >= eff.duration) isActive = false;
+                        }
+
+                        if (isActive && eff.attribute === 'Support') {
                             if (eff.type === 'Buff') supportIncrease += eff.value;
                             else if (eff.type === 'Debuff') supportIncrease -= eff.value;
                         }
@@ -246,27 +288,34 @@ export const simulateTurns = (
                     intraSkillSupportBuffs.push(value);
                 }
 
-                const resolvedEffect: any = { ...effect, value: value };
-                if (currentSupportPower !== undefined) {
-                    resolvedEffect.actuatorSupportPower = currentSupportPower;
-                }
+                const resolvedEffect: ReceivedSkillEffect = {
+                    attribute: effect.attribute,
+                    value: value,
+                    type: effect.type,
+                    scalingFactor: effect.scalingFactor ? String(effect.scalingFactor) : undefined,
+                    actuatorSupportPower: currentSupportPower,
+                    duration: effect.duration
+                };
+
                 resolvedEffects.push(resolvedEffect);
             });
 
             const effects = resolvedEffects;
-            const target = effects[0]?.target;
-            const isStackable = effects[0]?.isStackable ?? false;
 
-            if (target) {
-                if (target === 'Self') {
+            const firstOriginalEffect = originalEffects[0];
+            const targetType = firstOriginalEffect?.target;
+            const isStackable = firstOriginalEffect?.isStackable ?? false;
+
+            if (targetType) {
+                if (targetType === 'Self') {
                     addSkill(index, skillName, character.name || 'Unknown', effects, isStackable);
-                } else if (target === 'AllAllies') {
+                } else if (targetType === 'AllAllies') {
                     party.forEach((_, pIdx) => {
                         if (!party[pIdx]?.deathRound || party[pIdx]!.deathRound! > round) {
                             addSkill(pIdx, skillName, character.name || 'Unknown', effects, isStackable);
                         }
                     });
-                } else if ((target === 'Support' || target === 'Default') && isSupporter && character.supportTargetIndices && character.supportTargetIndices.length > 0) {
+                } else if ((targetType === 'Support' || targetType === 'Default') && isSupporter && character.supportTargetIndices && character.supportTargetIndices.length > 0) {
                     character.supportTargetIndices.forEach(tIdx => {
                         const tChar = party[tIdx];
                         if (tChar && (!tChar.deathRound || tChar.deathRound > round)) {
@@ -290,48 +339,45 @@ export const simulateTurns = (
             }
         });
 
-        // ONE Action snapshot for the whole turn (whether EX+Normal or just Normal)
+        const currentGlobalTurn = globalTurn++;
         actions.push({
             round,
-            globalTurn: globalTurn++,
+            globalTurn: currentGlobalTurn,
             actorIndex: index,
             actorName: character.name || 'Unknown',
             actorRole: character.role || 'Unknown',
             actorType: getTypeName(character.role || ''),
             supportTargetNames,
-            characterStates: getSnapshot()
+            characterStates: getSnapshot(round, currentGlobalTurn)
         });
 
         return { acted: true, role: character.role || 'Unknown' };
     };
 
     const pushBossAction = (round: number) => {
+        const currentGlobalTurn = globalTurn++;
         actions.push({
             round,
-            globalTurn: globalTurn++,
+            globalTurn: currentGlobalTurn,
             actorIndex: -1,
             actorName: 'Boss',
             actorRole: 'Boss',
             actorType: 'Boss',
-            characterStates: getSnapshot()
+            characterStates: getSnapshot(round, currentGlobalTurn)
         });
     };
 
     for (let round = 1; round <= maxRounds; round++) {
         let bossActed = false;
-
-        // Track characters who have acted in this round
         const actedIndices = new Set<number>();
 
-        // Phase 1: Characters with EX Skills (Priority Execution)
-        // They execute their combined turn (EX + Normal) now.
+        // Phase 1: EX Skills
         party.forEach((character, index) => {
             if (!character) return;
             const exRounds = character.exSkillRounds || [];
             if (exRounds.includes(round)) {
                 const { acted, role } = executeTurn(index, round);
                 actedIndices.add(index);
-
                 if (acted) {
                     const allowsContinuous = role === 'Supporter';
                     if (!allowsContinuous && !bossActed) {
@@ -342,12 +388,10 @@ export const simulateTurns = (
             }
         });
 
-        // Phase 2: Remaining Characters (Normal Turn execution)
+        // Phase 2: Normal
         party.forEach((_, index) => {
-            if (actedIndices.has(index)) return; // Already acted in EX phase
-
+            if (actedIndices.has(index)) return;
             const { acted, role } = executeTurn(index, round);
-
             if (acted) {
                 const allowsContinuous = role === 'Supporter';
                 if (!allowsContinuous && !bossActed) {
@@ -357,7 +401,6 @@ export const simulateTurns = (
             }
         });
 
-        // If Boss hasn't acted by end of round
         if (!bossActed) {
             pushBossAction(round);
         }

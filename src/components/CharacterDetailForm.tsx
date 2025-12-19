@@ -131,6 +131,19 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
             ...prev,
             [skillIndex]: newLevelIndex
         }));
+
+        // Also update the activeLevel in the character data for simulation
+        const newSkills = [...formData.skills];
+
+        if (newSkills[skillIndex].levels[newLevelIndex]) {
+            newSkills[skillIndex] = {
+                ...newSkills[skillIndex],
+                activeLevel: newSkills[skillIndex].levels[newLevelIndex].level
+            };
+            const updated = { ...formData, skills: newSkills };
+            setFormData(updated);
+            onUpdate(updated);
+        }
     };
 
     const handleAddEffect = (skillIndex: number, levelIndex: number) => {

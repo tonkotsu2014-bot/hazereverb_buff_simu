@@ -680,7 +680,7 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                             {skill.name}
                                         </Typography>
                                         <Typography variant="caption" color="text.secondary">
-                                            from: {skill.source}
+                                            from: {skill.source} (開始: R{skill.startRound} T{skill.startGlobalTurn})
                                         </Typography>
                                     </Box>
                                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -689,10 +689,11 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                             const translatedAttr = ATTRIBUTE_TRANSLATION[e.attribute] || e.attribute;
                                             const displayValue = Math.round(e.value * 100) / 100;
                                             const supportInfo = e.actuatorSupportPower ? ` (支援力: ${e.actuatorSupportPower})` : '';
+                                            const durationInfo = e.remainingTurn !== undefined ? ` (残: ${e.remainingTurn})` : '';
                                             return (
                                                 <Chip
                                                     key={eIdx}
-                                                    label={`${translatedAttr} ${sign}${displayValue}%${supportInfo}`}
+                                                    label={`${translatedAttr} ${sign}${displayValue}%${supportInfo}${durationInfo}`}
                                                     size="small"
                                                     variant="outlined"
                                                     sx={{ height: 20, fontSize: '0.65rem' }}
