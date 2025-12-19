@@ -608,7 +608,7 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                                             <TableCell>
                                                                 <Stack spacing={0.5} direction="row" flexWrap="wrap" gap={0.5}>
                                                                     {Object.keys(aggregatedEffects).length > 0 ? Object.entries(aggregatedEffects).map(([attr, value], sIdx) => {
-                                                                        const sign = value >= 0 ? '+' : ''; // Negative value already has '-' from toString() usually, but let's be explicit
+                                                                        // value >= 0 ? '+' : ''; // Negative value already has '-' from toString() usually, but let's be explicit
                                                                         // Actually simpler: if value > 0 then '+', if value < 0 then just the value (which includes -).
                                                                         // But user wants explicit sign handling.
                                                                         const displayValue = Math.round(value * 100) / 100;
@@ -688,10 +688,11 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                             const sign = e.type === 'Buff' ? '+' : '-';
                                             const translatedAttr = ATTRIBUTE_TRANSLATION[e.attribute] || e.attribute;
                                             const displayValue = Math.round(e.value * 100) / 100;
+                                            const supportInfo = e.actuatorSupportPower ? ` (支援力: ${e.actuatorSupportPower})` : '';
                                             return (
                                                 <Chip
                                                     key={eIdx}
-                                                    label={`${translatedAttr} ${sign}${displayValue}%`}
+                                                    label={`${translatedAttr} ${sign}${displayValue}%${supportInfo}`}
                                                     size="small"
                                                     variant="outlined"
                                                     sx={{ height: 20, fontSize: '0.65rem' }}

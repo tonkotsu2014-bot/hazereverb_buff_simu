@@ -1,5 +1,5 @@
 import { simulateTurns } from '../logic/turnSimulator';
-import type { SimulationCharacter, ReceivedSkillEffect } from '../logic/turnSimulator';
+import type { SimulationCharacter } from '../logic/turnSimulator';
 import type { SkillData } from '../logic/wikiParser';
 import { describe, test, expect } from 'vitest';
 
@@ -15,24 +15,7 @@ describe('Turn Simulator - EX Skill Activation', () => {
         exSkillRounds: exRounds
     });
 
-    const createSkill = (name: string, level: string, effectValue: number): SkillData => ({
-        name,
-        levels: [
-            {
-                level,
-                description: 'Test Skill',
-                effects: [
-                    {
-                        attribute: 'Attack',
-                        value: effectValue,
-                        type: 'Buff',
-                        target: 'Self',
-                        isStackable: true
-                    }
-                ]
-            }
-        ]
-    });
+
 
     test('EX skill activates only on specified rounds', () => {
         // Character with an EX skill (level='Ex') and a normal skill (level='10')
@@ -61,7 +44,7 @@ describe('Turn Simulator - EX Skill Activation', () => {
         // Simulate 5 rounds
         const result = simulateTurns([char], 5);
 
-        const actions = result.filter(a => a.actorName === 'Hero');
+        // const actions = result.filter(a => a.actorName === 'Hero');
 
         // Round 1: No Ex Skill
         const r1 = result.find(a => a.round === 1 && a.actorName === 'Hero');

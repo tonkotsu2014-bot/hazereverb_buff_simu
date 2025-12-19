@@ -6,6 +6,7 @@ export interface ReceivedSkillEffect {
     value: number;
     type: string; // 'Buff' | 'Debuff'
     scalingFactor?: string;
+    actuatorSupportPower?: number;
 }
 
 export interface ReceivedSkill {
@@ -115,9 +116,15 @@ export const simulateTurns = (
             const isSupporter = character.role === 'Supporter' || character.type?.includes('支援');
 
             // Helper to add skill if stackable or unique
-            const addSkill = (targetIndex: number, skillName: string, source: string, effects: SkillEffect[], isStackable: boolean) => {
+            const addSkill = (targetIndex: number, skillName: string, source: string, effects: {
+                attribute: string;
+                value: number;
+                type: string;
+                scalingFactor?: string;
+                actuatorSupportPower?: number;
+            }[], isStackable: boolean) => {
                 // Check if already received
-                const hasSkill = accumulatedSkills[targetIndex].some(s => s.name === skillName && (isStackable || s.source === source));
+                // const hasSkill = accumulatedSkills[targetIndex].some(s => s.name === skillName && (isStackable || s.source === source));
                 // Note: Originally we just checked name. Now that we track source, "unique" usually means unique per source OR unique global?
                 // The prompt for "stackable" usually implies "can stack with itself".
                 // If it's NOT stackable, it usually means "cannot stack duplicate instances".
@@ -134,7 +141,8 @@ export const simulateTurns = (
                             attribute: e.attribute,
                             value: e.value,
                             type: e.type,
-                            scalingFactor: e.scalingFactor
+                            scalingFactor: e.scalingFactor,
+                            actuatorSupportPower: e.actuatorSupportPower
                         }))
                     });
                 }
@@ -220,8 +228,11 @@ export const simulateTurns = (
                 originalEffects.forEach(effect => {
                     let value = effect.value;
 
+                    let currentSupportPower: number | undefined;
+
                     if (effect.calculationType === 'SupportScaling') {
                         const supportPower = calculateCurrentSupportPower();
+                        currentSupportPower = supportPower;
                         // Scaling: SupportPower * (Value / 100)
                         value = supportPower * (value / 100);
                     }
@@ -244,7 +255,12 @@ export const simulateTurns = (
                         intraSkillSupportBuffs.push(value);
                     }
 
-                    resolvedEffects.push({ ...effect, value: value });
+                    const resolvedEffect: any = { ...effect, value: value };
+                    if (currentSupportPower !== undefined) {
+                        resolvedEffect.actuatorSupportPower = currentSupportPower;
+                    }
+
+                    resolvedEffects.push(resolvedEffect);
                 });
 
                 const effects = resolvedEffects;
