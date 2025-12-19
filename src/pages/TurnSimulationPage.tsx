@@ -64,6 +64,7 @@ interface PartyMember extends ParsedCharacterData {
     id: string; // Unique ID for DnD key
     deathRound?: string;
     supportTargets?: string[]; // IDs of target characters
+    exSkillRounds?: string; // Comma separated rounds
 }
 
 const ATTRIBUTE_TRANSLATION: Record<string, string> = {
@@ -80,15 +81,7 @@ const ATTRIBUTE_TRANSLATION: Record<string, string> = {
 };
 
 // Sortable Item Component
-const SortableItem = ({
-    member,
-    index,
-    maxRounds,
-    party,
-    onRemove,
-    onDeathChange,
-    onSupportTargetsChange
-}: {
+interface SortableItemProps {
     member: PartyMember;
     index: number;
     maxRounds: number;
@@ -96,7 +89,10 @@ const SortableItem = ({
     onRemove: (id: string) => void;
     onDeathChange: (id: string, value: string) => void;
     onSupportTargetsChange: (id: string, targets: string[]) => void;
-}) => {
+    onExRoundsChange: (id: string, value: string) => void;
+}
+
+const SortableItem: React.FC<SortableItemProps> = ({ member, index, maxRounds, party, onRemove, onDeathChange, onSupportTargetsChange, onExRoundsChange }) => {
     const {
         attributes,
         listeners,
@@ -211,6 +207,19 @@ const SortableItem = ({
                                 onPointerDown={(e) => e.stopPropagation()}
                                 onKeyDown={(e) => e.stopPropagation()}
                             />
+
+                            <TextField
+                                label="Ex(R)"
+                                size="small"
+                                variant="standard"
+                                placeholder="1,3"
+                                value={member.exSkillRounds || ''}
+                                onChange={(e) => onExRoundsChange(member.id, e.target.value)}
+                                sx={{ width: 60, ml: 1 }}
+                                slotProps={{ htmlInput: { style: { fontSize: '0.8rem' } } }}
+                                onPointerDown={(e) => e.stopPropagation()}
+                                onKeyDown={(e) => e.stopPropagation()}
+                            />
                         </Box>
                     </Box>
                 </CardContent>
@@ -253,7 +262,8 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                 ...characters[index],
                 id: `${characters[index].name}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
                 deathRound: '',
-                supportTargets: []
+                supportTargets: [],
+                exSkillRounds: ''
             };
             setParty([...party, newMember]);
         }
@@ -271,6 +281,10 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
 
     const handleDeathRoundChange = (id: string, value: string) => {
         setParty(prevParty => prevParty.map(p => p.id === id ? { ...p, deathRound: value } : p));
+    };
+
+    const handleExRoundsChange = (id: string, value: string) => {
+        setParty(prevParty => prevParty.map(p => p.id === id ? { ...p, exSkillRounds: value } : p));
     };
 
     const handleSupportTargetsChange = (id: string, targets: string[]) => {
@@ -299,10 +313,15 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                     ?.map(targetId => party.findIndex(member => member.id === targetId))
                     .filter(idx => idx !== -1); // Filter out invalid indices
 
+                const exSkillRounds = p.exSkillRounds
+                    ? p.exSkillRounds.split(/[,\s]+/).map(r => parseInt(r)).filter(n => !isNaN(n))
+                    : [];
+
                 return {
                     ...p,
                     deathRound: p.deathRound ? parseInt(p.deathRound) : undefined,
-                    supportTargetIndices
+                    supportTargetIndices,
+                    exSkillRounds
                 };
             });
 
@@ -409,6 +428,7 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                                 onRemove={handleRemoveCharacter}
                                                 onDeathChange={handleDeathRoundChange}
                                                 onSupportTargetsChange={handleSupportTargetsChange}
+                                                onExRoundsChange={handleExRoundsChange}
                                             />
                                         ))}
                                     </Grid>
@@ -559,13 +579,14 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                                     const skills = state ? state.receivedSkills : [];
 
                                                     // Aggregate effects
-                                                    const aggregatedEffects: Record<string, { value: number; type: string }> = {};
+                                                    const aggregatedEffects: Record<string, number> = {};
                                                     skills.forEach(skill => {
                                                         skill.effects.forEach(effect => {
-                                                            if (!aggregatedEffects[effect.attribute]) {
-                                                                aggregatedEffects[effect.attribute] = { value: 0, type: effect.type };
+                                                            if (aggregatedEffects[effect.attribute] === undefined) {
+                                                                aggregatedEffects[effect.attribute] = 0;
                                                             }
-                                                            aggregatedEffects[effect.attribute].value += effect.value;
+                                                            const val = effect.type === 'Debuff' ? -effect.value : effect.value;
+                                                            aggregatedEffects[effect.attribute] += val;
                                                         });
                                                     });
 
@@ -586,10 +607,16 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                                             </TableCell>
                                                             <TableCell>
                                                                 <Stack spacing={0.5} direction="row" flexWrap="wrap" gap={0.5}>
-                                                                    {Object.keys(aggregatedEffects).length > 0 ? Object.entries(aggregatedEffects).map(([attr, data], sIdx) => {
-                                                                        const sign = data.type === 'Buff' ? '+' : '-';
+                                                                    {Object.keys(aggregatedEffects).length > 0 ? Object.entries(aggregatedEffects).map(([attr, value], sIdx) => {
+                                                                        const sign = value >= 0 ? '+' : ''; // Negative value already has '-' from toString() usually, but let's be explicit
+                                                                        // Actually simpler: if value > 0 then '+', if value < 0 then just the value (which includes -).
+                                                                        // But user wants explicit sign handling.
+                                                                        const displayValue = Math.round(value * 100) / 100;
+                                                                        const signStr = displayValue > 0 ? '+' : '';
                                                                         const translatedAttr = ATTRIBUTE_TRANSLATION[attr] || attr;
-                                                                        const text = `${translatedAttr} ${sign}${Math.round(data.value * 100) / 100}%`;
+                                                                        // value itself might be -10. formatted: "-10"
+                                                                        // If value is 10: result "+10"
+                                                                        const text = `${translatedAttr} ${signStr}${displayValue}%`;
 
                                                                         return (
                                                                             <Chip
@@ -660,10 +687,11 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                         {skill.effects.map((e, eIdx) => {
                                             const sign = e.type === 'Buff' ? '+' : '-';
                                             const translatedAttr = ATTRIBUTE_TRANSLATION[e.attribute] || e.attribute;
+                                            const displayValue = Math.round(e.value * 100) / 100;
                                             return (
                                                 <Chip
                                                     key={eIdx}
-                                                    label={`${translatedAttr} ${sign}${e.value}%`}
+                                                    label={`${translatedAttr} ${sign}${displayValue}%`}
                                                     size="small"
                                                     variant="outlined"
                                                     sx={{ height: 20, fontSize: '0.65rem' }}

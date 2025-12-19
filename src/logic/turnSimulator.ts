@@ -34,6 +34,7 @@ export interface SimulationCharacter extends ParsedCharacterData {
     id?: string;
     deathRound?: number;
     supportTargetIndices?: number[];
+    exSkillRounds?: number[];
 }
 
 /**
@@ -145,26 +146,109 @@ export const simulateTurns = (
             skillsToUse.forEach(skill => {
                 const skillName = skill.name;
 
-                // Find Level 10 or fallback to highest level available
-                let targetLevel = skill.levels.find(l => String(l.level) === '10');
-                if (!targetLevel) {
-                    // Fallback: finding max level if 10 is missing
-                    targetLevel = skill.levels.reduce((prev, current) => {
-                        const pLev = parseInt(String(prev.level)) || 0;
-                        const cLev = parseInt(String(current.level)) || 0;
-                        return (pLev > cLev) ? prev : current;
-                    }, skill.levels[0]);
+                // Check if this skill has an 'Ex' level (indicating it's an EX skill)
+                const exLevel = skill.levels.find(l => l.level.toLowerCase() === 'ex');
+                let isEx = !!exLevel;
+                let currentLevel = null;
+
+                // If it is an EX skill, only apply if the current round matches one of the exSkillRounds
+                if (isEx && exLevel) {
+                    const exRounds = character.exSkillRounds || [];
+                    if (exRounds.includes(round)) {
+                        currentLevel = exLevel;
+                    } else {
+                        return; // Skip EX skill if not in activation round
+                    }
+                } else {
+                    // Normal Skill Path (Non-EX)
+                    // Find Level 10 or fallback to highest level available
+                    let targetLevel = skill.levels.find(l => String(l.level) === '10');
+                    if (!targetLevel) {
+                        targetLevel = skill.levels.reduce((prev, current) => {
+                            // Skip 'Ex' levels in normal fallback
+                            if (current.level.toLowerCase() === 'ex') return prev;
+
+                            const pLev = parseInt(String(prev.level)) || 0;
+                            const cLev = parseInt(String(current.level)) || 0;
+                            return (pLev > cLev) ? prev : current;
+                        }, skill.levels[0]);
+                    }
+                    currentLevel = targetLevel;
                 }
 
-                const currentLevel = targetLevel;
                 if (!currentLevel) return;
 
-                const effects = currentLevel.effects;
+                const originalEffects = currentLevel.effects;
 
-                // Determine target and apply
+                // --- Resolve Support Scaling & Intra-Skill Buffs ---
+                const resolvedEffects: SkillEffect[] = [];
+                const intraSkillSupportBuffs: number[] = []; // Store values of support buffs in this skill
+
+                // Helper to calculate current Support Power
+                const calculateCurrentSupportPower = (): number => {
+                    const baseSupport = (() => {
+                        const stats = character.stats;
+                        if (!stats) return 0;
+                        if ((stats as any).Support !== undefined) {
+                            return typeof (stats as any).Support === 'number' ? (stats as any).Support : parseFloat((stats as any).Support);
+                        }
+                        return 0;
+                    })();
+
+                    let supportIncrease = 0;
+
+                    // 1. Existing Buffs (from previous turns or previous skills this turn)
+                    // accumulatedSkills is ReceivedSkill[][]. accumulatedSkills[index] is this char's skills.
+                    accumulatedSkills[index].forEach(receivedSkill => {
+                        receivedSkill.effects.forEach(eff => {
+                            if (eff.attribute === 'Support') {
+                                if (eff.type === 'Buff') {
+                                    supportIncrease += eff.value;
+                                } else if (eff.type === 'Debuff') {
+                                    supportIncrease -= eff.value;
+                                }
+                            }
+                        });
+                    });
+
+                    // 2. Intra-Skill Buffs (applied by earlier effects in this same skill)
+                    intraSkillSupportBuffs.forEach(val => supportIncrease += val);
+
+                    return baseSupport + supportIncrease;
+                };
+
+                originalEffects.forEach(effect => {
+                    let value = effect.value;
+
+                    if (effect.calculationType === 'SupportScaling') {
+                        const supportPower = calculateCurrentSupportPower();
+                        // Scaling: SupportPower * (Value / 100)
+                        value = supportPower * (value / 100);
+                    }
+
+                    // Check if this effect ITSELF is a Support Buff that should affect subsequent effects
+                    let targetsCaster = false;
+                    const targetType = effect.target;
+
+                    if (targetType === 'Self' || targetType === 'AllAllies') {
+                        targetsCaster = true;
+                    } else if (!targetType) {
+                        if (isSupporter && character.supportTargetIndices && character.supportTargetIndices.length > 0) {
+                            targetsCaster = false;
+                        } else {
+                            targetsCaster = true;
+                        }
+                    }
+
+                    if (targetsCaster && effect.attribute === 'Support' && effect.type === 'Buff') {
+                        intraSkillSupportBuffs.push(value);
+                    }
+
+                    resolvedEffects.push({ ...effect, value: value });
+                });
+
+                const effects = resolvedEffects;
                 const target = effects[0]?.target;
-
-                // Filter stackable
                 const isStackable = effects[0]?.isStackable ?? false;
 
                 if (target) {
