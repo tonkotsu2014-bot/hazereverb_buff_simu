@@ -7,11 +7,13 @@ export interface Action {
     actorName: string;
     actorRole: string; // 'Attacker', 'Supporter', 'Defender', 'Boss', etc.
     actorType: string; // '攻撃型', '支援型', etc.
+    supportTargetNames?: string[];
 }
 
-export interface DeathInfo {
-    characterIndex: number;
-    deathRound: number;
+export interface SimulationCharacter extends ParsedCharacterData {
+    id?: string;
+    deathRound?: number;
+    supportTargetIndices?: number[];
 }
 
 /**
@@ -19,13 +21,11 @@ export interface DeathInfo {
  * 
  * @param party The list of characters in the party (max 9). Order in array determines action order within a round.
  * @param maxRounds The number of rounds to simulate.
- * @param deaths Optional list of death information (character index and round they die).
  * @returns An array of Actions representing the turn order.
  */
 export const simulateTurns = (
-    party: (ParsedCharacterData | null)[],
-    maxRounds: number,
-    deaths: DeathInfo[] = []
+    party: (SimulationCharacter | null)[],
+    maxRounds: number
 ): Action[] => {
     const actions: Action[] = [];
     let globalTurn = 1;
@@ -42,6 +42,11 @@ export const simulateTurns = (
         }
     };
 
+    const getCharacterName = (index: number): string => {
+        const char = party[index];
+        return char?.name || `Character ${index + 1}`;
+    };
+
     for (let round = 1; round <= maxRounds; round++) {
         let bossActed = false;
         party.forEach((character, index) => {
@@ -50,9 +55,25 @@ export const simulateTurns = (
             }
 
             // Check if character is dead in this round
-            const isDead = deaths.some(d => d.characterIndex === index && round >= d.deathRound);
+            const deathRound = character.deathRound;
+            const isDead = deathRound !== undefined && deathRound > 0 && round >= deathRound;
+
             if (isDead) {
                 return; // Skip this character
+            }
+
+            // Resolve support targets if applicable
+            let supportTargetNames: string[] | undefined;
+            if (character.supportTargetIndices && character.supportTargetIndices.length > 0) {
+                supportTargetNames = character.supportTargetIndices
+                    .filter(idx => {
+                        const target = party[idx];
+                        if (!target) return false;
+                        const dRound = target.deathRound;
+                        // Target is alive if no death info or death round is in future
+                        return dRound === undefined || dRound <= 0 || round < dRound;
+                    })
+                    .map(idx => getCharacterName(idx));
             }
 
             actions.push({
@@ -61,7 +82,8 @@ export const simulateTurns = (
                 actorIndex: index,
                 actorName: character.name || `Character ${index + 1}`,
                 actorRole: character.role || 'Unknown',
-                actorType: character.type?.replace(/型$/, '型') || getTypeName(character.role || '')
+                actorType: character.type?.replace(/型$/, '型') || getTypeName(character.role || ''),
+                supportTargetNames
             });
             globalTurn++;
 

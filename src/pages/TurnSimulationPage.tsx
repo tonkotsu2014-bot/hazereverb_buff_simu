@@ -15,7 +15,13 @@ import {
     TableHead,
     TableRow,
     TableCell,
-    TableBody
+    TableBody,
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
+    OutlinedInput,
+    Chip
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
@@ -49,15 +55,26 @@ interface TurnSimulationPageProps {
 interface PartyMember extends ParsedCharacterData {
     id: string; // Unique ID for DnD key
     deathRound?: string;
+    supportTargets?: string[]; // IDs of target characters
 }
 
 // Sortable Item Component
-const SortableItem = ({ member, index, maxRounds, onRemove, onDeathChange }: {
+const SortableItem = ({
+    member,
+    index,
+    maxRounds,
+    party,
+    onRemove,
+    onDeathChange,
+    onSupportTargetsChange
+}: {
     member: PartyMember;
     index: number;
     maxRounds: number;
+    party: PartyMember[];
     onRemove: (id: string) => void;
     onDeathChange: (id: string, value: string) => void;
+    onSupportTargetsChange: (id: string, targets: string[]) => void;
 }) => {
     const {
         attributes,
@@ -74,11 +91,13 @@ const SortableItem = ({ member, index, maxRounds, onRemove, onDeathChange }: {
         opacity: isDragging ? 0.5 : 1,
     };
 
+    const isSupporter = member.role === 'Supporter';
+
     return (
         <Grid size={{ xs: 12 }} ref={setNodeRef} style={style} {...attributes}>
             <Card variant="outlined" sx={{ position: 'relative' }}>
                 <CardContent sx={{ p: '8px 12px !important', pr: '50px !important' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                         {/* Drag Handle */}
                         <IconButton
                             size="small"
@@ -91,28 +110,72 @@ const SortableItem = ({ member, index, maxRounds, onRemove, onDeathChange }: {
                         <Typography variant="caption" sx={{ color: 'text.secondary', width: 20 }}>
                             {index + 1}
                         </Typography>
-                        <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <Typography
-                                variant="body2"
-                                fontWeight="bold"
-                                sx={{
-                                    color: (() => {
-                                        switch (member.role) {
-                                            case 'Supporter': return '#2e7d32';
-                                            case 'Attacker': return '#d32f2f';
-                                            case 'Defender': return '#1565c0';
-                                            case 'Transcendence': return '#000000';
-                                            default: return 'text.primary';
+
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
+                            <Box sx={{ minWidth: 120 }}>
+                                <Typography
+                                    variant="body2"
+                                    fontWeight="bold"
+                                    sx={{
+                                        color: (() => {
+                                            switch (member.role) {
+                                                case 'Supporter': return '#2e7d32';
+                                                case 'Attacker': return '#d32f2f';
+                                                case 'Defender': return '#1565c0';
+                                                case 'Transcendence': return '#000000';
+                                                default: return 'text.primary';
+                                            }
+                                        })()
+                                    }}
+                                >
+                                    {member.name}
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary">
+                                    {member.role === 'Supporter' ? '支援型' : 'その他'}
+                                </Typography>
+                            </Box>
+
+                            {/* Support Target Selector */}
+                            {isSupporter && (
+                                <FormControl size="small" sx={{ width: 200 }}>
+                                    <InputLabel>支援対象</InputLabel>
+                                    <Select
+                                        multiple
+                                        value={member.supportTargets || []}
+                                        onChange={(e) => {
+                                            const value = typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value;
+                                            onSupportTargetsChange(member.id, value as string[]);
+                                        }}
+                                        input={<OutlinedInput label="支援対象" />}
+                                        renderValue={(selected) => (
+                                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                                {selected.map((value) => {
+                                                    const target = party.find(p => p.id === value);
+                                                    return (
+                                                        <Chip
+                                                            key={value}
+                                                            label={target ? target.name : 'Unknown'}
+                                                            size="small"
+                                                            sx={{ height: 20, fontSize: '0.7rem' }}
+                                                        />
+                                                    );
+                                                })}
+                                            </Box>
+                                        )}
+                                        onPointerDown={(e) => e.stopPropagation()} // Prevent drag start
+                                        onKeyDown={(e) => e.stopPropagation()}
+                                    >
+                                        {party
+                                            .filter(p => p.id !== member.id) // Exclude self
+                                            .map((p, idx) => (
+                                                <MenuItem key={p.id} value={p.id}>
+                                                    {`${idx + 1}. ${p.name}`}
+                                                </MenuItem>
+                                            ))
                                         }
-                                    })(),
-                                    minWidth: '120px'
-                                }}
-                            >
-                                {member.name}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                                {member.role === 'Supporter' ? '支援型' : 'その他'}
-                            </Typography>
+                                    </Select>
+                                </FormControl>
+                            )}
 
                             <TextField
                                 label="死亡(R)"
@@ -124,7 +187,7 @@ const SortableItem = ({ member, index, maxRounds, onRemove, onDeathChange }: {
                                 onChange={(e) => onDeathChange(member.id, e.target.value)}
                                 sx={{ width: 60, ml: 'auto' }}
                                 slotProps={{ htmlInput: { min: 1, max: maxRounds } }}
-                                onPointerDown={(e) => e.stopPropagation()} // Prevent drag start when interacting with input
+                                onPointerDown={(e) => e.stopPropagation()}
                                 onKeyDown={(e) => e.stopPropagation()}
                             />
                         </Box>
@@ -161,8 +224,9 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
         if (party.length < 9) {
             const newMember: PartyMember = {
                 ...characters[index],
-                id: `${characters[index].name} -${Date.now()} -${Math.random().toString(36).substr(2, 9)} `,
-                deathRound: ''
+                id: `${characters[index].name}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                deathRound: '',
+                supportTargets: []
             };
             setParty([...party, newMember]);
         }
@@ -182,6 +246,10 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
         setParty(prevParty => prevParty.map(p => p.id === id ? { ...p, deathRound: value } : p));
     };
 
+    const handleSupportTargetsChange = (id: string, targets: string[]) => {
+        setParty(prevParty => prevParty.map(p => p.id === id ? { ...p, supportTargets: targets } : p));
+    };
+
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
         if (over && active.id !== over.id) {
@@ -197,14 +265,21 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
         try {
             setError(null);
 
-            const deaths = party
-                .map((p, index) => ({
-                    characterIndex: index,
-                    deathRound: parseInt(p.deathRound || '0')
-                }))
-                .filter(d => !isNaN(d.deathRound) && d.deathRound > 0);
+            // Map party member state to SimulationCharacter
+            const simulationParty = party.map(p => {
+                // Convert ID-based targets to Indices
+                const supportTargetIndices = p.supportTargets
+                    ?.map(targetId => party.findIndex(member => member.id === targetId))
+                    .filter(idx => idx !== -1); // Filter out invalid indices
 
-            const results = simulateTurns(party, maxRounds, deaths);
+                return {
+                    ...p,
+                    deathRound: p.deathRound ? parseInt(p.deathRound) : undefined,
+                    supportTargetIndices
+                };
+            });
+
+            const results = simulateTurns(simulationParty, maxRounds);
             setSimulationResults(results);
         } catch (e) {
             setError(e instanceof Error ? e.message : 'Unknown error occurred');
@@ -289,8 +364,10 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                                 member={member}
                                                 index={index}
                                                 maxRounds={maxRounds}
+                                                party={party}
                                                 onRemove={handleRemoveCharacter}
                                                 onDeathChange={handleDeathRoundChange}
+                                                onSupportTargetsChange={handleSupportTargetsChange}
                                             />
                                         ))}
                                     </Grid>
@@ -361,23 +438,30 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                                                 {action.actorType}
                                                             </Box>
                                                         )}
-                                                        <Typography
-                                                            sx={{
-                                                                fontWeight: action.actorName === 'Boss' ? 'bold' : 'normal',
-                                                                color: (() => {
-                                                                    switch (action.actorRole) {
-                                                                        case 'Supporter': return '#2e7d32';
-                                                                        case 'Attacker': return '#d32f2f';
-                                                                        case 'Defender': return '#1565c0';
-                                                                        case 'Transcendence': return '#000000';
-                                                                        case 'Boss': return '#e65100';
-                                                                        default: return 'text.primary';
-                                                                    }
-                                                                })()
-                                                            }}
-                                                        >
-                                                            {action.actorName}
-                                                        </Typography>
+                                                        <Box>
+                                                            <Typography
+                                                                sx={{
+                                                                    fontWeight: action.actorName === 'Boss' ? 'bold' : 'normal',
+                                                                    color: (() => {
+                                                                        switch (action.actorRole) {
+                                                                            case 'Supporter': return '#2e7d32';
+                                                                            case 'Attacker': return '#d32f2f';
+                                                                            case 'Defender': return '#1565c0';
+                                                                            case 'Transcendence': return '#000000';
+                                                                            case 'Boss': return '#e65100';
+                                                                            default: return 'text.primary';
+                                                                        }
+                                                                    })()
+                                                                }}
+                                                            >
+                                                                {action.actorName}
+                                                            </Typography>
+                                                            {action.supportTargetNames && action.supportTargetNames.length > 0 && (
+                                                                <Typography variant="caption" color="text.secondary">
+                                                                    {`-> ${action.supportTargetNames.join(', ')}`}
+                                                                </Typography>
+                                                            )}
+                                                        </Box>
                                                     </Box>
                                                 </TableCell>
                                             </TableRow>
