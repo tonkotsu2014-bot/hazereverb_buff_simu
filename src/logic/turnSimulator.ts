@@ -9,6 +9,7 @@ export interface ReceivedSkillEffect {
     actuatorSupportPower?: number;
     duration?: number;
     remainingTurn?: number;
+    isStackable?: boolean;
 }
 
 export interface ReceivedSkill {
@@ -220,14 +221,35 @@ export const simulateTurns = (
             scalingFactor?: string;
             actuatorSupportPower?: number;
             duration?: number;
-        }[], isStackable: boolean) => {
-            const alreadyHasSameNameIndex = accumulatedSkills[targetIndex].findIndex(s => s.name === skillName);
+            isStackable?: boolean;
+        }[]) => {
+            const MAX_STACK_COUNT = 5;
+
+            // 1. Process existing skills of the same name
+            for (let i = accumulatedSkills[targetIndex].length - 1; i >= 0; i--) {
+                const skill = accumulatedSkills[targetIndex][i];
+                if (skill.name === skillName) {
+                    // Filter out non-stackable effects from existing instances
+                    // IF the NEW skill has the same effect (by attribute?)
+                    // The requirement: "Only the latest instance should be active" for non-stackable.
+                    // So if we are adding a new instance, any existing instance's non-stackable effects should be removed.
+                    // Actually, we should just check if the effect is stackable. 
+                    // If NOT stackable, remove it from old instance.
+                    skill.effects = skill.effects.filter(e => e.isStackable);
+
+                    // If skill has no effects left, remove the skill instance?
+                    // We need to keep instances for STACK_COUNT purposes if they contain stackable effects.
+                    if (skill.effects.length === 0) {
+                        accumulatedSkills[targetIndex].splice(i, 1);
+                    }
+                }
+            }
 
             const newSkill: ReceivedSkill = {
                 name: skillName,
                 source: source,
-                startRound: round, // Capture start round
-                startGlobalTurn: globalTurn, // Capture start global turn
+                startRound: round,
+                startGlobalTurn: globalTurn,
                 effects: effects.map(e => ({
                     attribute: e.attribute,
                     value: e.value,
@@ -235,34 +257,47 @@ export const simulateTurns = (
                     scalingFactor: e.scalingFactor,
                     actuatorSupportPower: e.actuatorSupportPower,
                     duration: e.duration,
-                    // remainingTurn will be calculated in snapshot
+                    isStackable: e.isStackable
                 }))
             };
 
-            const MAX_STACK_COUNT = 5;
+            // Enforce max stack count (based on skill instances count)
+            // If the new skill has ANY stackable effects, it contributes to the stack count?
+            // Or does the "Stack Count" concept apply to the SKILL itself?
+            // Usually "Stack: 5" applies to the buff icon.
+            // If a skill has mixed effects, it's slightly ambiguous.
+            // But generally, we treat the "Skill Instance" as the unit for stacking limit.
+            // So if we have 5 instances of "Mixed Skill", and we add a 6th:
+            // Oldest one is removed (FIFO).
 
-            if (isStackable) {
-                // Enforce max 5 stacks
-                const existingStacksCount = accumulatedSkills[targetIndex].filter(s => s.name === skillName).length;
-                if (existingStacksCount >= MAX_STACK_COUNT) {
-                    const oldestIndex = accumulatedSkills[targetIndex].findIndex(s => s.name === skillName);
-                    if (oldestIndex !== -1) {
-                        accumulatedSkills[targetIndex].splice(oldestIndex, 1);
-                    }
+            // However, verify if we should only count instances that HAVE stackable effects?
+            // User said: "Effect 1 .. isStackable".
+            // If a skill has ONLY non-stackable effects, should it stack to 5? No.
+            // But typically mixed skills are treated as a single unit in UI.
+            // Let's assume the MAX_STACK_COUNT applies generally to the skill name.
+
+            const existingStacksCount = accumulatedSkills[targetIndex].filter(s => s.name === skillName).length;
+            if (existingStacksCount >= MAX_STACK_COUNT) {
+                const oldestIndex = accumulatedSkills[targetIndex].findIndex(s => s.name === skillName);
+                if (oldestIndex !== -1) {
+                    accumulatedSkills[targetIndex].splice(oldestIndex, 1);
                 }
-                accumulatedSkills[targetIndex].push(newSkill);
-            } else if (alreadyHasSameNameIndex !== -1) {
-                // Overwrite existing (Resetting startRound and duration implicitly by replacement)
-                accumulatedSkills[targetIndex][alreadyHasSameNameIndex] = newSkill;
-            } else {
-                accumulatedSkills[targetIndex].push(newSkill);
             }
+            accumulatedSkills[targetIndex].push(newSkill);
         };
 
         // Apply Steps
         skillsToApply.forEach(({ skillName, level: currentLevel }) => {
             const originalEffects = currentLevel.effects;
-            const resolvedEffects: ReceivedSkillEffect[] = []; // Reuse interface for ease
+            const resolvedEffects: {
+                attribute: string;
+                value: number;
+                type: string;
+                scalingFactor?: string;
+                actuatorSupportPower?: number;
+                duration?: number;
+                isStackable?: boolean;
+            }[] = [];
             const intraSkillSupportBuffs: number[] = [];
 
             const calculateCurrentSupportPower = (): number => {
@@ -276,14 +311,6 @@ export const simulateTurns = (
                 })();
                 let supportIncrease = 0;
                 accumulatedSkills[index].forEach(receivedSkill => {
-                    // Check logic for expired buffs here?
-                    // Currently logic assumes all buffs valid?
-                    // Better to check expiration logic here too.
-                    // Check logic for expired buffs here?
-                    // Currently logic assumes all buffs valid?
-                    // Better to check expiration logic here too.
-                    // NOTE: Intra-turn support calculation should use globalTurn too?
-                    // For now keeping consistent with snapshot logic:
                     const elapsed = globalTurn - receivedSkill.startGlobalTurn;
 
                     receivedSkill.effects.forEach(eff => {
@@ -332,13 +359,14 @@ export const simulateTurns = (
                     intraSkillSupportBuffs.push(value);
                 }
 
-                const resolvedEffect: ReceivedSkillEffect = {
+                const resolvedEffect = {
                     attribute: effect.attribute,
                     value: value,
                     type: effect.type,
                     scalingFactor: effect.scalingFactor ? String(effect.scalingFactor) : undefined,
                     actuatorSupportPower: currentSupportPower,
-                    duration: effect.duration
+                    duration: effect.duration,
+                    isStackable: effect.isStackable
                 };
 
                 resolvedEffects.push(resolvedEffect);
@@ -348,37 +376,36 @@ export const simulateTurns = (
 
             const firstOriginalEffect = originalEffects[0];
             const targetType = firstOriginalEffect?.target;
-            const isStackable = firstOriginalEffect?.isStackable ?? false;
 
             if (targetType) {
                 if (targetType === 'Self') {
-                    addSkill(index, skillName, character.name || 'Unknown', effects, isStackable);
+                    addSkill(index, skillName, character.name || 'Unknown', effects);
                 } else if (targetType === 'AllAllies') {
                     party.forEach((_, pIdx) => {
                         if (!party[pIdx]?.deathRound || party[pIdx]!.deathRound! > round) {
-                            addSkill(pIdx, skillName, character.name || 'Unknown', effects, isStackable);
+                            addSkill(pIdx, skillName, character.name || 'Unknown', effects);
                         }
                     });
                 } else if ((targetType === 'Support' || targetType === 'Default') && isSupporter && character.supportTargetIndices && character.supportTargetIndices.length > 0) {
                     character.supportTargetIndices.forEach(tIdx => {
                         const tChar = party[tIdx];
                         if (tChar && (!tChar.deathRound || tChar.deathRound > round)) {
-                            addSkill(tIdx, skillName, character.name || 'Unknown', effects, isStackable);
+                            addSkill(tIdx, skillName, character.name || 'Unknown', effects);
                         }
                     });
                 } else {
-                    addSkill(index, skillName, character.name || 'Unknown', effects, isStackable);
+                    addSkill(index, skillName, character.name || 'Unknown', effects);
                 }
             } else {
                 if (isSupporter && character.supportTargetIndices && character.supportTargetIndices.length > 0) {
                     character.supportTargetIndices.forEach(tIdx => {
                         const tChar = party[tIdx];
                         if (tChar && (!tChar.deathRound || tChar.deathRound > round)) {
-                            addSkill(tIdx, skillName, character.name || 'Unknown', effects, isStackable);
+                            addSkill(tIdx, skillName, character.name || 'Unknown', effects);
                         }
                     });
                 } else {
-                    addSkill(index, skillName, character.name || 'Unknown', effects, isStackable);
+                    addSkill(index, skillName, character.name || 'Unknown', effects);
                 }
             }
         });
