@@ -88,14 +88,18 @@ export const simulateTurns = (
                     .map(e => {
                         let rem: number | undefined;
                         if (e.duration !== undefined) {
-                            rem = Math.max(0, e.duration - elapsed);
+                            if (e.duration === -1) {
+                                rem = -1; // Permanent
+                            } else {
+                                rem = Math.max(0, e.duration - elapsed);
+                            }
                         }
                         return {
                             ...e,
                             remainingTurn: rem
                         };
                     })
-                    .filter(e => e.remainingTurn === undefined || e.remainingTurn > 0);
+                    .filter(e => e.remainingTurn === undefined || e.remainingTurn > 0 || e.remainingTurn === -1);
 
                 return {
                     name: s.name,
@@ -285,7 +289,11 @@ export const simulateTurns = (
                     receivedSkill.effects.forEach(eff => {
                         let isActive = true;
                         if (eff.duration !== undefined) {
-                            if (elapsed >= eff.duration) isActive = false;
+                            if (eff.duration === -1) {
+                                isActive = true;
+                            } else if (elapsed >= eff.duration) {
+                                isActive = false;
+                            }
                         }
 
                         if (isActive && eff.attribute === 'Support') {

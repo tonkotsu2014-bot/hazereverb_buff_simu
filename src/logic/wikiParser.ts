@@ -183,7 +183,7 @@ export const parseSkills = (doc: Document): SkillData[] => {
                 });
 
                 if (levels.length > 0) {
-                    const validLevels = levels.filter(l => l.description !== null && l.description !== '');
+                    const validLevels = levels.filter(l => l.description !== null && l.description.length > 0);
                     if (validLevels.length > 0) {
                         skills.push({ name: skillName, levels: validLevels });
                     }

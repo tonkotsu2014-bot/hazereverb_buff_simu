@@ -30,8 +30,10 @@ describe('WikiParser - Skill Level Filtering', () => {
         expect(skill.name).toBe('スキル A');
 
         // Should only have level 1
+        // Should have Level 1 (Valid) and Level 4 (Single cell, Null description)
         expect(skill.levels.length).toBe(1);
+
         expect(skill.levels[0].level).toBe('1');
-        expect(skill.levels[0].description).toBe('ValidDescription'); // cleanDescription removes spaces?
+        expect(skill.levels[0].description).toBe('ValidDescription');
     });
 });

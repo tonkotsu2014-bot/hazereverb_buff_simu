@@ -747,7 +747,7 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                             const translatedAttr = ATTRIBUTE_TRANSLATION[e.attribute] || e.attribute;
                                             const displayValue = Math.round(e.value * 100) / 100;
                                             const supportInfo = e.actuatorSupportPower ? ` (支援力: ${e.actuatorSupportPower})` : '';
-                                            const durationInfo = e.remainingTurn !== undefined ? ` (残: ${e.remainingTurn})` : '';
+                                            const durationInfo = e.remainingTurn !== undefined ? (e.remainingTurn === -1 ? ' (永続)' : ` (残: ${e.remainingTurn})`) : '';
                                             return (
                                                 <Chip
                                                     key={eIdx}
