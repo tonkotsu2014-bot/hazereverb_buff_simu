@@ -23,6 +23,8 @@ import {
     DialogContent,
     List,
     ListItem,
+    Tabs,
+    Tab,
     // ListItemText, // Removed
     // Divider // Removed
 } from '@mui/material';
@@ -32,6 +34,7 @@ import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { CharacterList } from '../components/CharacterList';
 import type { ParsedCharacterData } from '../logic/wikiParser';
 import { simulateTurns, type Action, type ReceivedSkill } from '../logic/turnSimulator';
+import { SimulationResultGraph } from '../components/Simulation/SimulationResultGraph';
 import {
     DndContext,
     closestCenter,
@@ -248,6 +251,11 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
     const [dialogOpen, setDialogOpen] = useState(false);
     const [selectedSkills, setSelectedSkills] = useState<ReceivedSkill[]>([]);
     const [selectedTurnInfo, setSelectedTurnInfo] = useState<{ round: number; turn: number } | null>(null);
+    const [tabValue, setTabValue] = useState(0);
+
+    const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+        setTabValue(newValue);
+    };
 
     // DnD Sensors
     const sensors = useSensors(
@@ -543,113 +551,133 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                         )}
                     </Box>
 
-                    {/* Skill Detail View */}
+                    {/* Skill Detail View - Tabs Top, Content Bottom */}
                     {simulationResults && (
-                        <Paper sx={{ p: 2, height: '900px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                            <Typography variant="subtitle1" gutterBottom fontWeight={600}>
-                                受けたスキル履歴
-                            </Typography>
-                            <Box sx={{ mb: 2, display: 'flex', gap: 1, overflowX: 'auto', pb: 1 }}>
-                                {party.map((p) => (
-                                    <Chip
-                                        key={p.id}
-                                        label={p.name}
-                                        onClick={() => setSelectedCharacterId(p.id)}
-                                        color={selectedCharacterId === p.id ? 'primary' : 'default'}
-                                        variant={selectedCharacterId === p.id ? 'filled' : 'outlined'}
-                                        clickable
-                                    />
-                                ))}
+                        <Paper sx={{ height: '900px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                            <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: '#f5f5f5' }}>
+                                <Tabs value={tabValue} onChange={handleTabChange} aria-label="simulation result tabs" centered>
+                                    <Tab label="詳細 (表)" />
+                                    <Tab label="推移 (グラフ)" />
+                                </Tabs>
                             </Box>
 
-                            {selectedCharacterId ? (
-                                <TableContainer sx={{ flex: 1, overflow: 'auto' }}>
-                                    <Table stickyHeader size="small">
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>Round</TableCell>
-                                                <TableCell>Turn</TableCell>
-                                                <TableCell>Context Actor</TableCell>
-                                                <TableCell>効果 (合算)</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {(() => {
-                                                const charIndex = party.findIndex(p => p.id === selectedCharacterId);
-                                                if (charIndex === -1) return null;
-
-                                                return simulationResults.map((action, idx) => {
-                                                    const state = action.characterStates[charIndex];
-                                                    const skills = state ? state.receivedSkills : [];
-
-                                                    // Aggregate effects
-                                                    const aggregatedEffects: Record<string, number> = {};
-                                                    skills.forEach(skill => {
-                                                        skill.effects.forEach(effect => {
-                                                            if (aggregatedEffects[effect.attribute] === undefined) {
-                                                                aggregatedEffects[effect.attribute] = 0;
-                                                            }
-                                                            const val = effect.type === 'Debuff' ? -effect.value : effect.value;
-                                                            aggregatedEffects[effect.attribute] += val;
-                                                        });
-                                                    });
-
-                                                    return (
-                                                        <TableRow
-                                                            key={idx}
-                                                            hover
-                                                            onClick={() => handleRowClick(skills, action.round, action.globalTurn)}
-                                                            sx={{
-                                                                cursor: skills.length > 0 ? 'pointer' : 'default',
-                                                                '&:hover': skills.length > 0 ? { bgcolor: 'action.hover' } : {}
-                                                            }}
-                                                        >
-                                                            <TableCell>{action.round}</TableCell>
-                                                            <TableCell>{action.globalTurn}</TableCell>
-                                                            <TableCell sx={{ color: 'text.secondary', fontSize: '0.8rem' }}>
-                                                                {action.actorName} の行動時
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                <Stack spacing={0.5} direction="row" flexWrap="wrap" gap={0.5}>
-                                                                    {Object.keys(aggregatedEffects).length > 0 ? Object.entries(aggregatedEffects).map(([attr, value], sIdx) => {
-                                                                        // value >= 0 ? '+' : ''; // Negative value already has '-' from toString() usually, but let's be explicit
-                                                                        // Actually simpler: if value > 0 then '+', if value < 0 then just the value (which includes -).
-                                                                        // But user wants explicit sign handling.
-                                                                        const displayValue = Math.round(value * 100) / 100;
-                                                                        const signStr = displayValue > 0 ? '+' : '';
-                                                                        const translatedAttr = ATTRIBUTE_TRANSLATION[attr] || attr;
-                                                                        // value itself might be -10. formatted: "-10"
-                                                                        // If value is 10: result "+10"
-                                                                        const text = `${translatedAttr} ${signStr}${displayValue}%`;
-
-                                                                        return (
-                                                                            <Chip
-                                                                                key={sIdx}
-                                                                                label={text}
-                                                                                variant="outlined"
-                                                                                size="small"
-                                                                                sx={{ fontSize: '0.7rem', height: '24px', border: '1px solid #e0e0e0', bgcolor: 'white' }}
-                                                                            />
-                                                                        );
-                                                                    }) : (
-                                                                        <Typography variant="caption" color="text.secondary">-</Typography>
-                                                                    )}
-                                                                </Stack>
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    );
-                                                });
-                                            })()}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-                            ) : (
-                                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f5f5f5', borderRadius: 1 }}>
-                                    <Typography color="text.secondary" variant="body2">
-                                        履歴を確認したいキャラを選択してください
-                                    </Typography>
+                            <Box sx={{ p: 2, pb: 1 }}>
+                                <Typography variant="subtitle2" gutterBottom fontWeight={600} color="text.secondary">
+                                    表示するキャラクターを選択:
+                                </Typography>
+                                <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto', pb: 1 }}>
+                                    {party.map((p) => (
+                                        <Chip
+                                            key={p.id}
+                                            label={p.name}
+                                            onClick={() => setSelectedCharacterId(p.id)}
+                                            color={selectedCharacterId === p.id ? 'primary' : 'default'}
+                                            variant={selectedCharacterId === p.id ? 'filled' : 'outlined'}
+                                            clickable
+                                        />
+                                    ))}
                                 </Box>
-                            )}
+                            </Box>
+
+                            {/* TAB 0: DETAILED TABLE */}
+                            <Box role="tabpanel" hidden={tabValue !== 0} sx={{ flex: 1, overflow: 'hidden', display: tabValue === 0 ? 'flex' : 'none', flexDirection: 'column', height: '100%' }}>
+                                {tabValue === 0 && (
+                                    selectedCharacterId ? (
+                                        <TableContainer sx={{ flex: 1, overflow: 'auto' }}>
+                                            <Table stickyHeader size="small">
+                                                <TableHead>
+                                                    <TableRow>
+                                                        <TableCell>Round</TableCell>
+                                                        <TableCell>Turn</TableCell>
+                                                        <TableCell>Context Actor</TableCell>
+                                                        <TableCell>効果 (合算)</TableCell>
+                                                    </TableRow>
+                                                </TableHead>
+                                                <TableBody>
+                                                    {(() => {
+                                                        const charIndex = party.findIndex(p => p.id === selectedCharacterId);
+                                                        if (charIndex === -1) return null;
+
+                                                        return simulationResults.map((action, idx) => {
+                                                            const state = action.characterStates[charIndex];
+                                                            const skills = state ? state.receivedSkills : [];
+
+                                                            // Aggregate effects
+                                                            const aggregatedEffects: Record<string, number> = {};
+                                                            skills.forEach(skill => {
+                                                                skill.effects.forEach(effect => {
+                                                                    if (aggregatedEffects[effect.attribute] === undefined) {
+                                                                        aggregatedEffects[effect.attribute] = 0;
+                                                                    }
+                                                                    const val = effect.type === 'Debuff' ? -effect.value : effect.value;
+                                                                    aggregatedEffects[effect.attribute] += val;
+                                                                });
+                                                            });
+
+                                                            return (
+                                                                <TableRow
+                                                                    key={idx}
+                                                                    hover
+                                                                    onClick={() => handleRowClick(skills, action.round, action.globalTurn)}
+                                                                    sx={{
+                                                                        cursor: skills.length > 0 ? 'pointer' : 'default',
+                                                                        '&:hover': skills.length > 0 ? { bgcolor: 'action.hover' } : {}
+                                                                    }}
+                                                                >
+                                                                    <TableCell>{action.round}</TableCell>
+                                                                    <TableCell>{action.globalTurn}</TableCell>
+                                                                    <TableCell sx={{ color: 'text.secondary', fontSize: '0.8rem' }}>
+                                                                        {action.actorName} の行動時
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <Stack spacing={0.5} direction="row" flexWrap="wrap" gap={0.5}>
+                                                                            {Object.keys(aggregatedEffects).length > 0 ? Object.entries(aggregatedEffects).map(([attr, value], sIdx) => {
+                                                                                const displayValue = Math.round(value * 100) / 100;
+                                                                                const signStr = displayValue > 0 ? '+' : '';
+                                                                                const translatedAttr = ATTRIBUTE_TRANSLATION[attr] || attr;
+                                                                                const text = `${translatedAttr} ${signStr}${displayValue}%`;
+
+                                                                                return (
+                                                                                    <Chip
+                                                                                        key={sIdx}
+                                                                                        label={text}
+                                                                                        variant="outlined"
+                                                                                        size="small"
+                                                                                        sx={{ fontSize: '0.7rem', height: '24px', border: '1px solid #e0e0e0', bgcolor: 'white' }}
+                                                                                    />
+                                                                                );
+                                                                            }) : (
+                                                                                <Typography variant="caption" color="text.secondary">-</Typography>
+                                                                            )}
+                                                                        </Stack>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            );
+                                                        });
+                                                    })()}
+                                                </TableBody>
+                                            </Table>
+                                        </TableContainer>
+                                    ) : (
+                                        <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f5f5f5', borderRadius: 1, m: 2 }}>
+                                            <Typography color="text.secondary" variant="body2">
+                                                履歴を確認したいキャラを選択してください
+                                            </Typography>
+                                        </Box>
+                                    )
+                                )}
+                            </Box>
+
+                            {/* TAB 1: GRAPH */}
+                            <Box role="tabpanel" hidden={tabValue !== 1} sx={{ flex: 1, overflow: 'hidden', height: '100%', display: tabValue === 1 ? 'flex' : 'none', flexDirection: 'column' }}>
+                                {tabValue === 1 && (
+                                    <SimulationResultGraph
+                                        simulationResults={simulationResults}
+                                        selectedCharacterId={selectedCharacterId}
+                                        party={party.map(p => ({ ...p, name: p.name || 'Unknown' }))}
+                                    />
+                                )}
+                            </Box>
                         </Paper>
                     )}
                 </Grid>
