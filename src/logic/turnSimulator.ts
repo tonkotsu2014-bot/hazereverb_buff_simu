@@ -235,7 +235,17 @@ export const simulateTurns = (
                 }))
             };
 
+            const MAX_STACK_COUNT = 5;
+
             if (isStackable) {
+                // Enforce max 5 stacks
+                const existingStacksCount = accumulatedSkills[targetIndex].filter(s => s.name === skillName).length;
+                if (existingStacksCount >= MAX_STACK_COUNT) {
+                    const oldestIndex = accumulatedSkills[targetIndex].findIndex(s => s.name === skillName);
+                    if (oldestIndex !== -1) {
+                        accumulatedSkills[targetIndex].splice(oldestIndex, 1);
+                    }
+                }
                 accumulatedSkills[targetIndex].push(newSkill);
             } else if (alreadyHasSameNameIndex !== -1) {
                 // Overwrite existing (Resetting startRound and duration implicitly by replacement)
