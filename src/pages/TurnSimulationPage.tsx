@@ -16,11 +16,6 @@ import {
     TableRow,
     TableCell,
     TableBody,
-    Select,
-    MenuItem,
-    FormControl,
-    InputLabel,
-    OutlinedInput,
     Chip,
     Stack,
     Dialog,
@@ -54,6 +49,7 @@ import {
     useSortable
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { CharacterSettingsDialog } from '../components/Simulation/CharacterSettingsDialog';
 
 interface TurnSimulationPageProps {
     characters: ParsedCharacterData[];
@@ -88,13 +84,10 @@ interface SortableItemProps {
     maxRounds: number;
     party: PartyMember[];
     onRemove: (id: string) => void;
-    onDeathChange: (id: string, value: string) => void;
-    onSupportTargetsChange: (id: string, targets: string[]) => void;
-    onExRoundsChange: (id: string, value: string) => void;
-    onSkillLevelChange: (id: string, level: string) => void;
+    onEdit: (id: string) => void;
 }
 
-const SortableItem: React.FC<SortableItemProps> = ({ member, index, maxRounds, party, onRemove, onDeathChange, onSupportTargetsChange, onExRoundsChange, onSkillLevelChange }) => {
+const SortableItem: React.FC<SortableItemProps> = ({ member, index, party, onRemove, onEdit }) => {
     const {
         attributes,
         listeners,
@@ -115,12 +108,26 @@ const SortableItem: React.FC<SortableItemProps> = ({ member, index, maxRounds, p
     return (
         <Grid size={{ xs: 12 }} ref={setNodeRef} style={style} {...attributes}>
             <Card variant="outlined" sx={{ position: 'relative' }}>
-                <CardContent sx={{ p: '8px 12px !important', pr: '50px !important' }}>
+                <CardContent
+                    sx={{
+                        p: '8px 12px !important',
+                        pr: '50px !important',
+                        cursor: 'pointer',
+                        '&:hover': { bgcolor: 'action.hover' }
+                    }}
+                    onClick={() => onEdit(member.id)}
+                >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                         {/* Drag Handle */}
                         <IconButton
                             size="small"
                             sx={{ cursor: 'grab', p: 0.5 }}
+                            onPointerDown={() => {
+                                // e.stopPropagation(); // Standard sortable needs propagation for drag, but we don't want click.
+                                // listeners handle drag. We just need to ensure card click doesn't fire when dragging.
+                                // Actually listeners are attached to this button only defined below.
+                            }}
+                            onClick={(e) => e.stopPropagation()} // Prevent card click
                             {...listeners}
                         >
                             <DragIndicatorIcon fontSize="small" color="action" />
@@ -152,100 +159,70 @@ const SortableItem: React.FC<SortableItemProps> = ({ member, index, maxRounds, p
                                 <Typography variant="caption" color="text.secondary">
                                     {member.role === 'Supporter' ? '支援型' : 'その他'}
                                 </Typography>
-
-                                {/* Skill Level Selector (Common for all skills) */}
-                                {/* Skill Level Selector (Common for all skills) */}
-                                <FormControl size="small" variant="standard" sx={{ mt: 1, minWidth: 100 }}>
-                                    <InputLabel sx={{ fontSize: '0.75rem' }}>スキルレベル</InputLabel>
-                                    <Select
-                                        value={member.activeSkillLevel || '10'}
-                                        label="スキルレベル"
-                                        onChange={(e) => onSkillLevelChange(member.id, e.target.value)}
-                                        sx={{ fontSize: '0.8rem' }}
-                                    >
-                                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((level) => (
-                                            <MenuItem key={level} value={String(level)} sx={{ fontSize: '0.8rem' }}>
-                                                Lv.{level}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
                             </Box>
 
-                            {/* Support Target Selector */}
-                            {isSupporter && (
-                                <FormControl size="small" sx={{ width: 200 }}>
-                                    <InputLabel>支援対象</InputLabel>
-                                    <Select
-                                        multiple
-                                        value={member.supportTargets || []}
-                                        onChange={(e) => {
-                                            const value = typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value;
-                                            onSupportTargetsChange(member.id, value as string[]);
-                                        }}
-                                        input={<OutlinedInput label="支援対象" />}
-                                        renderValue={(selected) => (
-                                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                                {selected.map((value) => {
-                                                    const target = party.find(p => p.id === value);
-                                                    return (
-                                                        <Chip
-                                                            key={value}
-                                                            label={target ? target.name : 'Unknown'}
-                                                            size="small"
-                                                            sx={{ height: 20, fontSize: '0.7rem' }}
-                                                        />
-                                                    );
-                                                })}
-                                            </Box>
-                                        )}
-                                        onPointerDown={(e) => e.stopPropagation()} // Prevent drag start
-                                        onKeyDown={(e) => e.stopPropagation()}
-                                    >
-                                        {party
-                                            .filter(p => p.id !== member.id) // Exclude self
-                                            .map((p, idx) => (
-                                                <MenuItem key={p.id} value={p.id}>
-                                                    {`${idx + 1}. ${p.name}`}
-                                                </MenuItem>
-                                            ))
-                                        }
-                                    </Select>
-                                </FormControl>
-                            )}
+                            {/* Settings Summary */}
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
+                                {/* Active Level */}
+                                <Chip
+                                    label={`Lv.${member.activeSkillLevel || '10'}`}
+                                    size="small"
+                                    variant="outlined"
+                                    sx={{ height: 20, fontSize: '0.7rem' }}
+                                />
 
-                            <TextField
-                                label="死亡(R)"
-                                type="number"
-                                size="small"
-                                variant="standard"
-                                placeholder="-"
-                                value={member.deathRound || ''}
-                                onChange={(e) => onDeathChange(member.id, e.target.value)}
-                                sx={{ width: 60, ml: 'auto' }}
-                                slotProps={{ htmlInput: { min: 1, max: maxRounds } }}
-                                onPointerDown={(e) => e.stopPropagation()}
-                                onKeyDown={(e) => e.stopPropagation()}
-                            />
+                                {/* Death Round */}
+                                {member.deathRound && (
+                                    <Chip
+                                        label={`💀 ${member.deathRound}R`}
+                                        size="small"
+                                        color="error"
+                                        variant="outlined"
+                                        sx={{ height: 20, fontSize: '0.7rem' }}
+                                    />
+                                )}
 
-                            <TextField
-                                label="Ex(R)"
-                                size="small"
-                                variant="standard"
-                                placeholder="1,3"
-                                value={member.exSkillRounds || ''}
-                                onChange={(e) => onExRoundsChange(member.id, e.target.value)}
-                                sx={{ width: 60, ml: 1 }}
-                                slotProps={{ htmlInput: { style: { fontSize: '0.8rem' } } }}
-                                onPointerDown={(e) => e.stopPropagation()}
-                                onKeyDown={(e) => e.stopPropagation()}
-                            />
+                                {/* Ex Rounds */}
+                                {member.exSkillRounds && (
+                                    <Chip
+                                        label={`Ex: ${member.exSkillRounds}`}
+                                        size="small"
+                                        color="primary"
+                                        variant="outlined"
+                                        sx={{ height: 20, fontSize: '0.7rem' }}
+                                    />
+                                )}
+
+                                {/* Support Targets */}
+                                {isSupporter && (
+                                    <Chip
+                                        label={(() => {
+                                            if (!member.supportTargets || member.supportTargets.length === 0) {
+                                                return 'Target: 未設定';
+                                            }
+                                            // Map IDs to Names
+                                            const names = member.supportTargets.map(id => {
+                                                const target = party.find(p => p.id === id);
+                                                return target ? target.name : 'Unknown';
+                                            });
+                                            return `Target: ${names.join(', ')}`;
+                                        })()}
+                                        size="small"
+                                        color={(!member.supportTargets || member.supportTargets.length === 0) ? 'default' : 'success'}
+                                        variant="outlined"
+                                        sx={{ height: 20, fontSize: '0.7rem', maxWidth: 200 }}
+                                    />
+                                )}
+                            </Box>
                         </Box>
                     </Box>
                 </CardContent>
                 <IconButton
                     size="small"
-                    onClick={() => onRemove(member.id)}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onRemove(member.id);
+                    }}
                     sx={{ position: 'absolute', right: 4, top: '50%', transform: 'translateY(-50%)' }}
                 >
                     <DeleteIcon fontSize="small" />
@@ -262,6 +239,10 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
     const [simulationResults, setSimulationResults] = useState<Action[] | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
+
+    // Config Dialog State
+    const [configMemberId, setConfigMemberId] = useState<string | null>(null);
+    const configMember = party.find(p => p.id === configMemberId) || null;
 
     // Popup state
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -300,23 +281,8 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
         setError(null);
     };
 
-    const handleDeathRoundChange = (id: string, value: string) => {
-        setParty(prevParty => prevParty.map(p => p.id === id ? { ...p, deathRound: value } : p));
-    };
-
-    const handleExRoundsChange = (id: string, value: string) => {
-        setParty(prevParty => prevParty.map(p => p.id === id ? { ...p, exSkillRounds: value } : p));
-    };
-
-    const handleSupportTargetsChange = (id: string, targets: string[]) => {
-        setParty(prevParty => prevParty.map(p => p.id === id ? { ...p, supportTargets: targets } : p));
-    };
-
-    const handleSkillLevelChange = (id: string, level: string) => {
-        setParty(prevParty => prevParty.map(p => {
-            if (p.id !== id) return p;
-            return { ...p, activeSkillLevel: level };
-        }));
+    const handleUpdateMember = (id: string, updates: Partial<PartyMember>) => {
+        setParty(prevParty => prevParty.map(p => p.id === id ? { ...p, ...updates } : p));
     };
 
     const handleDragEnd = (event: DragEndEvent) => {
@@ -466,10 +432,7 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                                 maxRounds={maxRounds}
                                                 party={party}
                                                 onRemove={handleRemoveCharacter}
-                                                onDeathChange={handleDeathRoundChange}
-                                                onSupportTargetsChange={handleSupportTargetsChange}
-                                                onExRoundsChange={handleExRoundsChange}
-                                                onSkillLevelChange={handleSkillLevelChange}
+                                                onEdit={setConfigMemberId}
                                             />
                                         ))}
                                     </Grid>
@@ -748,6 +711,16 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                     </List>
                 </DialogContent>
             </Dialog>
+            {/* Character Config Dialog */}
+            <CharacterSettingsDialog
+                open={!!configMemberId}
+                onClose={() => setConfigMemberId(null)}
+                member={configMember}
+                party={party}
+                maxRounds={maxRounds}
+                onUpdate={handleUpdateMember}
+            />
+
         </Box>
     );
 };
