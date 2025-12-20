@@ -341,6 +341,27 @@ export const simulateTurns = (
                     const supportPower = calculateCurrentSupportPower();
                     currentSupportPower = supportPower;
                     value = supportPower * (value / 100);
+                } else if (effect.calculationType === 'SilentScaling') {
+                    // Count 'Silent' buffs on self (caster)
+                    let silentCount = 0;
+                    accumulatedSkills[index].forEach(receivedSkill => {
+                        const elapsed = globalTurn - receivedSkill.startGlobalTurn;
+                        receivedSkill.effects.forEach(eff => {
+                            let isActive = true;
+                            if (eff.duration !== undefined) {
+                                if (eff.duration === -1) {
+                                    isActive = true;
+                                } else if (elapsed >= eff.duration) {
+                                    isActive = false;
+                                }
+                            }
+                            // Assuming 'Silent' is an attribute name.
+                            if (isActive && eff.attribute === 'Silent' && eff.type === 'Buff') {
+                                silentCount += eff.value;
+                            }
+                        });
+                    });
+                    value = silentCount * value;
                 }
 
                 let targetsCaster = false;

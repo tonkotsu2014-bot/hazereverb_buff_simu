@@ -45,13 +45,15 @@ const attributeLabels: Record<string, string> = {
     Armor: '装甲',
     CritRate: 'クリ率',
     CritDamage: 'クリダメ',
+    HyperCritDamage: 'ハイパークリティカルダメージ',
     Mobility: '機動力',
     Support: '支援力',
     Shield: 'シールド',
     Hp: '最大HP',
     DamageReduction: 'ダメ軽減',
     DamageBoost: 'ダメ増加',
-    Evasion: '回避'
+    Evasion: '回避',
+    Silent: '静寂'
 };
 
 const targetLabels: Record<string, string> = {
@@ -63,7 +65,8 @@ const targetLabels: Record<string, string> = {
 const calculationTypeLabels: Record<string, string> = {
     Fixed: '固定値',
     Scaling: '係数',
-    SupportScaling: '支援力'
+    SupportScaling: '支援力',
+    SilentScaling: '静寂数'
 };
 
 export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) => {
@@ -483,10 +486,12 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                                     <MenuItem value="Armor">装甲</MenuItem>
                                                                     <MenuItem value="CritRate">クリ率</MenuItem>
                                                                     <MenuItem value="CritDamage">クリダメ</MenuItem>
+                                                                    <MenuItem value="HyperCritDamage">ハイパークリティカルダメージ</MenuItem>
                                                                     <MenuItem value="Mobility">機動力</MenuItem>
                                                                     <MenuItem value="Support">支援力</MenuItem>
                                                                     <MenuItem value="Shield">シールド</MenuItem>
                                                                     <MenuItem value="Hp">最大HP</MenuItem>
+                                                                    <MenuItem value="Silent">静寂</MenuItem>
                                                                 </Select>
                                                             </FormControl>
                                                         </Grid>
@@ -503,6 +508,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                                     <MenuItem value="Fixed">固定値</MenuItem>
                                                                     <MenuItem value="Scaling">係数</MenuItem>
                                                                     <MenuItem value="SupportScaling">支援力</MenuItem>
+                                                                    <MenuItem value="SilentScaling">静寂数</MenuItem>
                                                                 </Select>
                                                             </FormControl>
                                                         </Grid>

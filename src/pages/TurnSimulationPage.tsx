@@ -77,7 +77,8 @@ const ATTRIBUTE_TRANSLATION: Record<string, string> = {
     'DamageReduction': 'ダメージ軽減',
     'Evasion': 'ダメージ回避',
     'HyperCritDamage': 'ハイパークリティカルダメージ',
-    'Mobility': '機動力'
+    'Mobility': '機動力',
+    'Silent': '静寂 (サイレント)'
 };
 
 // Sortable Item Component
@@ -661,7 +662,8 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                                                                 const displayValue = Math.round(value * 100) / 100;
                                                                                 const signStr = displayValue > 0 ? '+' : '';
                                                                                 const translatedAttr = ATTRIBUTE_TRANSLATION[attr] || attr;
-                                                                                const text = `${translatedAttr} ${signStr}${displayValue}%`;
+                                                                                const unit = attr === 'Silent' ? '' : '%';
+                                                                                const text = `${translatedAttr} ${signStr}${displayValue}${unit}`;
 
                                                                                 return (
                                                                                     <Chip
@@ -748,10 +750,11 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                             const displayValue = Math.round(e.value * 100) / 100;
                                             const supportInfo = e.actuatorSupportPower ? ` (支援力: ${e.actuatorSupportPower})` : '';
                                             const durationInfo = e.remainingTurn !== undefined ? (e.remainingTurn === -1 ? ' (永続)' : ` (残: ${e.remainingTurn})`) : '';
+                                            const unit = e.attribute === 'Silent' ? '' : '%';
                                             return (
                                                 <Chip
                                                     key={eIdx}
-                                                    label={`${translatedAttr} ${sign}${displayValue}%${supportInfo}${durationInfo}`}
+                                                    label={`${translatedAttr} ${sign}${displayValue}${unit}${supportInfo}${durationInfo}`}
                                                     size="small"
                                                     variant="outlined"
                                                     sx={{ height: 20, fontSize: '0.65rem' }}
