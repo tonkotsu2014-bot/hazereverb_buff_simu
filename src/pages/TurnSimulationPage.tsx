@@ -458,7 +458,7 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                         )}
 
                         {simulationResults ? (
-                            <TableContainer component={Paper} sx={{ flex: 1, overflow: 'auto' }}>
+                            <TableContainer component={Paper} sx={{ flex: 1, overflow: 'auto', maxHeight: '400px' }}>
                                 <Table stickyHeader size="small">
                                     <TableHead>
                                         <TableRow>
@@ -468,77 +468,103 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {simulationResults.map((action, idx) => (
-                                            <TableRow key={idx} hover sx={{ bgcolor: action.actorName === 'Boss' ? '#fff3e0' : 'inherit' }}>
-                                                <TableCell>{action.round}</TableCell>
-                                                <TableCell>{action.globalTurn}</TableCell>
-                                                <TableCell>
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                        {action.actorType && (
-                                                            <Box
-                                                                component="span"
-                                                                sx={{
-                                                                    fontSize: '0.7rem',
-                                                                    px: 0.8,
-                                                                    py: 0.2,
-                                                                    borderRadius: '4px',
-                                                                    bgcolor: '#fff',
-                                                                    border: '1px solid',
-                                                                    borderColor: (() => {
-                                                                        switch (action.actorRole) {
-                                                                            case 'Supporter': return '#2e7d32';
-                                                                            case 'Attacker': return '#d32f2f';
-                                                                            case 'Defender': return '#1565c0';
-                                                                            case 'Transcendence': return '#424242';
-                                                                            case 'Boss': return '#e65100';
-                                                                            default: return '#757575';
-                                                                        }
-                                                                    })(),
-                                                                    color: (() => {
-                                                                        switch (action.actorRole) {
-                                                                            case 'Supporter': return '#2e7d32';
-                                                                            case 'Attacker': return '#d32f2f';
-                                                                            case 'Defender': return '#1565c0';
-                                                                            case 'Transcendence': return '#424242';
-                                                                            case 'Boss': return '#e65100';
-                                                                            default: return '#757575';
-                                                                        }
-                                                                    })(),
-                                                                    whiteSpace: 'nowrap',
-                                                                    fontWeight: 'bold'
-                                                                }}
-                                                            >
-                                                                {action.actorType}
-                                                            </Box>
-                                                        )}
-                                                        <Box>
-                                                            <Typography
-                                                                sx={{
-                                                                    fontWeight: action.actorName === 'Boss' ? 'bold' : 'normal',
-                                                                    color: (() => {
-                                                                        switch (action.actorRole) {
-                                                                            case 'Supporter': return '#2e7d32';
-                                                                            case 'Attacker': return '#d32f2f';
-                                                                            case 'Defender': return '#1565c0';
-                                                                            case 'Transcendence': return '#000000';
-                                                                            case 'Boss': return '#e65100';
-                                                                            default: return 'text.primary';
-                                                                        }
-                                                                    })()
-                                                                }}
-                                                            >
-                                                                {action.actorName}
-                                                            </Typography>
-                                                            {action.supportTargetNames && action.supportTargetNames.length > 0 && (
-                                                                <Typography variant="caption" color="text.secondary">
-                                                                    {`-> ${action.supportTargetNames.join(', ')}`}
-                                                                </Typography>
+                                        {simulationResults.map((action, idx) => {
+                                            const isRoundStart = idx === 0 || action.round !== simulationResults[idx - 1].round;
+                                            let rowSpan = 0;
+                                            if (isRoundStart) {
+                                                rowSpan = 1;
+                                                for (let i = idx + 1; i < simulationResults.length; i++) {
+                                                    if (simulationResults[i].round === action.round) {
+                                                        rowSpan++;
+                                                    } else {
+                                                        break;
+                                                    }
+                                                }
+                                            }
+
+                                            return (
+                                                <TableRow key={idx} hover sx={{ bgcolor: action.actorName === 'Boss' ? '#fff3e0' : 'inherit' }}>
+                                                    {isRoundStart && (
+                                                        <TableCell
+                                                            rowSpan={rowSpan}
+                                                            sx={{
+                                                                verticalAlign: 'top',
+                                                                bgcolor: '#fafafa',
+                                                                borderRight: '1px solid #e0e0e0'
+                                                            }}
+                                                        >
+                                                            {action.round}
+                                                        </TableCell>
+                                                    )}
+                                                    <TableCell>{action.globalTurn}</TableCell>
+                                                    <TableCell>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                            {action.actorType && (
+                                                                <Box
+                                                                    component="span"
+                                                                    sx={{
+                                                                        fontSize: '0.7rem',
+                                                                        px: 0.8,
+                                                                        py: 0.2,
+                                                                        borderRadius: '4px',
+                                                                        bgcolor: '#fff',
+                                                                        border: '1px solid',
+                                                                        borderColor: (() => {
+                                                                            switch (action.actorRole) {
+                                                                                case 'Supporter': return '#2e7d32';
+                                                                                case 'Attacker': return '#d32f2f';
+                                                                                case 'Defender': return '#1565c0';
+                                                                                case 'Transcendence': return '#424242';
+                                                                                case 'Boss': return '#e65100';
+                                                                                default: return '#757575';
+                                                                            }
+                                                                        })(),
+                                                                        color: (() => {
+                                                                            switch (action.actorRole) {
+                                                                                case 'Supporter': return '#2e7d32';
+                                                                                case 'Attacker': return '#d32f2f';
+                                                                                case 'Defender': return '#1565c0';
+                                                                                case 'Transcendence': return '#424242';
+                                                                                case 'Boss': return '#e65100';
+                                                                                default: return '#757575';
+                                                                            }
+                                                                        })(),
+                                                                        whiteSpace: 'nowrap',
+                                                                        fontWeight: 'bold'
+                                                                    }}
+                                                                >
+                                                                    {action.actorType}
+                                                                </Box>
                                                             )}
+                                                            <Box>
+                                                                <Typography
+                                                                    sx={{
+                                                                        fontWeight: action.actorName === 'Boss' ? 'bold' : 'normal',
+                                                                        color: (() => {
+                                                                            switch (action.actorRole) {
+                                                                                case 'Supporter': return '#2e7d32';
+                                                                                case 'Attacker': return '#d32f2f';
+                                                                                case 'Defender': return '#1565c0';
+                                                                                case 'Transcendence': return '#000000';
+                                                                                case 'Boss': return '#e65100';
+                                                                                default: return 'text.primary';
+                                                                            }
+                                                                        })()
+                                                                    }}
+                                                                >
+                                                                    {action.actorName}
+                                                                </Typography>
+                                                                {action.supportTargetNames && action.supportTargetNames.length > 0 && (
+                                                                    <Typography variant="caption" color="text.secondary">
+                                                                        {`-> ${action.supportTargetNames.join(', ')}`}
+                                                                    </Typography>
+                                                                )}
+                                                            </Box>
                                                         </Box>
-                                                    </Box>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
+                                                    </TableCell>
+                                                </TableRow>
+                                            );
+                                        })}
                                     </TableBody>
                                 </Table>
                             </TableContainer>

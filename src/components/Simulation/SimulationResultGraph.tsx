@@ -101,7 +101,7 @@ export const SimulationResultGraph: React.FC<SimulationResultGraphProps> = ({
             // Or just predefined common ones.
 
             chartData.push({
-                name: `R${action.round}-T${action.globalTurn}`,
+                name: action.globalTurn.toString(),
                 globalTurn: action.globalTurn,
                 round: action.round,
                 actor: action.actorName,
@@ -145,8 +145,8 @@ export const SimulationResultGraph: React.FC<SimulationResultGraphProps> = ({
     }
 
     return (
-        <Box sx={{ width: '100%', height: '100%', minHeight: 400, p: 1 }}>
-            <ResponsiveContainer width="100%" height="100%">
+        <Box sx={{ width: '100%', height: 'auto', p: 1, display: 'flex', justifyContent: 'center' }}>
+            <ResponsiveContainer width="100%" aspect={4 / 3}>
                 <LineChart
                     data={data}
                     margin={{
@@ -161,8 +161,8 @@ export const SimulationResultGraph: React.FC<SimulationResultGraphProps> = ({
                         dataKey="name"
                         tick={{ fontSize: 9 }} // Smaller font
                         interval={0} // Show all ticks
-                        angle={-45}
-                        textAnchor="end"
+                        angle={0}
+                        textAnchor="middle"
                         height={60}
                     />
                     <YAxis
