@@ -450,7 +450,7 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                     </Paper>
 
                     {/* Results */}
-                    <Box sx={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                    <Box sx={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                         {error && (
                             <Paper sx={{ p: 2, bgcolor: '#ffebee', color: '#c62828', mb: 2 }}>
                                 <Typography variant="body2">{error}</Typography>
