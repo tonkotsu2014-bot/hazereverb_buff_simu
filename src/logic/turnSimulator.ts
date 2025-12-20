@@ -461,28 +461,8 @@ export const simulateTurns = (
 
     for (let round = 1; round <= maxRounds; round++) {
         let bossActed = false;
-        const actedIndices = new Set<number>();
 
-        // Phase 1: EX Skills
-        party.forEach((character, index) => {
-            if (!character) return;
-            const exRounds = character.exSkillRounds || [];
-            if (exRounds.includes(round)) {
-                const { acted, role } = executeTurn(index, round);
-                actedIndices.add(index);
-                if (acted) {
-                    const allowsContinuous = role === 'Supporter';
-                    if (!allowsContinuous && !bossActed) {
-                        bossActed = true;
-                        pushBossAction(round);
-                    }
-                }
-            }
-        });
-
-        // Phase 2: Normal
         party.forEach((_, index) => {
-            if (actedIndices.has(index)) return;
             const { acted, role } = executeTurn(index, round);
             if (acted) {
                 const allowsContinuous = role === 'Supporter';

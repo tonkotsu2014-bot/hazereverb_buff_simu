@@ -33,7 +33,7 @@ describe('Turn Simulator - EX Skill Timing', () => {
         }]
     });
 
-    test('EX skills should activate before any normal turns in the round', () => {
+    test('EX skills should activate in index order relative to normal turns', () => {
         // Character A: Fast, Normal Skill
         const charA = createCharacter('CharA', 200);
         charA.skills = [createNormalSkill('Normal A')];
@@ -45,10 +45,10 @@ describe('Turn Simulator - EX Skill Timing', () => {
         const party = [charA, charB];
         const result = simulateTurns(party, 1);
 
-        // Expected Order:
-        // 1. CharB (Priority: EX + Normal merged)
-        // 2. Boss (Interrupt because Attacker acted)
-        // 3. CharA (Normal)
+        // Expected Order (New Logic):
+        // 1. CharA (Index 0)
+        // 2. Boss (Interrupt because Attacker acts)
+        // 3. CharB (Index 1)
 
         expect(result.length).toBeGreaterThanOrEqual(3);
 
@@ -56,20 +56,20 @@ describe('Turn Simulator - EX Skill Timing', () => {
         const action2 = result[1];
         const action3 = result[2];
 
-        // 1. CharB acts (EX + Normal Merged)
-        expect(action1.actorName).toBe('CharB');
-        const charBState1 = action1.characterStates.find(c => c.name === 'CharB');
+        // 1. CharA acts (Normal A)
+        expect(action1.actorName).toBe('CharA');
 
-        const hasExB = charBState1?.receivedSkills.some(s => s.name === 'Ex B');
-        const hasNormalB = charBState1?.receivedSkills.some(s => s.name === 'Normal B');
-        expect(hasExB).toBe(true);
-        expect(hasNormalB).toBe(true);
-
-        // 2. Boss Acts (triggered by CharB's action)
+        // 2. Boss Acts (triggered by CharA's action)
         expect(action2.actorName).toBe('Boss');
 
-        // 3. CharA acts (Normal A)
-        expect(action3.actorName).toBe('CharA');
+        // 3. CharB acts (EX + Normal Merged)
+        expect(action3.actorName).toBe('CharB');
+        const charBState = action3.characterStates.find(c => c.name === 'CharB');
+
+        const hasExB = charBState?.receivedSkills.some(s => s.name === 'Ex B');
+        const hasNormalB = charBState?.receivedSkills.some(s => s.name === 'Normal B');
+        expect(hasExB).toBe(true);
+        expect(hasNormalB).toBe(true);
     });
 
     test('EX Support Buff should be active for subsequent SupportScaling calculations in Round 2 and persist to Round 3', () => {
