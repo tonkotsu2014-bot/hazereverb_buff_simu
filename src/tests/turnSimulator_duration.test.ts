@@ -64,11 +64,10 @@ describe('Turn Simulator - Skill Duration & Remaining Turns', () => {
         // T3 acted (Start) -> T3 Rem 2.
         // T4 Boss acted -> T4 Rem 1.
         // T5 CharB acts -> T5 Rem 0.
-        expect(exSkillR3).toBeDefined();
         // Since it expires at the START of the turn (conceptually) or during action?
         // User rule: "Turn 2 Rem 8 -> Turn 3 Rem 7".
         // Here: T3 (Dur 2) -> T4 (Rem 1) -> T5 (Rem 0).
-        expect(exSkillR3?.effects[0].remainingTurn).toBe(0);
+        expect(exSkillR3).toBeUndefined();
 
         // R4 (Index 6)
         const r4Action = result[6]; // CharB action in R4
@@ -76,8 +75,7 @@ describe('Turn Simulator - Skill Duration & Remaining Turns', () => {
         const r4State = r4Action.characterStates.find(c => c.name === 'CharB');
         // Start R2. Current R4. Rem = 2 - (4-2) = 0.
         const exSkillR4 = r4State?.receivedSkills.find(s => s.name === 'Ex B');
-        expect(exSkillR4).toBeDefined();
-        expect(exSkillR4?.effects[0].remainingTurn).toBe(0);
+        expect(exSkillR4).toBeUndefined();
 
         // Check Normal Skill Reset
         // R1: Cast (Start 1). Rem 3.
@@ -136,16 +134,25 @@ describe('Turn Simulator - Skill Duration & Remaining Turns', () => {
         // Round 2 (Index 2 -> R1(0,1), R2(2,3))
         const r2Action = result[2];
         const r2State = r2Action.characterStates[0].receivedSkills.find(s => s.name === 'Mixed Duration Buff');
-        expect(r2State?.effects[0].remainingTurn).toBe(0); // 2 - 2 = 0 (Expired)
-        expect(r2State?.effects[1].remainingTurn).toBe(3); // 5 - 2 = 3
+        // Effect 0 (Attack) passed its duration (2 turns), so it should be removed.
+        // Effect 1 (Defense) has duration 5, remaining 3.
+        // Since one effect remains, the skill should still exist, but the expired effect should be gone.
+        // Note: The array of effects is re-mapped. If we rely on index, we must be careful.
+        // But normally `receivedSkills` effects order matches unless filtered.
+        // If filtered, length changes.
+        expect(r2State?.effects.length).toBe(1);
+        expect(r2State?.effects[0].attribute).toBe('Defense'); // Only defense remains
+        expect(r2State?.effects[0].remainingTurn).toBe(3);
 
         // Round 3 (Index 4)
         const r3Action = result[4];
         const r3State = r3Action.characterStates[0].receivedSkills.find(s => s.name === 'Mixed Duration Buff');
         // Effect 1 should be 0 (expired)
-        expect(r3State?.effects[0].remainingTurn).toBe(0);
-        // Effect 2 should be 3
-        expect(r3State?.effects[1].remainingTurn).toBe(1); // 5 - 4 = 1
+        // Effect 1 should be gone (expired previously)
+        // Effect 2 should be 1
+        expect(r3State?.effects.length).toBe(1);
+        expect(r3State?.effects[0].attribute).toBe('Defense');
+        expect(r3State?.effects[0].remainingTurn).toBe(1);
     });
 
     test('Supporter skills with different durations (18T and 3T) should be tracked correctly', () => {
@@ -213,8 +220,8 @@ describe('Turn Simulator - Skill Duration & Remaining Turns', () => {
         expect(longBuffR4?.effects[0].remainingTurn).toBe(11); // 18 - 7 (7 Actions since T1)
 
         // Short Buff: 3 - 3 = 0.
+        // Short Buff: 3 - 3 = 0. Should be removed.
         const shortBuffR4 = r4State.receivedSkills.find(s => s.name === 'Skill 2 (Short)');
-        expect(shortBuffR4?.effects[0].remainingTurn).toBe(0);
-        expect(shortBuffR4?.effects[1].remainingTurn).toBe(0);
+        expect(shortBuffR4).toBeUndefined();
     });
 });

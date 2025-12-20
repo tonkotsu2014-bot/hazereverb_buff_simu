@@ -84,12 +84,8 @@ export const simulateTurns = (
                 // Calculation: Rem = Duration - (CurrentGlobalTurn - StartGlobalTurn)
                 const elapsed = currentGlobalTurn - s.startGlobalTurn;
 
-                return {
-                    name: s.name,
-                    source: s.source,
-                    startRound: s.startRound,
-                    startGlobalTurn: s.startGlobalTurn,
-                    effects: s.effects.map(e => {
+                const activeEffects = s.effects
+                    .map(e => {
                         let rem: number | undefined;
                         if (e.duration !== undefined) {
                             rem = Math.max(0, e.duration - elapsed);
@@ -99,8 +95,16 @@ export const simulateTurns = (
                             remainingTurn: rem
                         };
                     })
+                    .filter(e => e.remainingTurn === undefined || e.remainingTurn > 0);
+
+                return {
+                    name: s.name,
+                    source: s.source,
+                    startRound: s.startRound,
+                    startGlobalTurn: s.startGlobalTurn,
+                    effects: activeEffects
                 };
-            })
+            }).filter(s => s.effects.length > 0)
         }));
     };
 
