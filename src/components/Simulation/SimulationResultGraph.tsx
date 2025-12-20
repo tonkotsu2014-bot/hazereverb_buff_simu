@@ -48,6 +48,21 @@ export const SimulationResultGraph: React.FC<SimulationResultGraphProps> = ({
     selectedCharacterId,
     party
 }) => {
+    const [hiddenAttributes, setHiddenAttributes] = React.useState<Set<string>>(new Set());
+
+    const handleLegendClick = (e: any) => {
+        const { dataKey } = e;
+        setHiddenAttributes(prev => {
+            const next = new Set(prev);
+            if (next.has(dataKey)) {
+                next.delete(dataKey);
+            } else {
+                next.add(dataKey);
+            }
+            return next;
+        });
+    };
+
     const data = useMemo(() => {
         if (!selectedCharacterId || !simulationResults) return [];
 
@@ -135,17 +150,27 @@ export const SimulationResultGraph: React.FC<SimulationResultGraphProps> = ({
                 <LineChart
                     data={data}
                     margin={{
-                        top: 5,
-                        right: 30,
-                        left: 20,
-                        bottom: 5,
+                        top: 20, // Increase top margin for Legend
+                        right: 10,
+                        left: 0,
+                        bottom: 60, // Increase bottom margin for rotated labels
                     }}
                 >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={60} />
-                    <YAxis label={{ value: '効果量 (%)', angle: -90, position: 'insideLeft' }} />
+                    <XAxis
+                        dataKey="name"
+                        tick={{ fontSize: 9 }} // Smaller font
+                        interval={0} // Show all ticks
+                        angle={-45}
+                        textAnchor="end"
+                        height={60}
+                    />
+                    <YAxis
+                        label={{ value: '効果量 (%)', angle: -90, position: 'insideLeft', style: { fontSize: '0.8rem' } }}
+                        tick={{ fontSize: 10 }}
+                    />
                     <Tooltip
-                        contentStyle={{ fontSize: '0.8rem', backgroundColor: 'rgba(255, 255, 255, 0.95)' }}
+                        contentStyle={{ fontSize: '0.75rem', backgroundColor: 'rgba(255, 255, 255, 0.95)', padding: '5px' }}
                         formatter={(value: number | undefined, name: string | number | undefined) => {
                             const nameStr = String(name || '');
                             return [
@@ -156,12 +181,17 @@ export const SimulationResultGraph: React.FC<SimulationResultGraphProps> = ({
                         labelFormatter={(label, payload) => {
                             if (payload && payload.length > 0) {
                                 const dataPoint = payload[0].payload;
-                                return `${label} (${dataPoint.actor}の行動)`;
+                                return `${label} (${dataPoint.actor})`;
                             }
                             return label;
                         }}
                     />
-                    <Legend wrapperStyle={{ fontSize: '0.8rem' }} />
+                    <Legend
+                        wrapperStyle={{ fontSize: '0.75rem', cursor: 'pointer', userSelect: 'none' }}
+                        onClick={handleLegendClick}
+                        verticalAlign="top"
+                        height={36}
+                    />
 
                     <ReferenceLine y={0} stroke="#666" />
 
@@ -176,6 +206,7 @@ export const SimulationResultGraph: React.FC<SimulationResultGraphProps> = ({
                             dot={{ r: 3 }}
                             activeDot={{ r: 5 }}
                             connectNulls
+                            hide={hiddenAttributes.has(attr)}
                         />
                     ))}
                 </LineChart>

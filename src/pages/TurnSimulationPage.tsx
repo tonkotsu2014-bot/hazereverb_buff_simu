@@ -588,9 +588,16 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                         )}
                     </Box>
 
-                    {/* Skill Detail View - Content First, Tabs Bottom */}
+                    {/* Skill Detail View - Tabs Top, Content Bottom */}
                     {simulationResults && (
                         <Paper sx={{ height: '900px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                            <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: '#f5f5f5' }}>
+                                <Tabs value={tabValue} onChange={handleTabChange} aria-label="simulation result tabs" centered>
+                                    <Tab label="詳細 (表)" />
+                                    <Tab label="推移 (グラフ)" />
+                                </Tabs>
+                            </Box>
+
                             <Box sx={{ p: 2, pb: 1 }}>
                                 <Typography variant="subtitle2" gutterBottom fontWeight={600} color="text.secondary">
                                     表示するキャラクターを選択:
@@ -707,13 +714,6 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                         party={party.map(p => ({ ...p, name: p.name || 'Unknown' }))}
                                     />
                                 )}
-                            </Box>
-
-                            <Box sx={{ borderTop: 1, borderColor: 'divider', bgcolor: '#f5f5f5' }}>
-                                <Tabs value={tabValue} onChange={handleTabChange} aria-label="simulation result tabs" centered>
-                                    <Tab label="詳細 (表)" />
-                                    <Tab label="推移 (グラフ)" />
-                                </Tabs>
                             </Box>
                         </Paper>
                     )}
