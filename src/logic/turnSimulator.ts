@@ -32,6 +32,7 @@ export interface Action {
     actorName: string;
     actorRole: string; // 'Attacker', 'Supporter', 'Defender', 'Boss', etc.
     actorType: string; // '攻撃型', '支援型', etc.
+    actorId?: string; // Unique ID to identify the character
     supportTargetNames?: string[];
     characterStates: CharacterState[];
 }
@@ -485,10 +486,12 @@ export const simulateTurns = (
         processEffects(index, round, skills, (timing) => timing === 'Action' || timing === undefined);
 
         const currentGlobalTurn = globalTurn++;
+
         actions.push({
             round,
             globalTurn: currentGlobalTurn,
             actorIndex: index,
+            actorId: character.id,
             actorName: character.name || 'Unknown',
             actorRole: character.role || 'Unknown',
             actorType: getTypeName(character.role || ''),

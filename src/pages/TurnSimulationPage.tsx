@@ -484,7 +484,20 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                             }
 
                                             return (
-                                                <TableRow key={idx} hover sx={{ bgcolor: action.actorName === 'Boss' ? '#fff3e0' : 'inherit' }}>
+                                                <TableRow
+                                                    key={idx}
+                                                    hover
+                                                    sx={{
+                                                        bgcolor: action.actorName === 'Boss' ? '#fff3e0' : 'inherit',
+                                                        cursor: action.actorId ? 'pointer' : 'default',
+                                                        '&:hover': action.actorId ? { bgcolor: 'action.hover' } : {}
+                                                    }}
+                                                    onClick={() => {
+                                                        if (action.actorId) {
+                                                            setSelectedCharacterId(action.actorId);
+                                                        }
+                                                    }}
+                                                >
                                                     {isRoundStart && (
                                                         <TableCell
                                                             rowSpan={rowSpan}
@@ -586,8 +599,8 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                         <Paper sx={{ height: '900px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                             <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: '#f5f5f5' }}>
                                 <Tabs value={tabValue} onChange={handleTabChange} aria-label="simulation result tabs" centered>
-                                    <Tab label="詳細 (表)" />
                                     <Tab label="推移 (グラフ)" />
+                                    <Tab label="詳細 (表)" />
                                 </Tabs>
                             </Box>
 
@@ -609,9 +622,9 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                 </Box>
                             </Box>
 
-                            {/* TAB 0: DETAILED TABLE */}
-                            <Box role="tabpanel" hidden={tabValue !== 0} sx={{ flex: 1, overflow: 'hidden', display: tabValue === 0 ? 'flex' : 'none', flexDirection: 'column', height: '100%' }}>
-                                {tabValue === 0 && (
+                            {/* TAB 1: DETAILED TABLE */}
+                            <Box role="tabpanel" hidden={tabValue !== 1} sx={{ flex: 1, overflow: 'hidden', display: tabValue === 1 ? 'flex' : 'none', flexDirection: 'column', height: '100%' }}>
+                                {tabValue === 1 && (
                                     selectedCharacterId ? (
                                         <TableContainer sx={{ flex: 1, overflow: 'auto' }}>
                                             <Table stickyHeader size="small">
@@ -699,9 +712,9 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                 )}
                             </Box>
 
-                            {/* TAB 1: GRAPH */}
-                            <Box role="tabpanel" hidden={tabValue !== 1} sx={{ flex: 1, overflow: 'hidden', height: '100%', display: tabValue === 1 ? 'flex' : 'none', flexDirection: 'column' }}>
-                                {tabValue === 1 && (
+                            {/* TAB 0: GRAPH */}
+                            <Box role="tabpanel" hidden={tabValue !== 0} sx={{ flex: 1, overflow: 'hidden', height: '100%', display: tabValue === 0 ? 'flex' : 'none', flexDirection: 'column' }}>
+                                {tabValue === 0 && (
                                     <SimulationResultGraph
                                         simulationResults={simulationResults}
                                         selectedCharacterId={selectedCharacterId}
