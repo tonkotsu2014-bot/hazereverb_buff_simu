@@ -157,6 +157,43 @@ describe('Graph Calculation Logic', () => {
             expect(result.activeAttributes).toContain('Attack');
             expect(result.activeAttributes).toContain('CritRate');
         });
+
+        test('should identify action turns for highlighting', () => {
+            const multiTurnResults: any[] = [
+                {
+                    globalTurn: 1,
+                    round: 1,
+                    actorName: 'TestChar',
+                    actorIndex: 0,
+                    characterStates: [],
+                    name: '1'
+                },
+                {
+                    globalTurn: 2,
+                    round: 1,
+                    actorName: 'AnotherChar',
+                    actorIndex: 1,
+                    characterStates: [],
+                    name: '2'
+                },
+                {
+                    globalTurn: 3,
+                    round: 2,
+                    actorName: 'TestChar',
+                    actorIndex: 0,
+                    characterStates: [],
+                    name: '3'
+                }
+            ];
+
+            const result = calculateGraphData(multiTurnResults, 'char1', mockParty);
+
+            // Should contain '1' and '3' but not '2'
+            expect(result.actionTurns).toContain('1');
+            expect(result.actionTurns).toContain('3');
+            expect(result.actionTurns).not.toContain('2');
+            expect(result.actionTurns).toHaveLength(2);
+        });
     });
 
 });

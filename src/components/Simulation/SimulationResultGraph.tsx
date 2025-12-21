@@ -8,7 +8,8 @@ import {
     Tooltip,
     Legend,
     ResponsiveContainer,
-    ReferenceLine
+    ReferenceLine,
+    ReferenceArea
 } from 'recharts';
 import { Box, Typography } from '@mui/material';
 import type { Action } from '../../logic/turnSimulator';
@@ -126,11 +127,11 @@ export const calculateGraphData = (
     simulationResults: Action[],
     selectedCharacterId: string | null,
     party: (ParsedCharacterData & { id: string; name: string })[]
-): { chartData: any[], activeAttributes: string[] } => {
-    if (!selectedCharacterId || !simulationResults) return { chartData: [], activeAttributes: [] };
+): { chartData: any[], activeAttributes: string[], actionTurns: string[] } => {
+    if (!selectedCharacterId || !simulationResults) return { chartData: [], activeAttributes: [], actionTurns: [] };
 
     const charIndex = party.findIndex(p => p.id === selectedCharacterId);
-    if (charIndex === -1) return { chartData: [], activeAttributes: [] };
+    if (charIndex === -1) return { chartData: [], activeAttributes: [], actionTurns: [] };
 
     const character = party[charIndex];
 
@@ -149,6 +150,7 @@ export const calculateGraphData = (
 
     const chartData = [];
     const activeBuffs = new Set<string>(['Attack', 'CritRate', 'CombinedCritDamage']);
+    const actionTurns: string[] = [];
 
     for (const action of simulationResults) {
         // Filter out System actions (Battle Start, Round Start)
@@ -183,6 +185,10 @@ export const calculateGraphData = (
             isActor: action.actorIndex === charIndex,
         };
 
+        if (dataPoint.isActor) {
+            actionTurns.push(dataPoint.name);
+        }
+
         // Process all buffs + standard attributes
         const allAttributes = new Set([...attributesToCheck, ...Object.keys(aggregatedBuffs)]);
 
@@ -207,7 +213,7 @@ export const calculateGraphData = (
         chartData.push(dataPoint);
     }
 
-    return { chartData, activeAttributes: Array.from(activeBuffs) };
+    return { chartData, activeAttributes: Array.from(activeBuffs), actionTurns };
 };
 
 interface SimulationResultGraphProps {
@@ -236,7 +242,7 @@ export const SimulationResultGraph: React.FC<SimulationResultGraphProps> = ({
         });
     };
 
-    const { chartData, activeAttributes } = useMemo(() => {
+    const { chartData, activeAttributes, actionTurns } = useMemo(() => {
         return calculateGraphData(simulationResults, selectedCharacterId, party);
     }, [simulationResults, selectedCharacterId, party]);
 
@@ -318,6 +324,16 @@ export const SimulationResultGraph: React.FC<SimulationResultGraphProps> = ({
                     />
 
                     <ReferenceLine y={0} stroke="#666" />
+
+                    {actionTurns.map((turnName) => (
+                        <ReferenceLine
+                            key={turnName}
+                            x={turnName}
+                            stroke="rgba(25, 118, 210, 0.3)"
+                            strokeWidth={4}
+                            ifOverflow="visible"
+                        />
+                    ))}
 
                     {presentAttributes.map(attr => (
                         <Line
