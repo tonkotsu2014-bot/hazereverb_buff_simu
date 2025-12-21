@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { getCharacterBaseStat, calculateDisplayValue, calculateCombinedCritDamage } from '../src/components/Simulation/SimulationResultGraph';
+import { getCharacterBaseStat, calculateDisplayValue, calculateCombinedCritDamage, calculateGraphData } from '../src/components/Simulation/SimulationResultGraph';
 import type { ParsedCharacterData } from '../src/logic/wikiParser';
 
 describe('Graph Calculation Logic', () => {
@@ -82,6 +82,80 @@ describe('Graph Calculation Logic', () => {
         test('should handle zeros', () => {
             expect(calculateCombinedCritDamage(150, 0, 0)).toBe(150);
             expect(calculateCombinedCritDamage(0, 20, 0)).toBe(20);
+        });
+    });
+
+    describe('calculateGraphData', () => {
+
+
+        const mockParty = [
+            {
+                id: 'char1',
+                name: 'TestChar',
+                skills: [],
+                stats: {
+                    hp: '1000',
+                    attack: '500',
+                    defense: '100', // Armor
+                    critRate: '15%',
+                    critDamage: '150%',
+                    speed: '20'
+                }
+            }
+        ];
+
+        const mockSimulationResults: any[] = [
+            {
+                globalTurn: 1,
+                round: 1,
+                actorName: 'TestChar',
+                actorIndex: 0,
+                characterStates: [
+                    {
+                        receivedSkills: [
+                            {
+                                effects: [
+                                    { attribute: 'Attack', type: 'Buff', value: 0.5 }, // 50% buff
+                                    { attribute: 'CritRate', type: 'Buff', value: 20 }, // +20% flat
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        test('should return empty if no character selected', () => {
+            const result = calculateGraphData(mockSimulationResults, null, mockParty);
+            expect(result.chartData).toEqual([]);
+            expect(result.activeAttributes).toEqual([]);
+        });
+
+        test('should return correct graph data structure', () => {
+            const result = calculateGraphData(mockSimulationResults, 'char1', mockParty);
+
+            expect(result.chartData).toHaveLength(1);
+            const dataPoint = result.chartData[0];
+
+            expect(dataPoint.name).toBe('1');
+            expect(dataPoint.actor).toBe('TestChar');
+
+            // Attack: Base 500. Logic says Attack only shows Buff value?
+            // Let's check logic: shouldAddBaseStats('Attack') is false. So it returns buff value.
+            // Buff value is 0.5. Wait, calculateDisplayValue returns buffValue if !shouldAddBaseStats.
+            // Ah, line 101: if (shouldAddBaseStats) base+buff else buff.
+            // So for Attack it should be 0.5.
+            expect(dataPoint.Attack).toBe(0.5);
+
+            // Defense: Base 100. Buff 0. Should be 100.
+            expect(dataPoint.Defense).toBe(100);
+
+            // CritRate: Base 15. Buff 20. Total 35.
+            expect(dataPoint.CritRate).toBe(35);
+
+            // Active attributes should include Attack and CritRate
+            expect(result.activeAttributes).toContain('Attack');
+            expect(result.activeAttributes).toContain('CritRate');
         });
     });
 

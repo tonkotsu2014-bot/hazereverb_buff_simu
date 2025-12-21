@@ -118,6 +118,94 @@ export const calculateCombinedCritDamage = (
     return baseCritDamage + buffCritDamage + buffHyperCritDamage;
 };
 
+/**
+ * Calculates the graph data derived from simulation results.
+ */
+export const calculateGraphData = (
+    simulationResults: Action[],
+    selectedCharacterId: string | null,
+    party: (ParsedCharacterData & { id: string; name: string })[]
+): { chartData: any[], activeAttributes: string[] } => {
+    if (!selectedCharacterId || !simulationResults) return { chartData: [], activeAttributes: [] };
+
+    const charIndex = party.findIndex(p => p.id === selectedCharacterId);
+    if (charIndex === -1) return { chartData: [], activeAttributes: [] };
+
+    const character = party[charIndex];
+
+    // Pre-fetch base stats
+    const attributesToCheck = [
+        'Attack', 'Defense', 'Hp', 'CritRate', 'CritDamage', 'Support', 'Mobility', 'DamageReduction', 'Evasion'
+    ];
+
+    const baseStats: Record<string, number> = {};
+    attributesToCheck.forEach(attr => {
+        baseStats[attr] = getCharacterBaseStat(character, attr);
+    });
+
+    // Armor alias
+    baseStats['Armor'] = baseStats['Defense'];
+
+    const chartData = [];
+    const activeBuffs = new Set<string>(['Attack', 'CritRate', 'CombinedCritDamage']);
+
+    for (const action of simulationResults) {
+        const state = action.characterStates[charIndex];
+        const skills = state ? state.receivedSkills : [];
+
+        // Aggregate effects (Buffs)
+        const aggregatedBuffs: Record<string, number> = {};
+        skills.forEach(skill => {
+            skill.effects.forEach(effect => {
+                const attr = effect.attribute;
+                const val = effect.type === 'Debuff' ? -effect.value : effect.value;
+                aggregatedBuffs[attr] = (aggregatedBuffs[attr] || 0) + val;
+            });
+        });
+
+        // Identify active buffs (non-zero change)
+        Object.entries(aggregatedBuffs).forEach(([attr, val]) => {
+            if (Math.abs(val) > 0.001) { // Floating point safety
+                activeBuffs.add(attr);
+            }
+        });
+
+        // Calculate Final Display Values
+        const dataPoint: any = {
+            name: action.globalTurn.toString(),
+            globalTurn: action.globalTurn,
+            round: action.round,
+            actor: action.actorName,
+            isActor: action.actorIndex === charIndex,
+        };
+
+        // Process all buffs + standard attributes
+        const allAttributes = new Set([...attributesToCheck, ...Object.keys(aggregatedBuffs)]);
+
+        allAttributes.forEach(attr => {
+            const buffVal = aggregatedBuffs[attr] || 0;
+            const baseVal = baseStats[attr] || 0;
+            dataPoint[attr] = calculateDisplayValue(attr, baseVal, buffVal);
+        });
+
+        // Special: Combined Critical Damage
+        const baseCrit = baseStats['CritDamage'] || 0;
+        const buffCrit = aggregatedBuffs['CritDamage'] || 0;
+        const buffHyper = aggregatedBuffs['HyperCritDamage'] || 0;
+
+        dataPoint['CombinedCritDamage'] = calculateCombinedCritDamage(baseCrit, buffCrit, buffHyper);
+
+        // Special handling for CombinedCritDamage: active if CritDamage or HyperCritDamage has buff
+        if (Math.abs(buffCrit) > 0.001 || Math.abs(buffHyper) > 0.001) {
+            activeBuffs.add('CombinedCritDamage');
+        }
+
+        chartData.push(dataPoint);
+    }
+
+    return { chartData, activeAttributes: Array.from(activeBuffs) };
+};
+
 interface SimulationResultGraphProps {
     simulationResults: Action[];
     selectedCharacterId: string | null;
@@ -145,84 +233,7 @@ export const SimulationResultGraph: React.FC<SimulationResultGraphProps> = ({
     };
 
     const { chartData, activeAttributes } = useMemo(() => {
-        if (!selectedCharacterId || !simulationResults) return { chartData: [], activeAttributes: [] };
-
-        const charIndex = party.findIndex(p => p.id === selectedCharacterId);
-        if (charIndex === -1) return { chartData: [], activeAttributes: [] };
-
-        const character = party[charIndex];
-
-        // Pre-fetch base stats
-        const attributesToCheck = [
-            'Attack', 'Defense', 'Hp', 'CritRate', 'CritDamage', 'Support', 'Mobility', 'DamageReduction', 'Evasion'
-        ];
-
-        const baseStats: Record<string, number> = {};
-        attributesToCheck.forEach(attr => {
-            baseStats[attr] = getCharacterBaseStat(character, attr);
-        });
-
-        // Armor alias
-        baseStats['Armor'] = baseStats['Defense'];
-
-        const chartData = [];
-        const activeBuffs = new Set<string>(['Attack', 'CritRate', 'CombinedCritDamage']);
-
-        for (const action of simulationResults) {
-            const state = action.characterStates[charIndex];
-            const skills = state ? state.receivedSkills : [];
-
-            // Aggregate effects (Buffs)
-            const aggregatedBuffs: Record<string, number> = {};
-            skills.forEach(skill => {
-                skill.effects.forEach(effect => {
-                    const attr = effect.attribute;
-                    const val = effect.type === 'Debuff' ? -effect.value : effect.value;
-                    aggregatedBuffs[attr] = (aggregatedBuffs[attr] || 0) + val;
-                });
-            });
-
-            // Identify active buffs (non-zero change)
-            Object.entries(aggregatedBuffs).forEach(([attr, val]) => {
-                if (Math.abs(val) > 0.001) { // Floating point safety
-                    activeBuffs.add(attr);
-                }
-            });
-
-            // Calculate Final Display Values
-            const dataPoint: any = {
-                name: action.globalTurn.toString(),
-                globalTurn: action.globalTurn,
-                round: action.round,
-                actor: action.actorName,
-                isActor: action.actorIndex === charIndex,
-            };
-
-            // Process all buffs + standard attributes
-            const allAttributes = new Set([...attributesToCheck, ...Object.keys(aggregatedBuffs)]);
-
-            allAttributes.forEach(attr => {
-                const buffVal = aggregatedBuffs[attr] || 0;
-                const baseVal = baseStats[attr] || 0;
-                dataPoint[attr] = calculateDisplayValue(attr, baseVal, buffVal);
-            });
-
-            // Special: Combined Critical Damage
-            const baseCrit = baseStats['CritDamage'] || 0;
-            const buffCrit = aggregatedBuffs['CritDamage'] || 0;
-            const buffHyper = aggregatedBuffs['HyperCritDamage'] || 0;
-
-            dataPoint['CombinedCritDamage'] = calculateCombinedCritDamage(baseCrit, buffCrit, buffHyper);
-
-            // Special handling for CombinedCritDamage: active if CritDamage or HyperCritDamage has buff
-            if (Math.abs(buffCrit) > 0.001 || Math.abs(buffHyper) > 0.001) {
-                activeBuffs.add('CombinedCritDamage');
-            }
-
-            chartData.push(dataPoint);
-        }
-
-        return { chartData, activeAttributes: Array.from(activeBuffs) };
+        return calculateGraphData(simulationResults, selectedCharacterId, party);
     }, [simulationResults, selectedCharacterId, party]);
 
     // Use calculated active attributes for lines
