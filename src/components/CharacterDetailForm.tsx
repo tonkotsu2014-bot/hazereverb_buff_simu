@@ -52,7 +52,7 @@ const attributeLabels: Record<string, string> = {
     Hp: '最大HP',
     DamageReduction: 'ダメ軽減',
     DamageBoost: 'ダメ増加',
-    Evasion: '回避',
+    Evasion: 'ダメージ回避率',
     Silent: '静寂'
 };
 
@@ -85,19 +85,35 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
     const getStatLabel = (key: string, role?: string) => {
         let label = '';
         switch (key) {
+            case 'Hp':
             case 'hp': label = 'HP'; break;
+            case 'Attack':
             case 'attack': label = role === 'Supporter' ? '支援力' : '攻撃力'; break;
+            case 'Support': label = '支援力'; break;
+            case 'Armor':
             case 'defense': label = '防御力'; break;
+            case 'CritRate':
             case 'critRate': label = 'クリ率'; break;
+            case 'CritDamage':
             case 'critDamage': label = 'クリダメ'; break;
+            case 'Mobility':
             case 'speed': label = '機動力'; break;
+            case 'Evasion': label = 'ダメージ回避率'; break;
             default: label = key;
         }
 
-        if (['critRate', 'critDamage', 'defense', 'speed'].includes(key) || (key === 'attack' && role === 'Supporter')) {
+        if (['CritRate', 'critRate', 'CritDamage', 'critDamage', 'defense', 'speed', 'Evasion'].includes(key) || (key === 'Attack' && role === 'Supporter')) {
             label += ' (%)';
         }
         return label;
+    };
+
+    const getDisplayStats = (role?: string) => {
+        const stats = ['Hp', 'Armor', 'CritRate', 'CritDamage', 'Mobility', 'Evasion'];
+        if (role === 'Supporter') {
+            return [...stats, 'Support'];
+        }
+        return [...stats, 'Attack'];
     };
 
     useEffect(() => {
@@ -264,18 +280,21 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
             <Divider sx={{ my: 1.5 }} />
             <Typography variant="subtitle2" gutterBottom fontWeight={600} sx={{ mb: 1 }}>ステータス</Typography>
             <Grid container spacing={1} sx={{ mb: 2.5 }}>
-                {Object.entries(formData.stats || {}).map(([key, val]) => (
-                    <Grid size={{ xs: 6, sm: 4, md: 2 }} key={key}>
-                        <TextField
-                            fullWidth
-                            label={getStatLabel(key, formData.role)}
-                            type="number"
-                            value={val}
-                            onChange={(e) => handleChangeStat(key, e.target.value)}
-                            size="small"
-                        />
-                    </Grid>
-                ))}
+                {getDisplayStats(formData.role).map((key) => {
+                    const val = (formData.stats as any)?.[key] ?? 0;
+                    return (
+                        <Grid size={{ xs: 6, sm: 4, md: 2 }} key={key}>
+                            <TextField
+                                fullWidth
+                                label={getStatLabel(key, formData.role)}
+                                type="number"
+                                value={val}
+                                onChange={(e) => handleChangeStat(key, e.target.value)}
+                                size="small"
+                            />
+                        </Grid>
+                    );
+                })}
             </Grid>
 
             <Divider sx={{ my: 1.5 }} />
@@ -498,6 +517,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                                     <MenuItem value="HyperCritDamage">ハイパークリティカルダメージ</MenuItem>
                                                                     <MenuItem value="Mobility">機動力</MenuItem>
                                                                     <MenuItem value="Support">支援力</MenuItem>
+                                                                    <MenuItem value="Evasion">ダメージ回避率</MenuItem>
                                                                     <MenuItem value="Shield">シールド</MenuItem>
                                                                     <MenuItem value="Hp">最大HP</MenuItem>
                                                                     <MenuItem value="Silent">静寂</MenuItem>
