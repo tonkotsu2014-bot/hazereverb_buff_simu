@@ -395,40 +395,59 @@ export const simulateTurns = (
 
             const effects = resolvedEffects;
 
-            const firstOriginalEffect = originalEffects[0];
-            const targetType = firstOriginalEffect?.target;
+            // Group resolved effects by target index to ensure we call addSkill once per character with all relevant effects
+            const effectsByTargetIndex = new Map<number, typeof resolvedEffects>();
 
-            if (targetType) {
-                if (targetType === 'Self') {
-                    addSkill(index, skillName, character.name || 'Unknown', effects);
-                } else if (targetType === 'AllAllies') {
-                    party.forEach((_, pIdx) => {
-                        if (!party[pIdx]?.deathRound || party[pIdx]!.deathRound! > round) {
-                            addSkill(pIdx, skillName, character.name || 'Unknown', effects);
-                        }
-                    });
-                } else if ((targetType === 'Support' || targetType === 'Default') && isSupporter && character.supportTargetIndices && character.supportTargetIndices.length > 0) {
-                    character.supportTargetIndices.forEach(tIdx => {
-                        const tChar = party[tIdx];
-                        if (tChar && (!tChar.deathRound || tChar.deathRound > round)) {
-                            addSkill(tIdx, skillName, character.name || 'Unknown', effects);
-                        }
-                    });
-                } else {
-                    addSkill(index, skillName, character.name || 'Unknown', effects);
+            const addEffectToTarget = (tIdx: number, effect: typeof resolvedEffects[0]) => {
+                const targetChar = party[tIdx];
+                // Check death status
+                if (targetChar && (!targetChar.deathRound || targetChar.deathRound > round)) {
+                    if (!effectsByTargetIndex.has(tIdx)) {
+                        effectsByTargetIndex.set(tIdx, []);
+                    }
+                    effectsByTargetIndex.get(tIdx)!.push(effect);
                 }
-            } else {
-                if (isSupporter && character.supportTargetIndices && character.supportTargetIndices.length > 0) {
-                    character.supportTargetIndices.forEach(tIdx => {
-                        const tChar = party[tIdx];
-                        if (tChar && (!tChar.deathRound || tChar.deathRound > round)) {
-                            addSkill(tIdx, skillName, character.name || 'Unknown', effects);
-                        }
-                    });
+            };
+
+            // Distribute effects to their targets
+            resolvedEffects.forEach((resolvedEffect, i) => {
+                const originalEffect = originalEffects[i]; // Corresponding original effect
+                const targetType = originalEffect.target;
+
+                if (targetType) {
+                    if (targetType === 'Self') {
+                        addEffectToTarget(index, resolvedEffect);
+                    } else if (targetType === 'AllAllies') {
+                        party.forEach((_, pIdx) => {
+                            addEffectToTarget(pIdx, resolvedEffect);
+                        });
+                    } else if ((targetType === 'Support' || targetType === 'Default') && isSupporter && character.supportTargetIndices && character.supportTargetIndices.length > 0) {
+                        character.supportTargetIndices.forEach(tIdx => {
+                            addEffectToTarget(tIdx, resolvedEffect);
+                        });
+                    } else {
+                        // Fallback to Self if unknown or non-supporter default
+                        addEffectToTarget(index, resolvedEffect);
+                    }
                 } else {
-                    addSkill(index, skillName, character.name || 'Unknown', effects);
+                    // No target specified
+                    if (isSupporter && character.supportTargetIndices && character.supportTargetIndices.length > 0) {
+                        character.supportTargetIndices.forEach(tIdx => {
+                            addEffectToTarget(tIdx, resolvedEffect);
+                        });
+                    } else {
+                        addEffectToTarget(index, resolvedEffect);
+                    }
                 }
-            }
+            });
+
+            // Apply collected effects to each target
+            effectsByTargetIndex.forEach((effects, tIdx) => {
+                const targetChar = party[tIdx];
+                if (targetChar) {
+                    addSkill(tIdx, skillName, character.name || 'Unknown', effects);
+                }
+            });
         });
 
         const currentGlobalTurn = globalTurn++;
