@@ -150,6 +150,9 @@ export const calculateGraphData = (
     const activeBuffs = new Set<string>(['Attack', 'CritRate', 'CombinedCritDamage']);
 
     for (const action of simulationResults) {
+        // Filter out System actions (Battle Start, Round Start)
+        if (action.actorRole === 'System') continue;
+
         const state = action.characterStates[charIndex];
         const skills = state ? state.receivedSkills : [];
 
