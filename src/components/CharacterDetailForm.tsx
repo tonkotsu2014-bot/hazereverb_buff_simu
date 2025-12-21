@@ -69,6 +69,13 @@ const calculationTypeLabels: Record<string, string> = {
     SilentScaling: '静寂数'
 };
 
+const timingLabels: Record<string, string> = {
+    BattleStart: '戦闘開始時',
+    RoundStart: 'R開始時',
+    BeforeAction: '行動前',
+    Action: '行動時'
+};
+
 export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) => {
     const [formData, setFormData] = useState<ParsedCharacterData>(character);
     const [selectedLevels, setSelectedLevels] = useState<{ [key: number]: number }>({});
@@ -160,7 +167,9 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                 value: 0,
                 duration: 1,
                 calculationType: 'Fixed',
-                target: 'Default'
+                calculationType: 'Fixed',
+                target: 'Default',
+                timing: 'Action'
             } as SkillEffect
         ];
         newLevels[levelIndex] = { ...newLevels[levelIndex], effects: newEffects };
@@ -439,7 +448,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                                 {attributeLabels[effect.attribute] || effect.attribute}
                                                             </Typography>
                                                             <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
-                                                                {targetLabels[effect.target || 'Default']} • {calculationTypeLabels[effect.calculationType || 'Fixed']}
+                                                                {targetLabels[effect.target || 'Default']} • {calculationTypeLabels[effect.calculationType || 'Fixed']} • {timingLabels[effect.timing || 'Action']}
                                                             </Typography>
                                                         </Box>
                                                         <Tooltip title="削除">
@@ -525,6 +534,23 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                                     <MenuItem value="Default">標準</MenuItem>
                                                                     <MenuItem value="Self">自身</MenuItem>
                                                                     <MenuItem value="AllAllies">全員</MenuItem>
+                                                                </Select>
+                                                            </FormControl>
+                                                        </Grid>
+
+                                                        <Grid size={{ xs: 6, sm: 4, md: 1.5 }}>
+                                                            <FormControl fullWidth size="small">
+                                                                <InputLabel sx={{ fontSize: '0.8rem' }}>タイミング</InputLabel>
+                                                                <Select
+                                                                    value={effect.timing || 'Action'}
+                                                                    label="タイミング"
+                                                                    onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'timing', e.target.value)}
+                                                                    sx={{ fontSize: '0.85rem' }}
+                                                                >
+                                                                    <MenuItem value="Action">行動時</MenuItem>
+                                                                    <MenuItem value="BeforeAction">行動前</MenuItem>
+                                                                    <MenuItem value="RoundStart">R開始</MenuItem>
+                                                                    <MenuItem value="BattleStart">戦闘開始</MenuItem>
                                                                 </Select>
                                                             </FormControl>
                                                         </Grid>

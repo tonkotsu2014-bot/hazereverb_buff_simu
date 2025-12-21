@@ -55,7 +55,8 @@ describe('Turn Simulator - Support Power Scaling', () => {
         supporter.skills = [createSkill('Scaling Skill', skillEffects)];
 
         const result = simulateTurns([supporter], 1);
-        const action = result[0];
+        const charActions = result.filter(a => a.actorRole !== 'System');
+        const action = charActions[0];
         const state = action.characterStates[0];
 
         // Check Received Skills

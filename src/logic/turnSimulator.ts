@@ -113,26 +113,8 @@ export const simulateTurns = (
         }));
     };
 
-    const executeTurn = (
-        index: number,
-        round: number
-    ): { acted: boolean, role: string } => {
-        const character = party[index];
-        if (!character) {
-            throw new Error(`Invalid character in party at index ${index}`);
-        }
-
-        // Check if character is dead in this round
-        const deathRound = character.deathRound;
-        const isDead = deathRound !== undefined && deathRound > 0 && round >= deathRound;
-
-        if (isDead) {
-            return { acted: false, role: 'Dead' };
-        }
-
-        const skillsToApply: { skillName: string, level: any }[] = [];
-
-        // Check for active EX Skill
+    const resolveSkillsToApply = (character: SimulationCharacter, round: number) => {
+        const skillsToApply: { skillName: string, level: SkillLevel }[] = [];
         const exRounds = character.exSkillRounds || [];
         const isExActive = exRounds.includes(round);
 
@@ -201,6 +183,18 @@ export const simulateTurns = (
             return 0;
         });
 
+        return skillsToApply;
+    };
+
+    const processEffects = (
+        index: number,
+        round: number,
+        skillsToApply: { skillName: string, level: SkillLevel }[],
+        timingFilter: (timing?: string) => boolean
+    ) => {
+        const character = party[index];
+        if (!character) return;
+
         const isSupporter = character.role === 'Supporter' || character.type?.includes('支援');
         let supportTargetNames: string[] | undefined;
         if (character.supportTargetIndices && character.supportTargetIndices.length > 0) {
@@ -229,16 +223,8 @@ export const simulateTurns = (
             for (let i = accumulatedSkills[targetIndex].length - 1; i >= 0; i--) {
                 const skill = accumulatedSkills[targetIndex][i];
                 if (skill.name === skillName) {
-                    // Filter out non-stackable effects from existing instances
-                    // IF the NEW skill has the same effect (by attribute?)
-                    // The requirement: "Only the latest instance should be active" for non-stackable.
-                    // So if we are adding a new instance, any existing instance's non-stackable effects should be removed.
-                    // Actually, we should just check if the effect is stackable. 
-                    // If NOT stackable, remove it from old instance.
                     skill.effects = skill.effects.filter(e => e.isStackable);
 
-                    // If skill has no effects left, remove the skill instance?
-                    // We need to keep instances for STACK_COUNT purposes if they contain stackable effects.
                     if (skill.effects.length === 0) {
                         accumulatedSkills[targetIndex].splice(i, 1);
                     }
@@ -261,21 +247,6 @@ export const simulateTurns = (
                 }))
             };
 
-            // Enforce max stack count (based on skill instances count)
-            // If the new skill has ANY stackable effects, it contributes to the stack count?
-            // Or does the "Stack Count" concept apply to the SKILL itself?
-            // Usually "Stack: 5" applies to the buff icon.
-            // If a skill has mixed effects, it's slightly ambiguous.
-            // But generally, we treat the "Skill Instance" as the unit for stacking limit.
-            // So if we have 5 instances of "Mixed Skill", and we add a 6th:
-            // Oldest one is removed (FIFO).
-
-            // However, verify if we should only count instances that HAVE stackable effects?
-            // User said: "Effect 1 .. isStackable".
-            // If a skill has ONLY non-stackable effects, should it stack to 5? No.
-            // But typically mixed skills are treated as a single unit in UI.
-            // Let's assume the MAX_STACK_COUNT applies generally to the skill name.
-
             const existingStacksCount = accumulatedSkills[targetIndex].filter(s => s.name === skillName).length;
             if (existingStacksCount >= MAX_STACK_COUNT) {
                 const oldestIndex = accumulatedSkills[targetIndex].findIndex(s => s.name === skillName);
@@ -286,9 +257,12 @@ export const simulateTurns = (
             accumulatedSkills[targetIndex].push(newSkill);
         };
 
-        // Apply Steps
         skillsToApply.forEach(({ skillName, level: currentLevel }) => {
-            const originalEffects = currentLevel.effects;
+            // Filter effects based on timing
+            const applicableEffects = currentLevel.effects.filter(e => timingFilter(e.timing));
+            if (applicableEffects.length === 0) return;
+
+            const originalEffects = applicableEffects;
             const resolvedEffects: {
                 attribute: string;
                 value: number;
@@ -342,7 +316,6 @@ export const simulateTurns = (
                     currentSupportPower = supportPower;
                     value = supportPower * (value / 100);
                 } else if (effect.calculationType === 'SilentScaling') {
-                    // Count 'Silent' buffs on self (caster)
                     let silentCount = 0;
                     accumulatedSkills[index].forEach(receivedSkill => {
                         const elapsed = globalTurn - receivedSkill.startGlobalTurn;
@@ -355,7 +328,6 @@ export const simulateTurns = (
                                     isActive = false;
                                 }
                             }
-                            // Assuming 'Silent' is an attribute name.
                             if (isActive && eff.attribute === 'Silent' && eff.type === 'Buff') {
                                 silentCount += eff.value;
                             }
@@ -393,14 +365,11 @@ export const simulateTurns = (
                 resolvedEffects.push(resolvedEffect);
             });
 
-            const effects = resolvedEffects;
-
-            // Group resolved effects by target index to ensure we call addSkill once per character with all relevant effects
+            // Group resolved effects by target index
             const effectsByTargetIndex = new Map<number, typeof resolvedEffects>();
 
             const addEffectToTarget = (tIdx: number, effect: typeof resolvedEffects[0]) => {
                 const targetChar = party[tIdx];
-                // Check death status
                 if (targetChar && (!targetChar.deathRound || targetChar.deathRound > round)) {
                     if (!effectsByTargetIndex.has(tIdx)) {
                         effectsByTargetIndex.set(tIdx, []);
@@ -409,9 +378,8 @@ export const simulateTurns = (
                 }
             };
 
-            // Distribute effects to their targets
             resolvedEffects.forEach((resolvedEffect, i) => {
-                const originalEffect = originalEffects[i]; // Corresponding original effect
+                const originalEffect = originalEffects[i];
                 const targetType = originalEffect.target;
 
                 if (targetType) {
@@ -426,11 +394,9 @@ export const simulateTurns = (
                             addEffectToTarget(tIdx, resolvedEffect);
                         });
                     } else {
-                        // Fallback to Self if unknown or non-supporter default
                         addEffectToTarget(index, resolvedEffect);
                     }
                 } else {
-                    // No target specified
                     if (isSupporter && character.supportTargetIndices && character.supportTargetIndices.length > 0) {
                         character.supportTargetIndices.forEach(tIdx => {
                             addEffectToTarget(tIdx, resolvedEffect);
@@ -441,7 +407,6 @@ export const simulateTurns = (
                 }
             });
 
-            // Apply collected effects to each target
             effectsByTargetIndex.forEach((effects, tIdx) => {
                 const targetChar = party[tIdx];
                 if (targetChar) {
@@ -449,6 +414,64 @@ export const simulateTurns = (
                 }
             });
         });
+    };
+
+    const executeBattleStartPhase = () => {
+        party.forEach((character, index) => {
+            if (!character) return;
+            // Round 0 or 1? Requirement says Battle Start effects apply at Battle Start.
+            // Using Round 1 context but separate phase.
+            const skills = resolveSkillsToApply(character, 1);
+            processEffects(index, 1, skills, (timing) => timing === 'BattleStart');
+        });
+
+        // Generate Action for Battle Start
+        const currentGlobalTurn = 0; // Or some indicator
+        actions.push({
+            round: 0,
+            globalTurn: currentGlobalTurn,
+            actorIndex: -1,
+            actorName: '戦闘開始時',
+            actorRole: 'System',
+            actorType: 'System',
+            characterStates: getSnapshot(0, currentGlobalTurn)
+        });
+    };
+
+    const executeRoundStartPhase = (round: number) => {
+        party.forEach((character, index) => {
+            if (!character) return;
+            const skills = resolveSkillsToApply(character, round);
+            processEffects(index, round, skills, (timing) => timing === 'RoundStart');
+        });
+
+        const currentGlobalTurn = globalTurn;
+        actions.push({
+            round: round,
+            globalTurn: currentGlobalTurn,
+            actorIndex: -1,
+            actorName: 'ラウンド開始時',
+            actorRole: 'System',
+            actorType: 'System',
+            characterStates: getSnapshot(round, currentGlobalTurn)
+        });
+    };
+
+    const executeTurn = (index: number, round: number): { acted: boolean, role: string } => {
+        const character = party[index];
+        if (!character) throw new Error(`Invalid character in party at index ${index}`);
+
+        const deathRound = character.deathRound;
+        const isDead = deathRound !== undefined && deathRound > 0 && round >= deathRound;
+        if (isDead) return { acted: false, role: 'Dead' };
+
+        const skills = resolveSkillsToApply(character, round);
+
+        // 1. Before Action
+        processEffects(index, round, skills, (timing) => timing === 'BeforeAction');
+
+        // 2. Action (Default or explicit 'Action')
+        processEffects(index, round, skills, (timing) => timing === 'Action' || timing === undefined);
 
         const currentGlobalTurn = globalTurn++;
         actions.push({
@@ -458,7 +481,8 @@ export const simulateTurns = (
             actorName: character.name || 'Unknown',
             actorRole: character.role || 'Unknown',
             actorType: getTypeName(character.role || ''),
-            supportTargetNames,
+            supportTargetNames: (character.role === 'Supporter' && character.supportTargetIndices) ?
+                character.supportTargetIndices.map(i => getCharacterName(i)) : undefined,
             characterStates: getSnapshot(round, currentGlobalTurn)
         });
 
@@ -478,7 +502,15 @@ export const simulateTurns = (
         });
     };
 
+    // --- Main Simulation Loop ---
+
+    // 1. Battle Start Phase
+    executeBattleStartPhase();
+
     for (let round = 1; round <= maxRounds; round++) {
+        // 2. Round Start Phase
+        executeRoundStartPhase(round);
+
         let bossActed = false;
 
         party.forEach((_, index) => {

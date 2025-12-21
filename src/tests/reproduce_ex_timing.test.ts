@@ -44,6 +44,7 @@ describe('Turn Simulator - EX Skill Timing', () => {
 
         const party = [charA, charB];
         const result = simulateTurns(party, 1);
+        const actions = result.filter(a => a.actorRole !== 'System');
 
         // Expected Order (New Logic):
         // 1. CharA (Index 0)
@@ -52,9 +53,9 @@ describe('Turn Simulator - EX Skill Timing', () => {
 
         expect(result.length).toBeGreaterThanOrEqual(3);
 
-        const action1 = result[0];
-        const action2 = result[1];
-        const action3 = result[2];
+        const action1 = actions[0];
+        const action2 = actions[1];
+        const action3 = actions[2];
 
         // 1. CharA acts (Normal A)
         expect(action1.actorName).toBe('CharA');
@@ -121,7 +122,8 @@ describe('Turn Simulator - EX Skill Timing', () => {
         attacker.skills = [];
 
         // Simulate 5 Rounds
-        const result = simulateTurns([supporter, attacker], 5);
+        const rawResult = simulateTurns([supporter, attacker], 5);
+        const result = rawResult.filter(a => a.actorRole !== 'System');
 
         // --- check all actions length ( (2+1[boss]) * 5 = 15) ---
         expect(result.length).toBe(15);

@@ -53,11 +53,14 @@ describe('Turn Simulator Logic', () => {
 
         const actions = simulateTurns(party, 2);
 
-        expect(actions).toHaveLength(8);
-        expect(actions[0].characterStates).toBeDefined();
+        const charActions = actions.filter(a => a.actorRole !== 'System');
+
+        // Alice, Bob, Charlie, Boss (4) -> 2 rounds -> 8 actions
+        expect(charActions).toHaveLength(8);
+        expect(charActions[0].characterStates).toBeDefined();
         // Basic order check
-        expect(actions[0].actorName).toBe('Alice');
-        expect(actions[1].actorName).toBe('Boss');
+        expect(charActions[0].actorName).toBe('Alice');
+        expect(charActions[1].actorName).toBe('Boss');
     });
 
     it('should track received skills correctly', () => {
@@ -78,10 +81,11 @@ describe('Turn Simulator Logic', () => {
         ];
 
         const actions = simulateTurns(party, 1);
+        const charActions = actions.filter(a => a.actorRole !== 'System');
 
         // Action 0: Bob
-        expect(actions[0].actorName).toBe('Bob');
-        const state0 = actions[0].characterStates;
+        expect(charActions[0].actorName).toBe('Bob');
+        const state0 = charActions[0].characterStates;
         const alice0 = state0.find(c => c.name === 'Alice');
         const bob0 = state0.find(c => c.name === 'Bob');
 
@@ -90,15 +94,15 @@ describe('Turn Simulator Logic', () => {
         expect(hasReceivedSkill(bob0?.receivedSkills, 'BobBuff')).toBe(false);
 
         // Action 1: Alice
-        expect(actions[1].actorName).toBe('Alice');
-        const state1 = actions[1].characterStates;
+        expect(charActions[1].actorName).toBe('Alice');
+        const state1 = charActions[1].characterStates;
         const alice1 = state1.find(c => c.name === 'Alice');
         expect(hasReceivedSkill(alice1?.receivedSkills, 'BobBuff')).toBe(true);
         expect(hasReceivedSkill(alice1?.receivedSkills, 'AliceSelf')).toBe(true);
 
         // Action 3: Charlie
-        expect(actions[3].actorName).toBe('Charlie');
-        const state3 = actions[3].characterStates;
+        expect(charActions[3].actorName).toBe('Charlie');
+        const state3 = charActions[3].characterStates;
 
         const alice3 = state3.find(c => c.name === 'Alice');
         const bob3 = state3.find(c => c.name === 'Bob');
@@ -116,9 +120,10 @@ describe('Turn Simulator Logic', () => {
         ];
 
         const actions = simulateTurns(party, 1);
+        const charActions = actions.filter(a => a.actorRole !== 'System');
 
-        expect(actions[0].actorName).toBe('Healer');
-        const state = actions[0].characterStates;
+        expect(charActions[0].actorName).toBe('Healer');
+        const state = charActions[0].characterStates;
 
         const healer = state.find(c => c.name === 'Healer');
         const deadGuy = state.find(c => c.name === 'DeadGuy');
@@ -222,7 +227,8 @@ describe('Turn Simulator Logic', () => {
         ];
 
         const actions = simulateTurns(party, 1);
-        const state = actions[0].characterStates; // Buffer acts first
+        const charActions = actions.filter(a => a.actorRole !== 'System');
+        const state = charActions[0].characterStates; // Buffer acts first
 
         const buffer = state.find(c => c.name === 'Buffer');
         const receiver = state.find(c => c.name === 'Receiver');

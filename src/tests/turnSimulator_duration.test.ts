@@ -43,9 +43,10 @@ describe('Turn Simulator - Skill Duration & Remaining Turns', () => {
         // R3: Normal B cast.
 
         const result = simulateTurns([charB], 4);
+        const charActions = result.filter(a => a.actorRole !== 'System');
 
-        // R2 (Index 2. R1=0,1. R2=2,3)
-        const r2Action = result[2]; // CharB action in R2
+        // R2 (Index 2. R1=0,1. R2=2,3) -> With filtering
+        const r2Action = charActions[2]; // CharB action in R2
         expect(r2Action.round).toBe(2);
         const r2State = r2Action.characterStates.find(c => c.name === 'CharB');
         const exSkillR2 = r2State?.receivedSkills.find(s => s.name === 'Ex B');
@@ -55,7 +56,8 @@ describe('Turn Simulator - Skill Duration & Remaining Turns', () => {
         expect(exSkillR2?.effects[0].remainingTurn).toBe(2);
 
         // R3 (Index 4. R2=2,3. R3=4,5).
-        const r3Action = result[4]; // CharB action in R3
+        // R3 (Index 4. R2=2,3. R3=4,5).
+        const r3Action = charActions[4]; // CharB action in R3
         expect(r3Action.round).toBe(3);
         const r3State = r3Action.characterStates.find(c => c.name === 'CharB');
         const exSkillR3 = r3State?.receivedSkills.find(s => s.name === 'Ex B');
@@ -70,7 +72,8 @@ describe('Turn Simulator - Skill Duration & Remaining Turns', () => {
         expect(exSkillR3).toBeUndefined();
 
         // R4 (Index 6)
-        const r4Action = result[6]; // CharB action in R4
+        // R4 (Index 6)
+        const r4Action = charActions[6]; // CharB action in R4
         expect(r4Action.round).toBe(4);
         const r4State = r4Action.characterStates.find(c => c.name === 'CharB');
         // Start R2. Current R4. Rem = 2 - (4-2) = 0.
@@ -80,11 +83,12 @@ describe('Turn Simulator - Skill Duration & Remaining Turns', () => {
         // Check Normal Skill Reset
         // R1: Cast (Start 1). Rem 3.
         // R2: Cast (Start 2 - Overwritten). Rem 3.
-        const normalSkillR1 = result[0].characterStates[0].receivedSkills.find(s => s.name === 'Normal B');
+        // Note: Indices 0 and 2 in charActions correspond to CharB's actions in R1 and R2
+        const normalSkillR1 = charActions[0].characterStates[0].receivedSkills.find(s => s.name === 'Normal B');
         expect(normalSkillR1?.startRound).toBe(1);
         expect(normalSkillR1?.effects[0].remainingTurn).toBe(3);
 
-        const normalSkillR2 = result[2].characterStates[0].receivedSkills.find(s => s.name === 'Normal B');
+        const normalSkillR2 = charActions[2].characterStates[0].receivedSkills.find(s => s.name === 'Normal B');
         expect(normalSkillR2?.startRound).toBe(2); // Should have updated
         expect(normalSkillR2?.effects[0].remainingTurn).toBe(3); // Should have reset
     });
@@ -119,9 +123,10 @@ describe('Turn Simulator - Skill Duration & Remaining Turns', () => {
         // Effect 2: Rem 3.
 
         const result = simulateTurns([charC], 3);
+        const charActions = result.filter(a => a.actorRole !== 'System');
 
         // Round 1
-        const r1Action = result[0];
+        const r1Action = charActions[0];
         const r1State = r1Action.characterStates[0].receivedSkills.find(s => s.name === 'Mixed Duration Buff');
         expect(r1State).toBeDefined();
         // Index 0: Attack (Dur 2)
@@ -132,7 +137,7 @@ describe('Turn Simulator - Skill Duration & Remaining Turns', () => {
         expect(r1State?.effects[1].remainingTurn).toBe(5);
 
         // Round 2 (Index 2 -> R1(0,1), R2(2,3))
-        const r2Action = result[2];
+        const r2Action = charActions[2];
         const r2State = r2Action.characterStates[0].receivedSkills.find(s => s.name === 'Mixed Duration Buff');
         // Effect 0 (Attack) passed its duration (2 turns), so it should be removed.
         // Effect 1 (Defense) has duration 5, remaining 3.
@@ -145,7 +150,7 @@ describe('Turn Simulator - Skill Duration & Remaining Turns', () => {
         expect(r2State?.effects[0].remainingTurn).toBe(3);
 
         // Round 3 (Index 4)
-        const r3Action = result[4];
+        const r3Action = charActions[4];
         const r3State = r3Action.characterStates[0].receivedSkills.find(s => s.name === 'Mixed Duration Buff');
         // Effect 1 should be 0 (expired)
         // Effect 1 should be gone (expired previously)

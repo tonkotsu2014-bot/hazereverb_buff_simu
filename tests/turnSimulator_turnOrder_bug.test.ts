@@ -45,12 +45,18 @@ describe('Turn Simulator Order Reproduction', () => {
         // Let's run for 5 rounds.
         const results = simulateTurns(party, 5);
 
-        // Find actions at Global Turn 20, 21, 22
-        const t20 = results.find(a => a.globalTurn === 20);
-        const t21 = results.find(a => a.globalTurn === 21);
-        const t22 = results.find(a => a.globalTurn === 22);
+        // Filter out System actions to find actual actors
+        const characterActions = results.filter(a => a.actorRole !== 'System');
+
+        const t20 = characterActions.find(a => a.globalTurn === 20);
+        const t21 = characterActions.find(a => a.globalTurn === 21);
+        const t22 = characterActions.find(a => a.globalTurn === 22);
 
         // Debug output
+        if (!t20) {
+            console.log('Available turns:', characterActions.map(a => a.globalTurn).slice(-10));
+        }
+
         console.log('T20 Actor:', t20?.actorName);
         console.log('T21 Actor:', t21?.actorName);
         console.log('T22 Actor:', t22?.actorName);

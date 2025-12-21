@@ -517,6 +517,7 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                                                                 case 'Defender': return '#1565c0';
                                                                                 case 'Transcendence': return '#424242';
                                                                                 case 'Boss': return '#e65100';
+                                                                                case 'System': return '#607d8b';
                                                                                 default: return '#757575';
                                                                             }
                                                                         })(),
@@ -527,6 +528,7 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                                                                 case 'Defender': return '#1565c0';
                                                                                 case 'Transcendence': return '#424242';
                                                                                 case 'Boss': return '#e65100';
+                                                                                case 'System': return '#607d8b';
                                                                                 default: return '#757575';
                                                                             }
                                                                         })(),
@@ -548,6 +550,7 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                                                                 case 'Defender': return '#1565c0';
                                                                                 case 'Transcendence': return '#000000';
                                                                                 case 'Boss': return '#e65100';
+                                                                                case 'System': return '#607d8b';
                                                                                 default: return 'text.primary';
                                                                             }
                                                                         })()
@@ -654,7 +657,7 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                                                     <TableCell>{action.round}</TableCell>
                                                                     <TableCell>{action.globalTurn}</TableCell>
                                                                     <TableCell sx={{ color: 'text.secondary', fontSize: '0.8rem' }}>
-                                                                        {action.actorName} の行動時
+                                                                        {action.actorName}
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         <Stack spacing={0.5} direction="row" flexWrap="wrap" gap={0.5}>

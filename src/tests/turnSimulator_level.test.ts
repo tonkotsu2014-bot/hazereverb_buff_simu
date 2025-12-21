@@ -49,7 +49,8 @@ describe('TurnSimulator - Active Level Selection', () => {
         };
 
         const result = simulateTurns([character], 1);
-        const action = result[0];
+        const charActions = result.filter(a => a.actorRole !== 'System');
+        const action = charActions[0];
 
         // Find the self-buff on the character
         const charState = action.characterStates[0];
@@ -68,7 +69,8 @@ describe('TurnSimulator - Active Level Selection', () => {
         };
 
         const result = simulateTurns([character], 1);
-        const action = result[0];
+        const charActions = result.filter(a => a.actorRole !== 'System');
+        const action = charActions[0];
 
         const charState = action.characterStates[0];
         const skill = charState.receivedSkills.find(s => s.name === 'TestSkill');
@@ -86,7 +88,8 @@ describe('TurnSimulator - Active Level Selection', () => {
         };
 
         const result = simulateTurns([character], 1);
-        const action = result[0];
+        const charActions = result.filter(a => a.actorRole !== 'System');
+        const action = charActions[0];
 
         const charState = action.characterStates[0];
         const skill = charState.receivedSkills.find(s => s.name === 'TestSkill');
