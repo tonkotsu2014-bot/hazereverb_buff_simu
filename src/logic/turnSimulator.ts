@@ -441,6 +441,10 @@ export const simulateTurns = (
     const executeRoundStartPhase = (round: number) => {
         party.forEach((character, index) => {
             if (!character) return;
+            const deathRound = character.deathRound;
+            const isDead = deathRound !== undefined && deathRound > 0 && round >= deathRound;
+            if (isDead) return;
+
             const skills = resolveSkillsToApply(character, round);
             processEffects(index, round, skills, (timing) => timing === 'RoundStart');
         });
