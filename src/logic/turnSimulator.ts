@@ -60,6 +60,15 @@ export const simulateTurns = (
     // Track accumulated skills for each character index
     const accumulatedSkills: ReceivedSkill[][] = party.map(() => []);
 
+    // Helper to check if a character is dead
+    const isCharacterDead = (character: SimulationCharacter | null, currentRound: number): boolean => {
+        if (!character) return true;
+        const { deathRound } = character;
+        // Alive if deathRound is undefined, 0, or negative.
+        // Dead if deathRound > 0 and currentRound >= deathRound.
+        return deathRound !== undefined && deathRound > 0 && currentRound >= deathRound;
+    };
+
     // Helper to get Japanese type name from Role
     const getTypeName = (role: string): string => {
         switch (role) {
@@ -201,9 +210,7 @@ export const simulateTurns = (
             supportTargetNames = character.supportTargetIndices
                 .filter(idx => {
                     const target = party[idx];
-                    if (!target) return false;
-                    const dRound = target.deathRound;
-                    return dRound === undefined || dRound <= 0 || round < dRound;
+                    return !isCharacterDead(target, round);
                 })
                 .map(idx => getCharacterName(idx));
         }
@@ -370,7 +377,7 @@ export const simulateTurns = (
 
             const addEffectToTarget = (tIdx: number, effect: typeof resolvedEffects[0]) => {
                 const targetChar = party[tIdx];
-                if (targetChar && (!targetChar.deathRound || targetChar.deathRound > round)) {
+                if (!isCharacterDead(targetChar, round)) {
                     if (!effectsByTargetIndex.has(tIdx)) {
                         effectsByTargetIndex.set(tIdx, []);
                     }
@@ -441,8 +448,7 @@ export const simulateTurns = (
     const executeRoundStartPhase = (round: number) => {
         party.forEach((character, index) => {
             if (!character) return;
-            const deathRound = character.deathRound;
-            const isDead = deathRound !== undefined && deathRound > 0 && round >= deathRound;
+            const isDead = isCharacterDead(character, round);
             if (isDead) return;
 
             const skills = resolveSkillsToApply(character, round);
@@ -465,8 +471,9 @@ export const simulateTurns = (
         const character = party[index];
         if (!character) throw new Error(`Invalid character in party at index ${index}`);
 
-        const deathRound = character.deathRound;
-        const isDead = deathRound !== undefined && deathRound > 0 && round >= deathRound;
+        if (!character) throw new Error(`Invalid character in party at index ${index}`);
+
+        const isDead = isCharacterDead(character, round);
         if (isDead) return { acted: false, role: 'Dead' };
 
         const skills = resolveSkillsToApply(character, round);
