@@ -45,13 +45,15 @@ const attributeLabels: Record<string, string> = {
     Armor: '装甲',
     CritRate: 'クリ率',
     CritDamage: 'クリダメ',
+    HyperCritDamage: 'ハイパークリティカルダメージ',
     Mobility: '機動力',
     Support: '支援力',
     Shield: 'シールド',
     Hp: '最大HP',
     DamageReduction: 'ダメ軽減',
     DamageBoost: 'ダメ増加',
-    Evasion: '回避'
+    Evasion: '回避',
+    Silent: '静寂'
 };
 
 const targetLabels: Record<string, string> = {
@@ -63,7 +65,15 @@ const targetLabels: Record<string, string> = {
 const calculationTypeLabels: Record<string, string> = {
     Fixed: '固定値',
     Scaling: '係数',
-    SupportScaling: '支援力'
+    SupportScaling: '支援力',
+    SilentScaling: '静寂数'
+};
+
+const timingLabels: Record<string, string> = {
+    BattleStart: '戦闘開始時',
+    RoundStart: 'R開始時',
+    BeforeAction: '行動前',
+    Action: '行動時'
 };
 
 export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) => {
@@ -131,6 +141,19 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
             ...prev,
             [skillIndex]: newLevelIndex
         }));
+
+        // Also update the activeLevel in the character data for simulation
+        const newSkills = [...formData.skills];
+
+        if (newSkills[skillIndex].levels[newLevelIndex]) {
+            newSkills[skillIndex] = {
+                ...newSkills[skillIndex],
+                activeLevel: newSkills[skillIndex].levels[newLevelIndex].level
+            };
+            const updated = { ...formData, skills: newSkills };
+            setFormData(updated);
+            onUpdate(updated);
+        }
     };
 
     const handleAddEffect = (skillIndex: number, levelIndex: number) => {
@@ -144,7 +167,9 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                 value: 0,
                 duration: 1,
                 calculationType: 'Fixed',
-                target: 'Default'
+                calculationType: 'Fixed',
+                target: 'Default',
+                timing: 'Action'
             } as SkillEffect
         ];
         newLevels[levelIndex] = { ...newLevels[levelIndex], effects: newEffects };
@@ -423,7 +448,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                                 {attributeLabels[effect.attribute] || effect.attribute}
                                                             </Typography>
                                                             <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
-                                                                {targetLabels[effect.target || 'Default']} • {calculationTypeLabels[effect.calculationType || 'Fixed']}
+                                                                {targetLabels[effect.target || 'Default']} • {calculationTypeLabels[effect.calculationType || 'Fixed']} • {timingLabels[effect.timing || 'Action']}
                                                             </Typography>
                                                         </Box>
                                                         <Tooltip title="削除">
@@ -470,10 +495,12 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                                     <MenuItem value="Armor">装甲</MenuItem>
                                                                     <MenuItem value="CritRate">クリ率</MenuItem>
                                                                     <MenuItem value="CritDamage">クリダメ</MenuItem>
+                                                                    <MenuItem value="HyperCritDamage">ハイパークリティカルダメージ</MenuItem>
                                                                     <MenuItem value="Mobility">機動力</MenuItem>
                                                                     <MenuItem value="Support">支援力</MenuItem>
                                                                     <MenuItem value="Shield">シールド</MenuItem>
                                                                     <MenuItem value="Hp">最大HP</MenuItem>
+                                                                    <MenuItem value="Silent">静寂</MenuItem>
                                                                 </Select>
                                                             </FormControl>
                                                         </Grid>
@@ -490,6 +517,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                                     <MenuItem value="Fixed">固定値</MenuItem>
                                                                     <MenuItem value="Scaling">係数</MenuItem>
                                                                     <MenuItem value="SupportScaling">支援力</MenuItem>
+                                                                    <MenuItem value="SilentScaling">静寂数</MenuItem>
                                                                 </Select>
                                                             </FormControl>
                                                         </Grid>
@@ -506,6 +534,23 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                                     <MenuItem value="Default">標準</MenuItem>
                                                                     <MenuItem value="Self">自身</MenuItem>
                                                                     <MenuItem value="AllAllies">全員</MenuItem>
+                                                                </Select>
+                                                            </FormControl>
+                                                        </Grid>
+
+                                                        <Grid size={{ xs: 6, sm: 4, md: 1.5 }}>
+                                                            <FormControl fullWidth size="small">
+                                                                <InputLabel sx={{ fontSize: '0.8rem' }}>タイミング</InputLabel>
+                                                                <Select
+                                                                    value={effect.timing || 'Action'}
+                                                                    label="タイミング"
+                                                                    onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'timing', e.target.value)}
+                                                                    sx={{ fontSize: '0.85rem' }}
+                                                                >
+                                                                    <MenuItem value="Action">行動時</MenuItem>
+                                                                    <MenuItem value="BeforeAction">行動前</MenuItem>
+                                                                    <MenuItem value="RoundStart">R開始</MenuItem>
+                                                                    <MenuItem value="BattleStart">戦闘開始</MenuItem>
                                                                 </Select>
                                                             </FormControl>
                                                         </Grid>

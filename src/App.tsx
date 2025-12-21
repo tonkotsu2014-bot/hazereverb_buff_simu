@@ -4,6 +4,7 @@ import { MainLayout } from './components/Layout/MainLayout';
 import { CharacterEditPage } from './pages/CharacterEditPage';
 import type { ParsedCharacterData } from './logic/wikiParser';
 import { BuffSimulationPage } from './pages/BuffSimulationPage';
+import { TurnSimulationPage } from './pages/TurnSimulationPage';
 import { SettingsPage } from './pages/SettingsPage';
 import {
   CssBaseline,
@@ -143,6 +144,14 @@ function App() {
               path="simulation"
               element={
                 <BuffSimulationPage
+                  characters={characters}
+                />
+              }
+            />
+            <Route
+              path="turn-simulation"
+              element={
+                <TurnSimulationPage
                   characters={characters}
                 />
               }

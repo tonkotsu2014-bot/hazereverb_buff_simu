@@ -124,12 +124,9 @@ describe('WikiParser Skill Level Issue', () => {
 
             expect(skill1).toBeDefined();
 
-            // Check Level 2 (should be single cell in HTML)
+            // Check Level 2 is ignored.
             const level2 = skill1?.levels.find(l => l.level === '2');
-            expect(level2).toBeDefined();
-            expect(level2?.description).toBeNull();
-            // Effects should be empty array
-            expect(level2?.effects).toEqual([]);
+            expect(level2).toBeUndefined();
         });
     });
 

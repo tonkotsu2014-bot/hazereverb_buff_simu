@@ -7,6 +7,7 @@ export interface SkillEffect {
     calculationType?: string; // Made optional to fit existing usage or ensure alignment
     scalingFactor?: string;
     target?: string; // 'Default' | 'Self' | 'AllAllies' etc.
+    timing?: 'BattleStart' | 'RoundStart' | 'BeforeAction' | 'Action';
     isStackable?: boolean;
 }
 
@@ -19,6 +20,7 @@ export interface SkillLevel {
 export interface SkillData {
     name: string;
     levels: SkillLevel[];
+    activeLevel?: string; // Selected level for simulation (e.g., 'Lv.5')
 }
 
 export interface CharacterStats {
@@ -182,7 +184,10 @@ export const parseSkills = (doc: Document): SkillData[] => {
                 });
 
                 if (levels.length > 0) {
-                    skills.push({ name: skillName, levels });
+                    const validLevels = levels.filter(l => l.description !== null && l.description.length > 0);
+                    if (validLevels.length > 0) {
+                        skills.push({ name: skillName, levels: validLevels });
+                    }
                 }
             }
         }

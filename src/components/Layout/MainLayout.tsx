@@ -22,6 +22,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import SettingsIcon from '@mui/icons-material/Settings';
 import GitHubIcon from '@mui/icons-material/GitHub';
+import ViewTimelineIcon from '@mui/icons-material/ViewTimeline';
 
 export const MainLayout: React.FC = () => {
     const location = useLocation();
@@ -53,6 +54,12 @@ export const MainLayout: React.FC = () => {
                     </ListItemButton>
                 </ListItem>
                 <ListItem disablePadding>
+                    <ListItemButton component={Link} to="/turn-simulation" selected={location.pathname === '/turn-simulation'}>
+                        <ListItemIcon><ViewTimelineIcon /></ListItemIcon>
+                        <ListItemText primary="ターンシミュ" />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem disablePadding>
                     <ListItemButton component={Link} to="/settings" selected={location.pathname === '/settings'}>
                         <ListItemIcon><SettingsIcon /></ListItemIcon>
                         <ListItemText primary="設定" />
@@ -63,7 +70,7 @@ export const MainLayout: React.FC = () => {
     );
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', width: { xs: '100%', md: '80vw' }, mx: 'auto' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: { xs: '100%', md: '80vw' }, mx: 'auto' }}>
             <AppBar position="static">
                 <Toolbar>
                     {isMobile && (
@@ -112,6 +119,18 @@ export const MainLayout: React.FC = () => {
                             <Button
                                 color="inherit"
                                 component={Link}
+                                to="/turn-simulation"
+                                startIcon={<ViewTimelineIcon />}
+                                sx={{
+                                    borderBottom: location.pathname === '/turn-simulation' ? '2px solid white' : 'none',
+                                    borderRadius: 0
+                                }}
+                            >
+                                ターンシミュ
+                            </Button>
+                            <Button
+                                color="inherit"
+                                component={Link}
                                 to="/settings"
                                 startIcon={<SettingsIcon />}
                                 sx={{
@@ -154,7 +173,7 @@ export const MainLayout: React.FC = () => {
                 </Drawer>
             </Box>
 
-            <Box component="main" sx={{ flexGrow: 1, overflow: 'hidden', bgcolor: 'background.default' }}>
+            <Box component="main" sx={{ flexGrow: 1, bgcolor: 'background.default' }}>
                 <Outlet />
             </Box>
         </Box>
