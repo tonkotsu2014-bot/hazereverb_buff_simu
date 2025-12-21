@@ -9,12 +9,12 @@ describe('Graph Calculation Logic', () => {
             name: 'TestChar',
             skills: [],
             stats: {
-                hp: '1000',
-                attack: '500',
-                defense: '100',
-                critRate: '15%',
-                critDamage: '150%',
-                speed: '20'
+                Hp: 1000,
+                Attack: 500,
+                Armor: 100,
+                CritRate: 15,
+                CritDamage: 150,
+                Mobility: 20
             }
         };
 
@@ -22,12 +22,12 @@ describe('Graph Calculation Logic', () => {
             name: 'NumericChar',
             skills: [],
             stats: {
-                hp: 2000,
+                Hp: 2000,
                 Support: 120, // Special case
-                defense: 200,
-                critRate: 20,
-                critDamage: 180,
-                speed: 30
+                Armor: 200,
+                CritRate: 20,
+                CritDamage: 180,
+                Mobility: 30
             }
         };
 
@@ -94,12 +94,12 @@ describe('Graph Calculation Logic', () => {
                 name: 'TestChar',
                 skills: [],
                 stats: {
-                    hp: '1000',
-                    attack: '500',
-                    defense: '100', // Armor
-                    critRate: '15%',
-                    critDamage: '150%',
-                    speed: '20'
+                    Hp: 1000,
+                    Attack: 500,
+                    Armor: 100, // Armor
+                    CritRate: 15,
+                    CritDamage: 150,
+                    Mobility: 20
                 }
             }
         ];

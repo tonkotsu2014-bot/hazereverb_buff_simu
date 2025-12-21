@@ -60,15 +60,16 @@ export const getCharacterBaseStat = (character: ParsedCharacterData | undefined,
     // Map standard attribute names to CharacterStats keys
     let key: string = attribute;
     switch (attribute) {
-        case 'Hp': key = 'hp'; break;
-        case 'Attack': key = 'attack'; break;
+        case 'Hp': key = 'Hp'; break;
+        case 'Attack': key = 'Attack'; break;
         case 'Defense':
-        case 'Armor': key = 'defense'; break;
-        case 'CritRate': key = 'critRate'; break;
-        case 'CritDamage': key = 'critDamage'; break;
+        case 'Armor': key = 'Armor'; break;
+        case 'CritRate': key = 'CritRate'; break;
+        case 'CritDamage': key = 'CritDamage'; break;
         case 'Mobility':
-        case 'Speed': key = 'speed'; break;
-        case 'Support': key = 'Support'; break; // Special case for supporter
+        case 'Speed': key = 'Mobility'; break;
+        case 'Support': key = 'Support'; break;
+        default: key = attribute; break;
     }
 
     const val = (character.stats as any)[key];

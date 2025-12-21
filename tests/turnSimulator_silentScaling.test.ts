@@ -41,11 +41,11 @@ describe('turnSimulator Silent Scaling', () => {
                         description: 'Silent Scaling Damage',
                         effects: [
                             {
-                                attribute: 'Damage',
-                                value: 100, // Base value per Silent
-                                type: 'Butt', // Typo in type? Assuming 'Buff' or just value holder. 'Damage' attribute usually not aggregated in chart but...
+
                                 // Wait, the graph/table aggregates effects.
                                 // Let's use 'Attack' to verify value easily in results.
+                                value: 100,
+                                type: 'Buff',
                                 attribute: 'Attack',
                                 calculationType: 'SilentScaling',
                                 target: 'Self',
