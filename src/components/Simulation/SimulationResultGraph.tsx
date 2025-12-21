@@ -220,12 +220,14 @@ interface SimulationResultGraphProps {
     simulationResults: Action[];
     selectedCharacterId: string | null;
     party: (ParsedCharacterData & { id: string; name: string })[];
+    selectedGlobalTurn?: number | null;
 }
 
 export const SimulationResultGraph: React.FC<SimulationResultGraphProps> = ({
     simulationResults,
     selectedCharacterId,
-    party
+    party,
+    selectedGlobalTurn
 }) => {
     const [hiddenAttributes, setHiddenAttributes] = React.useState<Set<string>>(new Set());
 
@@ -325,7 +327,7 @@ export const SimulationResultGraph: React.FC<SimulationResultGraphProps> = ({
 
                     <ReferenceLine y={0} stroke="#666" />
 
-                    {actionTurns.map((turnName) => (
+                    {actionTurns.filter(t => t !== selectedGlobalTurn?.toString()).map((turnName) => (
                         <ReferenceLine
                             key={turnName}
                             x={turnName}
@@ -334,6 +336,17 @@ export const SimulationResultGraph: React.FC<SimulationResultGraphProps> = ({
                             ifOverflow="visible"
                         />
                     ))}
+
+                    {/* Highlight Selected Turn (Replaces blue line if it was an action turn, or adds new line if not) */}
+                    {selectedGlobalTurn && (
+                        <ReferenceLine
+                            x={selectedGlobalTurn.toString()}
+                            stroke="rgba(244, 67, 54, 0.6)" // Red, semi-transparent but more visible
+                            strokeWidth={4}
+                            isFront={true}
+                            label={{ value: 'Select', position: 'insideTop', fill: '#d32f2f', fontSize: 10, fontWeight: 'bold' }}
+                        />
+                    )}
 
                     {presentAttributes.map(attr => (
                         <Line

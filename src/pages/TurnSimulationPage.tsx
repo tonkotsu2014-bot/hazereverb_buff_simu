@@ -359,7 +359,8 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
     const handleCloseDialog = () => {
         setDialogOpen(false);
         setSelectedSkills([]);
-        setSelectedTurnInfo(null);
+        // Keep selectedTurnInfo so highlight persists on graph
+        // setSelectedTurnInfo(null); 
     };
 
     return (
@@ -496,6 +497,8 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                                         if (action.actorId) {
                                                             setSelectedCharacterId(action.actorId);
                                                         }
+                                                        // Always highlight the clicked turn on the graph
+                                                        setSelectedTurnInfo({ round: action.round, turn: action.globalTurn });
                                                     }}
                                                 >
                                                     {isRoundStart && (
@@ -712,6 +715,7 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                         simulationResults={simulationResults}
                                         selectedCharacterId={selectedCharacterId}
                                         party={party.map(p => ({ ...p, name: p.name || 'Unknown' }))}
+                                        selectedGlobalTurn={selectedTurnInfo?.turn}
                                     />
                                 )}
                             </Box>
