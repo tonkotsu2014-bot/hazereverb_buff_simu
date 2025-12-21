@@ -604,22 +604,15 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                                 </Tabs>
                             </Box>
 
-                            <Box sx={{ p: 2, pb: 1 }}>
-                                <Typography variant="subtitle2" gutterBottom fontWeight={600} color="text.secondary">
-                                    表示するキャラクターを選択:
+                            <Box sx={{ p: 1, px: 2, display: 'flex', alignItems: 'center', gap: 1, borderBottom: '1px dashed #e0e0e0' }}>
+                                <Typography variant="subtitle2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+                                    選択中のキャラ:
                                 </Typography>
-                                <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto', pb: 1 }}>
-                                    {party.map((p) => (
-                                        <Chip
-                                            key={p.id}
-                                            label={p.name}
-                                            onClick={() => setSelectedCharacterId(p.id)}
-                                            color={selectedCharacterId === p.id ? 'primary' : 'default'}
-                                            variant={selectedCharacterId === p.id ? 'filled' : 'outlined'}
-                                            clickable
-                                        />
-                                    ))}
-                                </Box>
+                                <Typography variant="body2" fontWeight={selectedCharacterId ? 'bold' : 'normal'} color={selectedCharacterId ? 'primary' : 'text.secondary'}>
+                                    {selectedCharacterId
+                                        ? party.find(p => p.id === selectedCharacterId)?.name
+                                        : '（ターン一覧からキャラクターを選択してください）'}
+                                </Typography>
                             </Box>
 
                             {/* TAB 1: DETAILED TABLE */}
