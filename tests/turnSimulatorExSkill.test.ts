@@ -1,6 +1,6 @@
-import { simulateTurns } from '../logic/turnSimulator';
-import type { SimulationCharacter } from '../logic/turnSimulator';
-import type { SkillData } from '../logic/wikiParser';
+import { simulateTurns } from '../src/logic/turnSimulator';
+import type { SimulationCharacter } from '../src/logic/turnSimulator';
+import type { SkillData } from '../src/logic/wikiParser';
 import { describe, test, expect } from 'vitest';
 
 describe('Turn Simulator - EX Skill Activation', () => {

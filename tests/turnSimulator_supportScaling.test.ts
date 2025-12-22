@@ -1,5 +1,5 @@
-import { simulateTurns, type SimulationCharacter } from '../logic/turnSimulator';
-import type { SkillData } from '../logic/wikiParser';
+import { simulateTurns, type SimulationCharacter } from '../src/logic/turnSimulator';
+import type { SkillData } from '../src/logic/wikiParser';
 import { describe, test, expect } from 'vitest';
 
 describe('Turn Simulator - Support Power Scaling', () => {
