@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { MainLayout } from './components/Layout/MainLayout';
+import { HomePage } from './pages/HomePage';
 import { CharacterEditPage } from './pages/CharacterEditPage';
 import type { ParsedCharacterData } from './logic/wikiParser';
 import { BuffSimulationPage } from './pages/BuffSimulationPage';
@@ -127,7 +128,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<MainLayout />}>
-            <Route index element={<Navigate to="/edit" replace />} />
+            <Route index element={<HomePage />} />
             <Route
               path="edit"
               element={

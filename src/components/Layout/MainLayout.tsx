@@ -36,7 +36,17 @@ export const MainLayout: React.FC = () => {
 
     const drawer = (
         <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
-            <Typography variant="h6" sx={{ my: 2 }}>
+            <Typography
+                variant="h6"
+                component={Link}
+                to="/"
+                sx={{
+                    my: 2,
+                    textDecoration: 'none',
+                    color: 'inherit',
+                    display: 'block'
+                }}
+            >
                 ハツリバ・バフシミュ
             </Typography>
             <Divider />
@@ -50,7 +60,7 @@ export const MainLayout: React.FC = () => {
                 <ListItem disablePadding>
                     <ListItemButton component={Link} to="/simulation" selected={location.pathname === '/simulation'}>
                         <ListItemIcon><CalculateIcon /></ListItemIcon>
-                        <ListItemText primary="シミュレーション" />
+                        <ListItemText primary="簡易シミュ" />
                     </ListItemButton>
                 </ListItem>
                 <ListItem disablePadding>
@@ -85,7 +95,18 @@ export const MainLayout: React.FC = () => {
                         </IconButton>
                     )}
 
-                    <Typography variant="h6" component="div" sx={{ flexGrow: isMobile ? 1 : 0, mr: 4 }}>
+                    <Typography
+                        variant="h6"
+                        component={Link}
+                        to="/"
+                        sx={{
+                            flexGrow: isMobile ? 1 : 0,
+                            mr: 4,
+                            textDecoration: 'none',
+                            color: 'inherit',
+                            cursor: 'pointer'
+                        }}
+                    >
                         {isMobile ? 'バフシミュ' : 'ハツリバ・バフシミュレーター'}
                     </Typography>
 
@@ -114,7 +135,7 @@ export const MainLayout: React.FC = () => {
                                     borderRadius: 0
                                 }}
                             >
-                                シミュレーター
+                                簡易シミュ
                             </Button>
                             <Button
                                 color="inherit"
