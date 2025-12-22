@@ -1,7 +1,7 @@
 
 import { describe, test, expect } from 'vitest';
-import { simulateTurns, SimulationCharacter } from '../logic/turnSimulator';
-import { SkillData } from '../logic/wikiParser';
+import { simulateTurns, type SimulationCharacter } from '../logic/turnSimulator';
+import type { SkillData } from '../logic/wikiParser';
 
 describe('TurnSimulator - Active Level Selection', () => {
     const createMockSkill = (name: string, activeLevel?: string): SkillData => ({

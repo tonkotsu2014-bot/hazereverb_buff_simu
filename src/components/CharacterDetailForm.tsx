@@ -183,7 +183,6 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                 value: 0,
                 duration: 1,
                 calculationType: 'Fixed',
-                calculationType: 'Fixed',
                 target: 'Default',
                 timing: 'Action'
             } as SkillEffect
