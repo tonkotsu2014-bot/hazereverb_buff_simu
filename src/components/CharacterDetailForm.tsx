@@ -91,7 +91,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
             case 'attack': label = role === 'Supporter' ? '支援力' : '攻撃力'; break;
             case 'Support': label = '支援力'; break;
             case 'Armor':
-            case 'defense': label = '防御力'; break;
+            case 'defense': label = '装甲'; break;
             case 'CritRate':
             case 'critRate': label = 'クリ率'; break;
             case 'CritDamage':
