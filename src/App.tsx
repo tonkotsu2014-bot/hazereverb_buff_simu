@@ -9,6 +9,7 @@ import { TurnSimulationPage } from './pages/TurnSimulationPage';
 
 import { SettingsPage } from './pages/SettingsPage';
 import { UsagePage } from './pages/UsagePage';
+import { BuffSimulationGuidePage } from './pages/BuffSimulationGuidePage';
 import {
   CssBaseline,
   createTheme,
@@ -170,6 +171,7 @@ function App() {
               }
             />
             <Route path="usage" element={<UsagePage />} />
+            <Route path="guide/buff-simulation" element={<BuffSimulationGuidePage />} />
           </Route>
         </Routes>
       </BrowserRouter>

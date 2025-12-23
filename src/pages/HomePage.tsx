@@ -1,5 +1,5 @@
 import { Box, Container, Typography, Grid, Card, CardActionArea, CardContent, useTheme, Stack, Link } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
@@ -25,7 +25,12 @@ export const HomePage = () => {
         },
         {
             title: '簡易シミュレーター',
-            description: 'パーティーの編成によって得られるバフを簡易的にシミュレーションします。理論値のチェックなどに利用。',
+            description: (
+                <>
+                    パーティーの編成によって得られるバフを簡易的にシミュレーションします。理論値のチェックなどに利用。<br />
+                    <Link component={RouterLink} to="/guide/buff-simulation" onClick={(e) => e.stopPropagation()} underline="hover">使い方はこちら</Link>
+                </>
+            ),
             path: '/simulation',
             icon: <CalculateIcon sx={{ fontSize: 40 }} />,
             color: '#10b981' // Emerald-500
