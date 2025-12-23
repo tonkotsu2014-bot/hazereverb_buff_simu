@@ -23,6 +23,7 @@ import CalculateIcon from '@mui/icons-material/Calculate';
 import SettingsIcon from '@mui/icons-material/Settings';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import ViewTimelineIcon from '@mui/icons-material/ViewTimeline';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
 export const MainLayout: React.FC = () => {
     const location = useLocation();
@@ -73,6 +74,12 @@ export const MainLayout: React.FC = () => {
                     <ListItemButton component={Link} to="/settings" selected={location.pathname === '/settings'}>
                         <ListItemIcon><SettingsIcon /></ListItemIcon>
                         <ListItemText primary="設定" />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem disablePadding>
+                    <ListItemButton component={Link} to="/usage" selected={location.pathname === '/usage'}>
+                        <ListItemIcon><AutoAwesomeIcon /></ListItemIcon>
+                        <ListItemText primary="使い方" />
                     </ListItemButton>
                 </ListItem>
             </List>
@@ -157,10 +164,22 @@ export const MainLayout: React.FC = () => {
                                 sx={{
                                     borderBottom: location.pathname === '/settings' ? '2px solid white' : 'none',
                                     borderRadius: 0,
-                                    ml: 'auto'
                                 }}
                             >
                                 設定
+                            </Button>
+                            <Button
+                                color="inherit"
+                                component={Link}
+                                to="/usage"
+                                startIcon={<AutoAwesomeIcon />}
+                                sx={{
+                                    borderBottom: location.pathname === '/usage' ? '2px solid white' : 'none',
+                                    borderRadius: 0,
+                                    ml: 'auto'
+                                }}
+                            >
+                                使い方
                             </Button>
                             <IconButton
                                 color="inherit"

@@ -6,7 +6,9 @@ import { CharacterEditPage } from './pages/CharacterEditPage';
 import type { ParsedCharacterData } from './logic/wikiParser';
 import { BuffSimulationPage } from './pages/BuffSimulationPage';
 import { TurnSimulationPage } from './pages/TurnSimulationPage';
+
 import { SettingsPage } from './pages/SettingsPage';
+import { UsagePage } from './pages/UsagePage';
 import {
   CssBaseline,
   createTheme,
@@ -167,6 +169,7 @@ function App() {
                 />
               }
             />
+            <Route path="usage" element={<UsagePage />} />
           </Route>
         </Routes>
       </BrowserRouter>
