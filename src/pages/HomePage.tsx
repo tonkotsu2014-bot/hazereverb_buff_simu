@@ -15,8 +15,9 @@ export const HomePage = () => {
             description: (
                 <>
                     シミュレーションに使用するキャラクターのステータスやスキルレベルを設定します。
-                    <Link href="https://w.atwiki.jp/hazereverb/" target="_blank" rel="noopener" underline="hover">ハツリバwiki</Link>
-                    のキャラクターのデータのHTMLソースからキャラクターを追加できます。
+                    <Link href="https://w.atwiki.jp/hazereverb/" target="_blank" rel="noopener" underline="hover" onClick={(e) => e.stopPropagation()}>ハツリバwiki</Link>
+                    のキャラクターのデータのHTMLソースからキャラクターを追加できます。<br />
+                    <Link component={RouterLink} to="/guide/character-edit" onClick={(e) => e.stopPropagation()} underline="hover">使い方はこちら</Link>
                 </>
             ),
             path: '/edit',

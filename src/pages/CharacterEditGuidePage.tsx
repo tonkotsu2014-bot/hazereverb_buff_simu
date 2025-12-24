@@ -6,33 +6,36 @@ import {
     Paper,
     Divider,
     Alert,
-    AlertTitle,
-    Card,
-    CardMedia,
     Grid,
     Accordion,
     AccordionSummary,
-    AccordionDetails
+    AccordionDetails,
+    Breadcrumbs,
+    Link as MuiLink
 } from '@mui/material';
+import { Link } from 'react-router-dom';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import EditIcon from '@mui/icons-material/Edit';
 
-export const UsagePage: React.FC = () => {
+export const CharacterEditGuidePage: React.FC = () => {
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
+            <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 3 }}>
+                <MuiLink component={Link} to="/" underline="hover" color="inherit">
+                    ホーム
+                </MuiLink>
+                <Typography color="text.primary">キャラクター編集の使い方</Typography>
+            </Breadcrumbs>
+
             <Box sx={{ mb: 4 }}>
                 <Typography variant="h4" fontWeight={800} gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <AutoAwesomeIcon fontSize="large" color="primary" />
-                    使い方ガイド
+                    キャラクター編集の使い方ガイド
                 </Typography>
                 <Typography variant="body1" color="text.secondary">
                     キャラクターの追加・編集方法についての操作説明です。
                 </Typography>
             </Box>
-
-
 
             <Paper sx={{ p: 4, mb: 4 }}>
                 <Typography variant="h5" fontWeight={700} gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

@@ -8,7 +8,7 @@ import { BuffSimulationPage } from './pages/BuffSimulationPage';
 import { TurnSimulationPage } from './pages/TurnSimulationPage';
 
 import { SettingsPage } from './pages/SettingsPage';
-import { UsagePage } from './pages/UsagePage';
+import { CharacterEditGuidePage } from './pages/CharacterEditGuidePage';
 import { BuffSimulationGuidePage } from './pages/BuffSimulationGuidePage';
 import {
   CssBaseline,
@@ -170,7 +170,7 @@ function App() {
                 />
               }
             />
-            <Route path="usage" element={<UsagePage />} />
+            <Route path="guide/character-edit" element={<CharacterEditGuidePage />} />
             <Route path="guide/buff-simulation" element={<BuffSimulationGuidePage />} />
           </Route>
         </Routes>
