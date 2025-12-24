@@ -7,6 +7,7 @@ import type { ParsedCharacterData } from './logic/wikiParser';
 import { BuffSimulationPage } from './pages/BuffSimulationPage';
 import { TurnSimulationPage } from './pages/TurnSimulationPage';
 
+import { TurnSimulationGuidePage } from './pages/TurnSimulationGuidePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { CharacterEditGuidePage } from './pages/CharacterEditGuidePage';
 import { BuffSimulationGuidePage } from './pages/BuffSimulationGuidePage';
@@ -172,6 +173,7 @@ function App() {
             />
             <Route path="guide/character-edit" element={<CharacterEditGuidePage />} />
             <Route path="guide/buff-simulation" element={<BuffSimulationGuidePage />} />
+            <Route path="guide/turn-simulation" element={<TurnSimulationGuidePage />} />
           </Route>
         </Routes>
       </BrowserRouter>

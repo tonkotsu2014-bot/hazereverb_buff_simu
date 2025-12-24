@@ -38,7 +38,12 @@ export const HomePage = () => {
         },
         {
             title: 'ターンシミュレーター',
-            description: '実際のターン経過に伴うバフの適用状況をできるだけ正確にシミュレーションします。また、各ターンごとのバフによるステータス変化状況をグラフで確認できます。',
+            description: (
+                <>
+                    実際のターン経過に伴うバフの適用状況をできるだけ正確にシミュレーションします。また、各ターンごとのバフによるステータス変化状況をグラフで確認できます。<br />
+                    <Link component={RouterLink} to="/guide/turn-simulation" onClick={(e) => e.stopPropagation()} underline="hover">使い方はこちら</Link>
+                </>
+            ),
             path: '/turn-simulation',
             icon: <ShowChartIcon sx={{ fontSize: 40 }} />,
             color: '#f59e0b' // Amber-500
