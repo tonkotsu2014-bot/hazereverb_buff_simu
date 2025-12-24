@@ -45,9 +45,6 @@ export const BuffSimulationGuidePage = () => {
                         <ListItemText primary="キャラクター追加" secondary="「キャラクターを追加」ドロップダウンから計算に含めたいキャラクターを選択します。" />
                     </ListItem>
                     <ListItem sx={{ display: 'list-item' }}>
-                        <ListItemText primary="並べ替え" secondary="キャラクターカードの左側にあるハンドル（:::）をドラッグすることで並べ替えが可能です。" />
-                    </ListItem>
-                    <ListItem sx={{ display: 'list-item' }}>
                         <ListItemText primary="削除" secondary="不要なキャラクターはゴミ箱アイコンをクリックして削除します。" />
                     </ListItem>
                 </List>
@@ -60,7 +57,34 @@ export const BuffSimulationGuidePage = () => {
 
             <Paper sx={{ p: 4, mb: 4 }}>
                 <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
-                    3. アタッカー選択
+                    3. スキルレベルとスタック数の設定
+                </Typography>
+                <Typography paragraph>
+                    編成したキャラクターのカードをクリックすることで、スキルレベルやExスキル（覚醒スキル）の有効化、スタック数の変更を行うことができます。
+                </Typography>
+                <Box sx={{ my: 3, border: '1px solid #ddd', borderRadius: 2, overflow: 'hidden' }}>
+                    <img
+                        src="/assets/guide/buff_sim_config.png"
+                        alt="スキル設定ダイアログ"
+                        style={{ width: '100%', height: 'auto', display: 'block' }}
+                    />
+                </Box>
+                <List sx={{ listStyleType: 'disc', pl: 4 }}>
+                    <ListItem sx={{ display: 'list-item' }}>
+                        <ListItemText primary="スキルレベル" secondary="キャラクターのスキルレベルを変更できます。" />
+                    </ListItem>
+                    <ListItem sx={{ display: 'list-item' }}>
+                        <ListItemText primary="Exスキルの有効化" secondary="覚醒スキル（Exスキル）を計算に含めるかどうかを切り替えます。" />
+                    </ListItem>
+                    <ListItem sx={{ display: 'list-item' }}>
+                        <ListItemText primary="スタック数" secondary="スタック可能なスキル（例: 「攻撃力アップ(累積)」など）を持つ場合、そのスタック数を指定できます。" />
+                    </ListItem>
+                </List>
+            </Paper>
+
+            <Paper sx={{ p: 4, mb: 4 }}>
+                <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
+                    4. アタッカー選択
                 </Typography>
                 <Typography paragraph>
                     編成したパーティの中から、バフを受ける対象（アタッカー兼リーダー）を選択します。
@@ -78,7 +102,7 @@ export const BuffSimulationGuidePage = () => {
 
             <Paper sx={{ p: 4, mb: 4 }}>
                 <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
-                    4. シミュレーション結果の確認
+                    5. シミュレーション結果の確認
                 </Typography>
                 <Typography paragraph>
                     画面下部に計算結果が表示されます。
@@ -105,7 +129,7 @@ export const BuffSimulationGuidePage = () => {
 
             <Paper sx={{ p: 4, mb: 4 }}>
                 <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
-                    5. 個別効果のON/OFF
+                    6. 個別効果のON/OFF
                 </Typography>
                 <Typography paragraph>
                     「シミュレーション結果」の下に表示される「適用された効果詳細」のリストでは、個別のバフ効果をクリックすることで、計算への反映をON/OFF（有効/無効）切り替えることができます。

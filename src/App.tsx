@@ -7,10 +7,10 @@ import type { ParsedCharacterData } from './logic/wikiParser';
 import { BuffSimulationPage } from './pages/BuffSimulationPage';
 import { TurnSimulationPage } from './pages/TurnSimulationPage';
 
-import { TurnSimulationGuidePage } from './pages/TurnSimulationGuidePage';
+import { TurnSimulationGuidePage } from './pages/guides/TurnSimulationGuidePage';
 import { SettingsPage } from './pages/SettingsPage';
-import { CharacterEditGuidePage } from './pages/CharacterEditGuidePage';
-import { BuffSimulationGuidePage } from './pages/BuffSimulationGuidePage';
+import { CharacterEditGuidePage } from './pages/guides/CharacterEditGuidePage';
+import { BuffSimulationGuidePage } from './pages/guides/BuffSimulationGuidePage';
 import {
   CssBaseline,
   createTheme,
