@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box,
     Typography,
@@ -238,8 +238,70 @@ const SortableItem: React.FC<SortableItemProps> = ({ member, index, party, onRem
 
 export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characters }) => {
     // State now uses specific PartyMember type
-    const [party, setParty] = useState<PartyMember[]>([]);
-    const [maxRounds, setMaxRounds] = useState(5);
+    const [party, setParty] = useState<PartyMember[]>(() => {
+        try {
+            const saved = localStorage.getItem('hazreverb_turn_sim_state');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed.party && Array.isArray(parsed.party)) {
+                    return parsed.party;
+                }
+            }
+        } catch (e) {
+            console.error('Failed to load turn sim state', e);
+        }
+        return [];
+    });
+
+    const [maxRounds, setMaxRounds] = useState(() => {
+        try {
+            const saved = localStorage.getItem('hazreverb_turn_sim_state');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed.maxRounds) {
+                    return parsed.maxRounds;
+                }
+            }
+        } catch (e) {
+            console.error('Failed to load turn sim state', e);
+        }
+        return 5;
+    });
+
+    // Save state to localStorage
+    useEffect(() => {
+        const state = { party, maxRounds };
+        localStorage.setItem('hazreverb_turn_sim_state', JSON.stringify(state));
+    }, [party, maxRounds]);
+
+    // Sync party with updated characters data
+    useEffect(() => {
+        setParty(prevParty => {
+            let hasChanges = false;
+            const nextParty = prevParty.map(member => {
+                const freshChar = characters.find(c => c.name === member.name);
+                if (freshChar) {
+                    // Check if stats/skills changed
+                    if (JSON.stringify(member.stats) !== JSON.stringify(freshChar.stats) ||
+                        JSON.stringify(member.skills) !== JSON.stringify(freshChar.skills)) {
+
+                        hasChanges = true;
+                        return {
+                            ...freshChar,
+                            id: member.id,
+                            deathRound: member.deathRound,
+                            supportTargets: member.supportTargets,
+                            exSkillRounds: member.exSkillRounds,
+                            activeSkillLevel: member.activeSkillLevel
+                        };
+                    }
+                }
+                return member;
+            });
+            return hasChanges ? nextParty : prevParty;
+        });
+    }, [characters]);
+
     const [simulationResults, setSimulationResults] = useState<Action[] | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);

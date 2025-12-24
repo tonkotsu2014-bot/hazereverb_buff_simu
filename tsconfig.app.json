@@ -30,6 +30,15 @@
     "resolveJsonModule": true
   },
   "include": [
-    "src"
+    "src",
+    "tests/reproduce_ex_timing.test.ts",
+    "tests/reproduce_issue.test.ts",
+    "tests/reproduce_scaling_data.test.ts",
+    "tests/turnSimulator_duration.test.ts",
+    "tests/turnSimulator_level.test.ts",
+    "tests/turnSimulator_supportScaling.test.ts",
+    "tests/turnSimulator.test.ts",
+    "tests/turnSimulatorExSkill.test.ts",
+    "tests/wikiParser_filtering.test.ts"
   ]
 }

@@ -1,7 +1,7 @@
 
 import { describe, test, expect } from 'vitest';
 import { JSDOM } from 'jsdom';
-import { parseSkills } from '../logic/wikiParser';
+import { parseSkills } from '../src/logic/wikiParser';
 
 describe('WikiParser - Skill Level Filtering', () => {
     test('should exclude skill levels with undefined or empty descriptions', () => {

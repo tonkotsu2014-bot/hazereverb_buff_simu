@@ -38,7 +38,7 @@ export interface ParsedCharacterData {
     role?: string; // Added for edit form
     attackRange?: { row: number; col: number }; // Added for edit form
     skills: SkillData[];
-    stats?: CharacterStats | { [key: string]: number }; // Allow number stats for editing
+    stats?: CharacterStats | { [key: string]: number | undefined }; // Allow number stats for editing
 }
 
 const parseStats = (doc: Document): CharacterStats | undefined => {

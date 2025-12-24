@@ -8,8 +8,7 @@ import {
     Tooltip,
     Legend,
     ResponsiveContainer,
-    ReferenceLine,
-    ReferenceArea
+    ReferenceLine
 } from 'recharts';
 import { Box, Typography } from '@mui/material';
 import type { Action } from '../../logic/turnSimulator';
@@ -343,7 +342,6 @@ export const SimulationResultGraph: React.FC<SimulationResultGraphProps> = ({
                             x={selectedGlobalTurn.toString()}
                             stroke="rgba(244, 67, 54, 0.6)" // Red, semi-transparent but more visible
                             strokeWidth={4}
-                            isFront={true}
                             label={{ value: 'Select', position: 'insideTop', fill: '#d32f2f', fontSize: 10, fontWeight: 'bold' }}
                         />
                     )}

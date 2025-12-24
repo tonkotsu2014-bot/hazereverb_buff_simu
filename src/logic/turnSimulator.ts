@@ -87,7 +87,7 @@ export const simulateTurns = (
         return char?.name || `Character ${index + 1}`;
     };
 
-    const getSnapshot = (currentRound: number, currentGlobalTurn: number): CharacterState[] => {
+    const getSnapshot = (_currentRound: number, currentGlobalTurn: number): CharacterState[] => {
         return party.map((p, idx) => ({
             name: p?.name || `Character ${idx + 1}`,
             receivedSkills: accumulatedSkills[idx].map(s => {
@@ -206,14 +206,8 @@ export const simulateTurns = (
         if (!character) return;
 
         const isSupporter = character.role === 'Supporter' || character.type?.includes('支援');
-        let supportTargetNames: string[] | undefined;
         if (character.supportTargetIndices && character.supportTargetIndices.length > 0) {
-            supportTargetNames = character.supportTargetIndices
-                .filter(idx => {
-                    const target = party[idx];
-                    return !isCharacterDead(target, round);
-                })
-                .map(idx => getCharacterName(idx));
+            // supportTargetNames unused
         }
 
         const addSkill = (targetIndex: number, skillName: string, source: string, effects: {

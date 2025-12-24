@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { MainLayout } from './components/Layout/MainLayout';
+import { HomePage } from './pages/HomePage';
 import { CharacterEditPage } from './pages/CharacterEditPage';
 import type { ParsedCharacterData } from './logic/wikiParser';
 import { BuffSimulationPage } from './pages/BuffSimulationPage';
 import { TurnSimulationPage } from './pages/TurnSimulationPage';
+
+import { TurnSimulationGuidePage } from './pages/guides/TurnSimulationGuidePage';
 import { SettingsPage } from './pages/SettingsPage';
+import { CharacterEditGuidePage } from './pages/guides/CharacterEditGuidePage';
+import { BuffSimulationGuidePage } from './pages/guides/BuffSimulationGuidePage';
 import {
   CssBaseline,
   createTheme,
@@ -127,7 +132,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<MainLayout />}>
-            <Route index element={<Navigate to="/edit" replace />} />
+            <Route index element={<HomePage />} />
             <Route
               path="edit"
               element={
@@ -166,6 +171,9 @@ function App() {
                 />
               }
             />
+            <Route path="guide/character-edit" element={<CharacterEditGuidePage />} />
+            <Route path="guide/buff-simulation" element={<BuffSimulationGuidePage />} />
+            <Route path="guide/turn-simulation" element={<TurnSimulationGuidePage />} />
           </Route>
         </Routes>
       </BrowserRouter>

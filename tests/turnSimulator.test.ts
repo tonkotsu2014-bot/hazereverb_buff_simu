@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { simulateTurns, type SimulationCharacter, type ReceivedSkill } from '../logic/turnSimulator';
-import type { SkillData } from '../logic/wikiParser';
+import { simulateTurns, type SimulationCharacter, type ReceivedSkill } from '../src/logic/turnSimulator';
+import type { SkillData } from '../src/logic/wikiParser';
 
 describe('Turn Simulator Logic', () => {
     const mockCharacter = (

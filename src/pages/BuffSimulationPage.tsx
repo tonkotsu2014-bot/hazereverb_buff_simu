@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Box, Typography, Paper, IconButton, Grid, FormControlLabel, Checkbox, Card, CardContent, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem, Button, TextField, Tooltip } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LayersIcon from '@mui/icons-material/Layers';
@@ -14,15 +14,39 @@ interface BuffSimulationPageProps {
 }
 
 export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characters }) => {
-    const [attacker, setAttacker] = useState<ParsedCharacterData | null>(null);
-    const [supporters, setSupporters] = useState<(ParsedCharacterData | null)[]>([]);
-    const [activeExSkills, setActiveExSkills] = useState<Record<string, boolean>>({});
-    const [activeSkillLevels, setActiveSkillLevels] = useState<Record<string, string>>({});
-    const [stackCounts, setStackCounts] = useState<Record<string, number>>({});
+    // Load state helper
+    const savedState = useMemo(() => {
+        try {
+            const s = localStorage.getItem('hazreverb_buff_sim_state');
+            return s ? JSON.parse(s) : null;
+        } catch { return null; }
+    }, []);
+
+    const [attacker, setAttacker] = useState<ParsedCharacterData | null>(savedState?.attacker || null);
+    const [supporters, setSupporters] = useState<(ParsedCharacterData | null)[]>(savedState?.supporters || []);
+    const [activeExSkills, setActiveExSkills] = useState<Record<string, boolean>>(savedState?.activeExSkills || {});
+    const [activeSkillLevels, setActiveSkillLevels] = useState<Record<string, string>>(savedState?.activeSkillLevels || {});
+    const [stackCounts, setStackCounts] = useState<Record<string, number>>(savedState?.stackCounts || {});
     const [configOpen, setConfigOpen] = useState(false);
     const [configTargetIndex, setConfigTargetIndex] = useState<number | null>(null); // Index in supporters array
-    const [attackerStats, setAttackerStats] = useState({ critRate: 0, critDamage: 0 }); // Custom stats for attacker
-    const [disabledBuffIds, setDisabledBuffIds] = useState<Set<string>>(new Set());
+    const [attackerStats, setAttackerStats] = useState<{ critRate: number, critDamage: number }>(savedState?.attackerStats || { critRate: 0, critDamage: 0 }); // Custom stats for attacker
+    const [disabledBuffIds, setDisabledBuffIds] = useState<Set<string>>(() =>
+        savedState?.disabledBuffIds ? new Set(savedState.disabledBuffIds) : new Set()
+    );
+
+    // Save state to localStorage
+    useEffect(() => {
+        const state = {
+            attacker,
+            supporters,
+            activeExSkills,
+            activeSkillLevels,
+            stackCounts,
+            attackerStats,
+            disabledBuffIds: Array.from(disabledBuffIds)
+        };
+        localStorage.setItem('hazreverb_buff_sim_state', JSON.stringify(state));
+    }, [attacker, supporters, activeExSkills, activeSkillLevels, stackCounts, attackerStats, disabledBuffIds]);
 
     // Sync state with characters prop to reflect edits
     // Sync state with characters prop to reflect edits
@@ -49,22 +73,26 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
         });
     }, [characters, attacker]);
 
+    const prevAttackerName = useRef(attacker?.name);
     // Initialize stats when attacker changes selection
     useEffect(() => {
-        if (attacker && attacker.stats) {
-            const stats = attacker.stats as any;
-            const getVal = (pascal: string, camel: string) => {
-                if (stats[pascal] !== undefined) return typeof stats[pascal] === 'number' ? stats[pascal] : parseFloat(stats[pascal]);
-                if (stats[camel] !== undefined) return typeof stats[camel] === 'number' ? stats[camel] : parseFloat(stats[camel]);
-                return 0;
-            };
+        if (attacker && attacker.name !== prevAttackerName.current) {
+            if (attacker.stats) {
+                const stats = attacker.stats as any;
+                const getVal = (pascal: string, camel: string) => {
+                    if (stats[pascal] !== undefined) return typeof stats[pascal] === 'number' ? stats[pascal] : parseFloat(stats[pascal]);
+                    if (stats[camel] !== undefined) return typeof stats[camel] === 'number' ? stats[camel] : parseFloat(stats[camel]);
+                    return 0;
+                };
 
-            setAttackerStats({
-                critRate: getVal('CritRate', 'critRate'),
-                critDamage: getVal('CritDamage', 'critDamage')
-            });
+                setAttackerStats({
+                    critRate: getVal('CritRate', 'critRate'),
+                    critDamage: getVal('CritDamage', 'critDamage')
+                });
+            }
         }
-    }, [attacker?.name]);
+        prevAttackerName.current = attacker?.name;
+    }, [attacker?.name, attacker]);
 
     const handleAddSupporter = (index: number) => {
         if (supporters.length < 9) {
