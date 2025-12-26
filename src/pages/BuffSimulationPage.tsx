@@ -211,7 +211,7 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
 
 
     return (
-        <Box sx={{ p: 2, height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ p: { xs: 1, md: 2 }, height: { xs: 'auto', md: 'calc(100vh - 80px)' }, display: 'flex', flexDirection: 'column', overflowX: 'hidden', width: '100%', maxWidth: '100%' }}>
             <Typography variant="h5" gutterBottom fontWeight={700}>
                 バフシミュレーション
             </Typography>
@@ -219,9 +219,16 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                 左側のリストから「＋」ボタンでキャラを追加できます。(最大9人)
             </Typography>
 
-            <Grid container spacing={2} sx={{ flex: 1, overflow: 'hidden' }}>
+            <Grid container spacing={{ xs: 1, md: 2 }} sx={{ flex: 1, width: '100%', m: 0, overflow: { xs: 'visible', md: 'hidden' } }}>
                 {/* Left Column: Character List */}
-                <Grid size={{ xs: 12, md: 4 }} sx={{ height: '100%', overflow: 'hidden' }}>
+                <Grid size={{ xs: 12, md: 4 }} sx={{
+                    height: { xs: 'auto', md: '100%' },
+                    overflow: 'hidden',
+                    '& > .MuiPaper-root': {
+                        height: { xs: 'auto !important', md: '100% !important' },
+                        maxHeight: { xs: '40vh', md: 'none' }
+                    }
+                }}>
                     <CharacterList
                         characters={characters}
                         onAdd={handleAddSupporter}
@@ -230,12 +237,12 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                 </Grid>
 
                 {/* Right Column: Config & Results */}
-                <Grid size={{ xs: 12, md: 8 }} sx={{ height: '100%', overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Grid size={{ xs: 12, md: 8 }} sx={{ height: { xs: 'auto', md: '100%' }, overflow: { xs: 'visible', md: 'auto' }, display: 'flex', flexDirection: 'column', gap: 2 }}>
                     {/* Simulation Config */}
                     <Grid container spacing={2}>
                         {/* Attacker Section - Smaller */}
                         <Grid size={{ xs: 12, sm: 12, lg: 5 }}>
-                            <Paper sx={{ p: 2, height: '100%' }}>
+                            <Paper sx={{ p: 2, height: { xs: 'auto', md: '100%' } }}>
                                 <Typography variant="subtitle1" gutterBottom fontWeight={600} sx={{ fontSize: '0.95rem' }}>
                                     攻撃役
                                 </Typography>
@@ -281,7 +288,7 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
 
                         {/* Party Section - Larger */}
                         <Grid size={{ xs: 12, sm: 12, lg: 7 }}>
-                            <Paper sx={{ p: 2, height: '24vh', display: 'flex', flexDirection: 'column' }}>
+                            <Paper sx={{ p: 2, height: { xs: 'auto', md: '24vh' }, minHeight: { xs: '300px', md: 0 }, display: 'flex', flexDirection: 'column' }}>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <Typography variant="subtitle1" fontWeight={600} sx={{ fontSize: '0.95rem' }}>
@@ -324,10 +331,11 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                                                         <CardContent
                                                             sx={{
                                                                 p: '8px 12px 8px 12px !important',
-                                                                pr: '60px !important',
+                                                                pr: '40px !important',
                                                                 display: 'flex',
                                                                 alignItems: 'center',
-                                                                gap: 2
+                                                                flexWrap: 'wrap',
+                                                                gap: 1
                                                             }}
                                                         >
                                                             {hasStackableSkills(supporter) && (
@@ -356,14 +364,15 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                                                                     whiteSpace: 'nowrap',
                                                                     overflow: 'hidden',
                                                                     textOverflow: 'ellipsis',
-                                                                    maxWidth: '56%',
+                                                                    maxWidth: { xs: '100%', sm: '56%' },
+                                                                    flex: { xs: '1 1 100%', sm: '0 1 auto' },
                                                                     fontSize: '0.80rem'
                                                                 }}
                                                             >
                                                                 {supporter.name}
                                                             </Typography>
 
-                                                            <Box sx={{ flex: 1, display: 'flex', gap: 2, alignItems: 'center' }}>
+                                                            <Box sx={{ flex: 1, display: 'flex', gap: { xs: 1, sm: 2 }, alignItems: 'center', flexWrap: 'wrap', minWidth: 0 }}>
                                                                 {(supporter.role === '支援' || supporter.type?.includes('支援')) && (
                                                                     <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>
                                                                         支援: {getEffectiveSupportPower(supporter)}%
