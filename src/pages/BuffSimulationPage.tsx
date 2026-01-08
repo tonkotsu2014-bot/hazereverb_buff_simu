@@ -6,6 +6,7 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { CharacterSelector } from '../components/Simulation/CharacterSelector';
 import { CharacterList } from '../components/CharacterList';
 import { BuffResult } from '../components/Simulation/BuffResult';
+import { SimulationLogs } from '../components/Simulation/buffSimulation/SimulationLogs';
 import { calculateMaxBuffs, calculateEffectiveStats, getStackableSkills } from '../logic/buffCalculation';
 import type { ParsedCharacterData } from '../logic/wikiParser';
 
@@ -414,7 +415,10 @@ export const BuffSimulationPage: React.FC<BuffSimulationPageProps> = ({ characte
                     {/* Results */}
                     <Box sx={{ flex: 1, overflow: 'auto' }}>
                         {results ? (
-                            <BuffResult results={results} onToggleBuff={handleToggleBuff} />
+                            <>
+                                <BuffResult results={results} onToggleBuff={handleToggleBuff} />
+                                <SimulationLogs modifiers={results.modifiers} />
+                            </>
                         ) : (
                             <Paper sx={{ p: 3, textAlign: 'center', bgcolor: '#f5f5f5' }}>
                                 <Typography color="text.secondary" variant="body2">

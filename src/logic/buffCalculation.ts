@@ -11,6 +11,10 @@ export interface BuffModifier {
     stackCount?: number;
     id: string;      // Unique identifier for toggling
     isActive: boolean; // Whether it's currently enabled
+    // Debug info
+    scalingBase?: number;
+    scalingFactor?: number;
+    calculationType?: string;
 }
 
 export interface CalculatedBuffs {
@@ -68,7 +72,14 @@ export const calculateMaxBuffs = (
     });
 
     // Pre-calculate effective stats for supporters, including the global buff
-    const effectiveSupporters = supporters.map(s => calculateEffectiveStats(s, stackCounts, activeExSkills, activeSkillLevels, globalSupportBuffFromSupporters));
+    const effectiveSupporters = supporters.map(s => calculateEffectiveStats(
+        s,
+        stackCounts,
+        activeExSkills,
+        activeSkillLevels,
+        globalSupportBuffFromSupporters,
+        (mod) => modifiers.push(mod) // Collect self-buffs as actions
+    ));
 
     // Helper to process effects
     const processEffects = (effects: SkillEffect[], character: ParsedCharacterData, isAttacker: boolean, skillName: string, levelName: string, description: string | null, silentCount: number) => {
@@ -95,12 +106,15 @@ export const calculateMaxBuffs = (
             if (applies) {
                 let value = effect.value;
                 let appliedStackCount: number | undefined = undefined;
+                let scalingBase: number | undefined = undefined;
 
                 if (effect.calculationType === 'SupportScaling') {
                     const supportPower = getSupportPower(character.stats);
+                    scalingBase = supportPower;
                     value = supportPower * (effect.value / 100);
                 } else if (effect.calculationType === 'SilentScaling') {
                     value = effect.value * silentCount;
+                    scalingBase = silentCount;
                 }
 
                 // Apply Stacks
@@ -132,7 +146,11 @@ export const calculateMaxBuffs = (
                         effectType: effect.type,
                         attribute: effect.attribute,
                         value: value,
-                        stackCount: appliedStackCount
+                        stackCount: appliedStackCount,
+                        // Debug Info
+                        scalingBase: scalingBase,
+                        scalingFactor: effect.value,
+                        calculationType: effect.calculationType
                     });
 
                     // Only accumulate if active
@@ -239,7 +257,8 @@ export const calculateEffectiveStats = (
     stackCounts: Record<string, number> = {},
     activeExSkills: Record<string, boolean> = {},
     activeSkillLevels: Record<string, string> = {},
-    globalSupportBuffPercent: number = 0
+    globalSupportBuffPercent: number = 0,
+    onBuffApplied?: (modifier: BuffModifier) => void
 ): ParsedCharacterData => {
     const baseSupport = getSupportPower(character.stats);
 
@@ -269,6 +288,7 @@ export const calculateEffectiveStats = (
             // Must be Buff, target Self, and attribute Support
             if (effect.type === 'Buff' && effect.target === 'Self' && effect.attribute === 'Support') {
                 let value = effect.value;
+                let appliedStackCount: number | undefined = undefined;
 
                 // Apply Stacks (if implemented for self buffs too)
                 if (effect.isStackable) {
@@ -276,9 +296,27 @@ export const calculateEffectiveStats = (
                     if (count > 1) {
                         value = value * count;
                     }
+                    appliedStackCount = count;
                 }
 
                 supportPowerIncrease += value;
+
+                // Record as an Action (Modifier)
+                if (onBuffApplied) {
+                    onBuffApplied({
+                        id: `${character.name}-SelfSupport-${skill.name}`,
+                        sourceCharacterName: character.name || 'Unknown',
+                        skillName: skill.name,
+                        skillLevel: maxLevel?.level || '',
+                        description: 'Self Support Buff',
+                        effectType: 'Buff',
+                        attribute: 'Support', // Internal Stat Buff
+                        value: value,
+                        stackCount: appliedStackCount,
+                        isActive: true,
+                        calculationType: 'Fixed (Self)'
+                    });
+                }
             }
         });
     });
