@@ -1,5 +1,5 @@
 {
-  "hash": "b48592ef6a214c83ad4779b3a1f6ee0426ec6985a9bc15c92df2779fb87f7992",
+  "hash": "1578e0443a05ca5ad00bf69e2ac640450fc933ef2746f75c8d5e38a2adcaece5",
   "data": [
     {
       "skills": [
@@ -290,7 +290,8 @@
               "description": "♦応急処置回復バフターゲットの体力値が支援力×ターゲットの最大体力値×75%回復する。",
               "effects": []
             }
-          ]
+          ],
+          "activeLevel": "8"
         },
         {
           "name": "スキル2/勇気をもって歌え",
@@ -383,13 +384,14 @@
                   "type": "Buff",
                   "calculationType": "SupportScaling",
                   "attribute": "CritDamage",
-                  "value": 120,
+                  "value": 100,
                   "duration": 9,
                   "target": "Default"
                 }
               ]
             }
-          ]
+          ],
+          "activeLevel": "9"
         },
         {
           "name": "スキル3/温かな抱擁     ドライバー☆ランク3で開放",
@@ -419,7 +421,8 @@
               "description": "♦免疫・継続免疫バフ戦闘開始時、自身に永続的なすべての継続ダメージスキル効果に対する免疫を与える。例外事項♦解除・完全解除バフ自身の行動前に(妨害は無視する)、自身にかかっているすべてのデバフスキル効果を解除する。♦光学迷彩特殊バフ戦闘開始時、自身が光学迷彩効果を獲得する。これは9ターン持続する。同列に味方がいる時、敵のメインターゲットにならない。例外事項",
               "effects": []
             }
-          ]
+          ],
+          "activeLevel": "10"
         }
       ],
       "stats": {
@@ -2442,7 +2445,8 @@
                   "attribute": "Support",
                   "value": 25,
                   "duration": -1,
-                  "target": "Self"
+                  "target": "Self",
+                  "timing": "BattleStart"
                 }
               ]
             },
@@ -2456,7 +2460,8 @@
                   "attribute": "Support",
                   "value": 50,
                   "duration": -1,
-                  "target": "Self"
+                  "target": "Self",
+                  "timing": "BattleStart"
                 }
               ]
             },
@@ -2470,11 +2475,13 @@
                   "attribute": "Support",
                   "value": 75,
                   "duration": -1,
-                  "target": "Self"
+                  "target": "Self",
+                  "timing": "BattleStart"
                 }
               ]
             }
-          ]
+          ],
+          "activeLevel": "1"
         },
         {
           "name": "スキル3/密かに賭ける神々のゲームドライバー☆ランク3で開放",
@@ -2528,7 +2535,7 @@
         "CritRate": 15,
         "CritDamage": 90,
         "Mobility": 5,
-        "Support": 253
+        "Support": 207
       },
       "name": "夏に焦がれる魔女 ドロシー",
       "type": "支援",
@@ -4154,6 +4161,296 @@
       "name": "意外な決意 チャリサー",
       "type": "防御",
       "role": "Defender"
+    },
+    {
+      "skills": [
+        {
+          "name": "パパ！パパパッ！",
+          "levels": [
+            {
+              "level": "Ex",
+              "description": "♦パパ！パパパッ！自身行動後、自身の体力値が50%以下なら、ターゲットの攻撃力を支援力×50%、会心ダメージを支援力×130%アップし、18ターン持続する",
+              "effects": [
+                {
+                  "calculationType": "SupportScaling",
+                  "attribute": "Attack",
+                  "value": 50,
+                  "type": "Buff",
+                  "duration": 18,
+                  "target": "Default"
+                },
+                {
+                  "type": "Buff",
+                  "calculationType": "SupportScaling",
+                  "attribute": "CritDamage",
+                  "value": 130,
+                  "duration": 18,
+                  "target": "Default"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "スキル1/通感覚者重度依存症",
+          "levels": [
+            {
+              "level": "1",
+              "description": "♦火力アシストターゲットの攻撃力を支援力×10%アップし、9ターン持続する。",
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "SupportScaling",
+                  "attribute": "Attack",
+                  "value": 10,
+                  "duration": 9,
+                  "target": "Default"
+                }
+              ]
+            },
+            {
+              "level": "2",
+              "description": "♦火力アシストターゲットの攻撃力を支援力×20%アップし、9ターン持続する。",
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "SupportScaling",
+                  "attribute": "Attack",
+                  "value": 20,
+                  "duration": 9,
+                  "target": "Default"
+                }
+              ]
+            },
+            {
+              "level": "4",
+              "description": "♦火力アシストターゲットの攻撃力を支援力×30%アップし、9ターン持続する。",
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "SupportScaling",
+                  "attribute": "Attack",
+                  "value": 30,
+                  "duration": 9,
+                  "target": "Default"
+                }
+              ]
+            },
+            {
+              "level": "6",
+              "description": "♦火力アシストターゲットの攻撃力を支援力×30%、会心ダメージを支援力×10%アップし、9ターン持続する。",
+              "effects": [
+                {
+                  "calculationType": "SupportScaling",
+                  "attribute": "Attack",
+                  "value": 30,
+                  "type": "Buff",
+                  "duration": 9,
+                  "target": "Default"
+                },
+                {
+                  "type": "Buff",
+                  "calculationType": "SupportScaling",
+                  "attribute": "CritDamage",
+                  "value": 10,
+                  "duration": 9,
+                  "target": "Default"
+                }
+              ]
+            },
+            {
+              "level": "8",
+              "description": "♦火力アシストターゲットの攻撃力を支援力×40%、会心ダメージを支援力×30%アップし、9ターン持続する。",
+              "effects": [
+                {
+                  "calculationType": "SupportScaling",
+                  "attribute": "Attack",
+                  "value": 40,
+                  "type": "Buff",
+                  "duration": 9,
+                  "target": "Default"
+                },
+                {
+                  "type": "Buff",
+                  "calculationType": "SupportScaling",
+                  "attribute": "CritDamage",
+                  "value": 30,
+                  "duration": 9,
+                  "target": "Default"
+                }
+              ]
+            },
+            {
+              "level": "10",
+              "description": "♦火力アシストターゲットの攻撃力を支援力×50%、会心ダメージを支援力×50%アップし、9ターン持続する。",
+              "effects": [
+                {
+                  "calculationType": "SupportScaling",
+                  "attribute": "Attack",
+                  "value": 50,
+                  "type": "Buff",
+                  "duration": 9,
+                  "target": "Default"
+                },
+                {
+                  "type": "Buff",
+                  "calculationType": "SupportScaling",
+                  "attribute": "CritDamage",
+                  "value": 50,
+                  "duration": 9,
+                  "target": "Default"
+                }
+              ]
+            }
+          ],
+          "activeLevel": "10"
+        },
+        {
+          "name": "スキル2/メイドの社会的死事件",
+          "levels": [
+            {
+              "level": "1",
+              "description": "♦機動アシストターゲットの機動力を支援力×10%アップし、9ターン持続する。",
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "SupportScaling",
+                  "attribute": "Mobility",
+                  "value": 10,
+                  "duration": 9,
+                  "target": "Default"
+                }
+              ]
+            },
+            {
+              "level": "3",
+              "description": "♦機動アシストターゲットの機動力を支援力×15%アップし、9ターン持続する。",
+              "effects": [
+                {
+                  "type": "Buff",
+                  "calculationType": "SupportScaling",
+                  "attribute": "Mobility",
+                  "value": 15,
+                  "duration": 9,
+                  "target": "Default"
+                }
+              ]
+            },
+            {
+              "level": "5",
+              "description": "♦機動アシストターゲットの機動力を支援力×20%、ダメージ回避率を支援力×15%アップし、9ターン持続する。",
+              "effects": [
+                {
+                  "calculationType": "SupportScaling",
+                  "attribute": "Mobility",
+                  "value": 20,
+                  "type": "Buff",
+                  "duration": 9,
+                  "target": "Default"
+                },
+                {
+                  "type": "Buff",
+                  "calculationType": "SupportScaling",
+                  "attribute": "Evasion",
+                  "value": 15,
+                  "duration": 9,
+                  "target": "Default"
+                }
+              ]
+            },
+            {
+              "level": "7",
+              "description": "♦機動アシストターゲットの機動力を支援力×25%、ダメージ回避率を支援力×20%アップし、9ターン持続する。",
+              "effects": [
+                {
+                  "calculationType": "SupportScaling",
+                  "attribute": "Mobility",
+                  "value": 25,
+                  "type": "Buff",
+                  "duration": 9,
+                  "target": "Default"
+                },
+                {
+                  "type": "Buff",
+                  "calculationType": "SupportScaling",
+                  "attribute": "Evasion",
+                  "value": 20,
+                  "duration": 9,
+                  "target": "Default"
+                }
+              ]
+            },
+            {
+              "level": "9",
+              "description": "♦機動アシストターゲットの機動力を支援力×30%、ダメージ回避率を支援力×25%アップし、9ターン持続する。",
+              "effects": [
+                {
+                  "calculationType": "SupportScaling",
+                  "attribute": "Mobility",
+                  "value": 30,
+                  "type": "Buff",
+                  "duration": 9,
+                  "target": "Default"
+                },
+                {
+                  "type": "Buff",
+                  "calculationType": "SupportScaling",
+                  "attribute": "Evasion",
+                  "value": 25,
+                  "duration": 9,
+                  "target": "Default"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "スキル3/バレンタイン療養期間   ドライバー☆ランク3で開放",
+          "levels": [
+            {
+              "level": "1",
+              "description": "♦激発自身の最大体力値を50%消費します。♦シールド展開・全抵抗支援後、自身がすべてのダメージを免疫するシールドを獲得する。このシールドは通常攻撃を1回受けると消滅する。",
+              "effects": []
+            }
+          ]
+        },
+        {
+          "name": "スキル4/暗黒料理長   覚醒開放",
+          "levels": [
+            {
+              "level": "1",
+              "description": "♦医療アシスト・持続ターゲットに持続回復効果を付与し、9ターン持続する。毎ターン終了時、ターゲットの体力値が支援力×ターゲット最大体力値×1%回復する。",
+              "effects": []
+            },
+            {
+              "level": "3",
+              "description": "♦医療アシスト・持続ターゲットに持続回復効果を付与し、9ターン持続する。毎ターン終了時、ターゲットの体力値が支援力×ターゲット最大体力値×2%回復する。",
+              "effects": []
+            },
+            {
+              "level": "6",
+              "description": "♦医療アシスト・持続ターゲットに持続回復効果を付与し、9ターン持続する。毎ターン終了時、ターゲットの体力値が支援力×ターゲット最大体力値×2%回復する。♦解除アシスト・弱体化ターゲットにかかっているすべての弱体化効果を解除する。",
+              "effects": []
+            },
+            {
+              "level": "9",
+              "description": "♦医療アシスト・持続ターゲットに持続回復効果を付与し、9ターン持続する。毎ターン終了時、ターゲットの体力値が支援力×ターゲット最大体力値×3%回復する。♦解除アシスト・弱体化ターゲットにかかっているすべての弱体化効果を解除する。",
+              "effects": []
+            }
+          ]
+        }
+      ],
+      "stats": {
+        "Hp": 6166,
+        "Armor": 5,
+        "CritRate": 0,
+        "CritDamage": 0,
+        "Mobility": 50,
+        "Support": 138
+      },
+      "name": "心を結ぶ赤い糸 リリス・バレンタイン",
+      "type": "支援",
+      "role": "Supporter"
     }
   ]
 }
