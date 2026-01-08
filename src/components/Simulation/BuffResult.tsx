@@ -35,29 +35,29 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results, onToggleBuff })
                 <Divider sx={{ mb: 2 }} />
 
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 4 }}>
-                    <Box sx={{ flex: '1 1' }}>
+                    <Box sx={{ flex: '1 1 auto', minWidth: '120px' }}>
                         <Typography variant="subtitle2" color="text.secondary">
                             攻撃力上昇
                         </Typography>
-                        <Typography variant="h4" color="success.main">
+                        <Typography variant="h4" sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }} color="success.main">
                             +{formatPercent(results.attackIncreasePercent)}
                         </Typography>
                     </Box>
 
-                    <Box sx={{ flex: '1 1' }}>
+                    <Box sx={{ flex: '1 1 auto', minWidth: '120px' }}>
                         <Typography variant="subtitle2" color="text.secondary">
                             会心率 (合計)
                         </Typography>
-                        <Typography variant="h4">
+                        <Typography variant="h4" sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
                             {formatPercent(results.critRateTotal)}
                         </Typography>
                     </Box>
 
-                    <Box sx={{ flex: '1 1' }}>
+                    <Box sx={{ flex: '1 1 auto', minWidth: '120px' }}>
                         <Typography variant="subtitle2" color="text.secondary">
                             会心ダメージ (合計)
                         </Typography>
-                        <Typography variant="h4">
+                        <Typography variant="h4" sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
                             {formatPercent(results.critDamageTotal)}
                         </Typography>
                         {results.hyperCritDamageBuff > 0 && (
@@ -82,7 +82,7 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results, onToggleBuff })
                         <HelpOutlineIcon fontSize="small" color="action" sx={{ cursor: 'help', opacity: 0.7 }} />
                     </Tooltip>
                 </Box>
-                <TableContainer component={Paper} elevation={0} sx={{ bgcolor: 'transparent' }}>
+                <TableContainer component={Paper} elevation={0} sx={{ bgcolor: 'transparent', maxWidth: '100%', overflowX: 'auto' }}>
                     <Table size="small" aria-label="buff modifiers table">
                         <TableHead>
                             <TableRow>
@@ -146,8 +146,8 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results, onToggleBuff })
                                         }
                                     });
 
-                                    // Filter out logs that don't contribute to Attack, CritRate, CritDamage, or HyperCritDamage
-                                    if (Math.abs(attackVal) < 0.001 && Math.abs(critRateVal) < 0.001 && Math.abs(critDamageVal) < 0.001 && Math.abs(hyperCritDamageVal) < 0.001) {
+                                    // Filter out logs that don't contribute to Attack, CritRate, CritDamage, HyperCritDamage OR other beneficial stats
+                                    if (Math.abs(attackVal) < 0.001 && Math.abs(critRateVal) < 0.001 && Math.abs(critDamageVal) < 0.001 && Math.abs(hyperCritDamageVal) < 0.001 && others.length === 0) {
                                         return null;
                                     }
 

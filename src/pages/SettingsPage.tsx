@@ -13,6 +13,7 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import type { ParsedCharacterData } from '../logic/wikiParser';
 
 import { calculateHash } from '../logic/hashUtils';
+import { ChangeLog } from '../components/ChangeLog';
 
 interface SettingsPageProps {
     characters: ParsedCharacterData[];
@@ -186,6 +187,8 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ characters, onImport
                     Haze Reverb Simulation Helper (v{__APP_VERSION__})
                 </Typography>
             </Paper>
+
+            <ChangeLog />
         </Box>
     );
 };

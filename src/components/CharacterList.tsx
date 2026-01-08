@@ -197,7 +197,7 @@ export const CharacterList: React.FC<Props> = ({ characters, onDelete, onSelect,
                 </Box>
 
                 <Collapse in={showFilter}>
-                    <Stack direction="row" spacing={1}>
+                    <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
                         {['Attacker', 'Supporter', 'Defender', 'Transcendence', 'Firepower'].map((role) => (
                             <Chip
                                 key={role}
