@@ -200,4 +200,45 @@ describe('calculateMaxBuffs Debug Info', () => {
         expect(globalMod?.value).toBe(20);
     });
 
+    it('should allow toggling off Self-Support buffs', () => {
+        const attacker = createChar('Attacker', [], { attack: 1000 });
+        // Supporter with Base Support 100.
+        // Self Buff +50 (Support).
+        // Skill scales 100% Support to Attack.
+        const supporter = createChar('Supporter', [
+            { type: 'Buff', attribute: 'Support', value: 50, target: 'Self' },
+            { type: 'Buff', attribute: 'Attack', value: 100, calculationType: 'SupportScaling', target: 'AllAllies' }
+        ], { Support: 100 });
+
+        // 1. Default (Active)
+        // Effective Support = 100 + 50 = 150.
+        // Attack Buff = 150 * 100% = 150.
+        const resultActive = calculateMaxBuffs(attacker, [supporter]);
+        const selfBuffMod = resultActive.modifiers.find(m => m.attribute === 'Support');
+
+        expect(selfBuffMod).toBeDefined();
+        expect(selfBuffMod?.isActive).toBe(true);
+        const scalingBuffActive = resultActive.modifiers.find(m => m.calculationType === 'SupportScaling');
+        expect(scalingBuffActive?.value).toBe(150);
+
+        // 2. Disabled
+        // ID construction: CharName-SkillName-Attribute-Type
+        // CharName: Supporter
+        // SkillName: Test Skill
+        // Attribute: Support
+        // Type: Buff
+        const buffId = 'Supporter-Test Skill-Support-Buff';
+
+        const disabledSet = new Set([buffId]);
+        const resultDisabled = calculateMaxBuffs(attacker, [supporter], {}, {}, {}, disabledSet);
+
+        const selfBuffModDisabled = resultDisabled.modifiers.find(m => m.attribute === 'Support');
+        expect(selfBuffModDisabled?.isActive).toBe(false);
+
+        // Effective Support should now be Base (100) only.
+        // Scaling Buff = 100 * 100% = 100.
+        const scalingBuffDisabled = resultDisabled.modifiers.find(m => m.calculationType === 'SupportScaling');
+        expect(scalingBuffDisabled?.value).toBe(100);
+    });
+
 });

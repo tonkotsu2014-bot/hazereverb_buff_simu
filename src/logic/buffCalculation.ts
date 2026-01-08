@@ -78,7 +78,8 @@ export const calculateMaxBuffs = (
         activeExSkills,
         activeSkillLevels,
         globalSupportBuffFromSupporters,
-        (mod) => modifiers.push(mod) // Collect self-buffs as actions
+        (mod) => modifiers.push(mod), // Collect self-buffs as actions
+        disabledBuffIds
     ));
 
     // Helper to process effects
@@ -133,6 +134,7 @@ export const calculateMaxBuffs = (
                 }
 
                 if (value !== 0) {
+                    // Standard ID format
                     const modId = `${character.name || 'Unknown'}-${skillName}-${effect.attribute}-${effect.type}`;
                     const isDisabled = disabledBuffIds.has(modId);
 
@@ -258,7 +260,8 @@ export const calculateEffectiveStats = (
     activeExSkills: Record<string, boolean> = {},
     activeSkillLevels: Record<string, string> = {},
     globalSupportBuffPercent: number = 0,
-    onBuffApplied?: (modifier: BuffModifier) => void
+    onBuffApplied?: (modifier: BuffModifier) => void,
+    disabledBuffIds: Set<string> = new Set()
 ): ParsedCharacterData => {
     const baseSupport = getSupportPower(character.stats);
 
@@ -299,12 +302,18 @@ export const calculateEffectiveStats = (
                     appliedStackCount = count;
                 }
 
-                supportPowerIncrease += value;
+                // Standard ID generation
+                const modId = `${character.name || 'Unknown'}-${skill.name}-${effect.attribute}-${effect.type}`;
+                const isDisabled = disabledBuffIds.has(modId);
+
+                if (!isDisabled) {
+                    supportPowerIncrease += value;
+                }
 
                 // Record as an Action (Modifier)
                 if (onBuffApplied) {
                     onBuffApplied({
-                        id: `${character.name}-SelfSupport-${skill.name}`,
+                        id: modId,
                         sourceCharacterName: character.name || 'Unknown',
                         skillName: skill.name,
                         skillLevel: maxLevel?.level || '',
@@ -313,7 +322,7 @@ export const calculateEffectiveStats = (
                         attribute: 'Support', // Internal Stat Buff
                         value: value,
                         stackCount: appliedStackCount,
-                        isActive: true,
+                        isActive: !isDisabled,
                         calculationType: 'Fixed (Self)'
                     });
                 }

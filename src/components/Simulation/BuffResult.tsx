@@ -146,8 +146,8 @@ export const BuffResult: React.FC<BuffResultProps> = ({ results, onToggleBuff })
                                         }
                                     });
 
-                                    // Filter out logs that don't contribute to Attack, CritRate, CritDamage, or HyperCritDamage
-                                    if (Math.abs(attackVal) < 0.001 && Math.abs(critRateVal) < 0.001 && Math.abs(critDamageVal) < 0.001 && Math.abs(hyperCritDamageVal) < 0.001) {
+                                    // Filter out logs that don't contribute to Attack, CritRate, CritDamage, HyperCritDamage OR other beneficial stats
+                                    if (Math.abs(attackVal) < 0.001 && Math.abs(critRateVal) < 0.001 && Math.abs(critDamageVal) < 0.001 && Math.abs(hyperCritDamageVal) < 0.001 && others.length === 0) {
                                         return null;
                                     }
 
