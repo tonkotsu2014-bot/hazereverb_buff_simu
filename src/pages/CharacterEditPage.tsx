@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Box, Grid, Typography, Paper, Dialog } from '@mui/material';
 import { CharacterList } from '../components/CharacterList';
 import { CharacterDetailForm } from '../components/CharacterDetailForm';
-import { ParserOverlay } from '../components/WikiParser/ParserOverlay';
+import { ParserOverlay } from '../components/wikiparser/ParserOverlay';
 import type { ParsedCharacterData } from '../logic/wikiParser';
 
 interface Props {

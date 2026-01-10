@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Box, Paper, Typography, Grid, IconButton } from '@mui/material';
-import { ParserOverlay } from '../components/WikiParser/ParserOverlay';
+import { ParserOverlay } from '../components/wikiparser/ParserOverlay';
 import type { ParsedCharacterData } from '../logic/wikiParser';
 import { CharacterList } from '../components/CharacterList';
 import CloseIcon from '@mui/icons-material/Close';

@@ -1,5 +1,5 @@
 {
-  "hash": "1578e0443a05ca5ad00bf69e2ac640450fc933ef2746f75c8d5e38a2adcaece5",
+  "hash": "e7d983f6e0577ce6cc9036d458f2a1ce93f3e9a049ca968ac2ef0f72cd2b3e10",
   "data": [
     {
       "skills": [
@@ -120,7 +120,7 @@
                 {
                   "calculationType": "SupportScaling",
                   "attribute": "CritRate",
-                  "value": 20,
+                  "value": 15,
                   "type": "Buff",
                   "duration": 9,
                   "target": "Default"
@@ -135,7 +135,8 @@
                 }
               ]
             }
-          ]
+          ],
+          "activeLevel": "9"
         },
         {
           "name": "スキル2/大切な仕事",
@@ -384,7 +385,7 @@
                   "type": "Buff",
                   "calculationType": "SupportScaling",
                   "attribute": "CritDamage",
-                  "value": 100,
+                  "value": 120,
                   "duration": 9,
                   "target": "Default"
                 }
@@ -605,7 +606,7 @@
               ]
             }
           ],
-          "activeLevel": "7"
+          "activeLevel": "3"
         },
         {
           "name": "スキル4/運命を掠め取る  覚醒開放",

@@ -3,10 +3,10 @@ import { Box, Typography, Paper, IconButton, Grid, FormControlLabel, Checkbox, C
 import DeleteIcon from '@mui/icons-material/Delete';
 import LayersIcon from '@mui/icons-material/Layers';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import { CharacterSelector } from '../components/Simulation/CharacterSelector';
+import { CharacterSelector } from '../components/simulation/CharacterSelector';
 import { CharacterList } from '../components/CharacterList';
-import { BuffResult } from '../components/Simulation/BuffResult';
-import { SimulationLogs } from '../components/Simulation/buffSimulation/SimulationLogs';
+import { BuffResult } from '../components/simulation/BuffResult';
+import { SimulationLogs } from '../components/simulation/buffsimulation/SimulationLogs';
 import { calculateMaxBuffs, calculateEffectiveStats, getStackableSkills } from '../logic/buffCalculation';
 import type { ParsedCharacterData } from '../logic/wikiParser';
 
