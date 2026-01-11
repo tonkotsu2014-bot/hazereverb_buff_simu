@@ -602,7 +602,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                             </Tooltip>
                                                         </Grid>
 
-                                                        <Grid size={{ xs: 4, sm: 6, md: 2 }} sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start' }}>
+                                                        <Grid size={{ xs: 6, sm: 6, md: 3 }} sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start', gap: 1 }}>
                                                             <Tooltip title="スタック可能">
                                                                 <FormControlLabel
                                                                     control={
@@ -612,7 +612,22 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
                                                                             size="small"
                                                                         />
                                                                     }
-                                                                    label={<Typography variant="caption" sx={{ fontSize: '0.8rem' }}>スタック</Typography>}
+                                                                    label={<Typography variant="caption" sx={{ fontSize: '0.8rem', whiteSpace: 'nowrap' }}>スタック</Typography>}
+                                                                    labelPlacement="top"
+                                                                    sx={{ mr: 0, '& .MuiFormControlLabel-label': { mb: -0.5 } }}
+                                                                />
+                                                            </Tooltip>
+                                                            <Tooltip title="解除不可">
+                                                                <FormControlLabel
+                                                                    control={
+                                                                        <Switch
+                                                                            checked={!!effect.isUndispellable}
+                                                                            onChange={(e) => updateEffect(sIdx, levelIndex, eIdx, 'isUndispellable', e.target.checked)}
+                                                                            size="small"
+                                                                            color="warning"
+                                                                        />
+                                                                    }
+                                                                    label={<Typography variant="caption" sx={{ fontSize: '0.8rem', whiteSpace: 'nowrap' }}>解除不可</Typography>}
                                                                     labelPlacement="top"
                                                                     sx={{ mr: 0, '& .MuiFormControlLabel-label': { mb: -0.5 } }}
                                                                 />

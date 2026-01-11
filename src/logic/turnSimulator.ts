@@ -11,6 +11,7 @@ export interface ReceivedSkillEffect {
     duration?: number;
     remainingTurn?: number;
     isStackable?: boolean;
+    isUndispellable?: boolean; // Added
 }
 
 export interface ReceivedSkill {
@@ -219,6 +220,7 @@ export const simulateTurns = (
         actuatorSupportPower?: number;
         duration?: number;
         isStackable?: boolean;
+        isUndispellable?: boolean; // Added
     }[]) => {
         const MAX_STACK_COUNT = 5;
 
@@ -246,7 +248,8 @@ export const simulateTurns = (
                 scalingFactor: e.scalingFactor,
                 actuatorSupportPower: e.actuatorSupportPower,
                 duration: e.duration,
-                isStackable: e.isStackable
+                isStackable: e.isStackable,
+                isUndispellable: e.isUndispellable // Added
             }))
         };
 
@@ -376,7 +379,8 @@ export const simulateTurns = (
                     scalingFactor: effect.scalingFactor ? String(effect.scalingFactor) : undefined,
                     actuatorSupportPower: currentSupportPower,
                     duration: effect.duration,
-                    isStackable: effect.isStackable
+                    isStackable: effect.isStackable,
+                    isUndispellable: effect.isUndispellable // Use directly from effect
                 };
 
                 resolvedEffects.push(resolvedEffect);

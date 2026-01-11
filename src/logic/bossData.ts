@@ -28,7 +28,7 @@ export const ICARUS: BossCharacter = {
         // Remove all buffs from all party members (Enemies of the Boss)
         context.accumulatedSkills.forEach((skills, pIdx) => {
             const filtered = skills.map(skill => {
-                const newEffects = skill.effects.filter(e => e.type !== 'Buff');
+                const newEffects = skill.effects.filter(e => e.type !== 'Buff' || e.isUndispellable);
 
                 // If a skill has no effects left (and wasn't just empty to begin with? No, remove if empty?)
                 // If a ReceivedSkill loses all effects, it essentially does nothing. Keep it or remove it?

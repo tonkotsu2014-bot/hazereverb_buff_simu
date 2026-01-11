@@ -9,6 +9,7 @@ export interface SkillEffect {
     target?: string; // 'Default' | 'Self' | 'AllAllies' etc.
     timing?: 'BattleStart' | 'RoundStart' | 'BeforeAction' | 'Action';
     isStackable?: boolean;
+    isUndispellable?: boolean; // Added
 }
 
 export interface SkillLevel {
