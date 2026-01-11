@@ -10,6 +10,13 @@ interface ChangeLogEntry {
 
 const changeLogs: ChangeLogEntry[] = [
     {
+        version: '2.3.0',
+        date: '2026-01-11',
+        changes: [
+            'イカロス戦のシミュレーションに対応: ボスの行動時に支援キャラクターのバフ・デバフを解除するギミック（解除不可を除く）を実装'
+        ]
+    },
+    {
         version: '2.2.0',
         date: '2026-01-08',
         changes: [

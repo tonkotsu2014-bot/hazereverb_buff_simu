@@ -24,7 +24,9 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
         setMaxRounds,
         addMember,
         removeMember,
-        clearParty
+        clearParty,
+        selectedBossId,
+        setSelectedBossId
     } = useTurnSimulationState(characters);
 
     // Simulation logic extracted to hook
@@ -41,7 +43,7 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
     };
 
     const handleStartSimulation = () => {
-        runSimulation(party, maxRounds);
+        runSimulation(party, maxRounds, selectedBossId);
     };
 
     return (
@@ -74,6 +76,8 @@ export const TurnSimulationPage: React.FC<TurnSimulationPageProps> = ({ characte
                         onStartSimulation={handleStartSimulation}
                         onClearParty={handleClearParty}
                         onRemoveMember={removeMember}
+                        selectedBossId={selectedBossId}
+                        onBossChange={setSelectedBossId}
                     // onEditMember removed
                     />
 
