@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { simulateTurns, type Action } from '../logic/turnSimulator';
 import type { PartyMember } from '../components/simulation/turn/PartyConfigurationPanel';
+import { DEFAULT_BOSS, ICARUS } from '../logic/bossData';
 
 interface UseTurnSimulatorReturn {
     results: Action[] | null;
     error: string | null;
-    runSimulation: (party: PartyMember[], maxRounds: number) => void;
+    runSimulation: (party: PartyMember[], maxRounds: number, bossId?: string) => void;
     clearResults: () => void;
 }
 
@@ -57,7 +58,7 @@ export const useTurnSimulator = (): UseTurnSimulatorReturn => {
     const [results, setResults] = useState<Action[] | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    const runSimulation = (party: PartyMember[], maxRounds: number) => {
+    const runSimulation = (party: PartyMember[], maxRounds: number, bossId: string = 'default') => {
         try {
             setError(null);
 
@@ -65,8 +66,15 @@ export const useTurnSimulator = (): UseTurnSimulatorReturn => {
             // Logic extracted to pure function `adaptPartyToSimulation`
             const simulationParty = adaptPartyToSimulation(party);
 
-            // 2. Execution: Run the physics engine
-            const simResults = simulateTurns(simulationParty, maxRounds);
+            // 2. Select Boss Logic
+            let boss = DEFAULT_BOSS;
+            if (bossId === 'icarus') {
+                boss = { ...ICARUS }; // Use spread to avoid mutation issues if any
+            }
+            // Add more bosses here as needed
+
+            // 3. Execution: Run the physics engine
+            const simResults = simulateTurns(simulationParty, maxRounds, boss);
             setResults(simResults);
         } catch (e) {
             setError(e instanceof Error ? e.message : 'Unknown error occurred');

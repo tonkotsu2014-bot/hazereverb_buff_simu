@@ -1,6 +1,5 @@
-import { Container, Typography, Box, Paper, List, ListItem, ListItemText, Divider, Breadcrumbs, Link as MuiLink, Alert } from '@mui/material';
+import { Container, Typography, Box, Paper, List, ListItem, ListItemText, Breadcrumbs, Link as MuiLink, Alert } from '@mui/material';
 import { Link } from 'react-router-dom';
-import ShowChartIcon from '@mui/icons-material/ShowChart';
 
 export const TurnSimulationGuidePage = () => {
     return (
@@ -106,6 +105,7 @@ export const TurnSimulationGuidePage = () => {
                     />
                 </Box>
             </Paper>
+
         </Container>
     );
 };

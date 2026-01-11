@@ -7,6 +7,8 @@ interface UseTurnSimulationStateReturn {
     setParty: (party: PartyMember[]) => void;
     maxRounds: number;
     setMaxRounds: (rounds: number) => void;
+    selectedBossId: string;
+    setSelectedBossId: (id: string) => void;
     addMember: (index: number) => void;
     removeMember: (id: string) => void;
     clearParty: () => void;
@@ -103,11 +105,26 @@ export const useTurnSimulationState = (
         return 5;
     });
 
+    const [selectedBossId, setSelectedBossId] = useState<string>(() => {
+        try {
+            const saved = localStorage.getItem('hazreverb_turn_sim_state');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed.selectedBossId) {
+                    return parsed.selectedBossId;
+                }
+            }
+        } catch (e) {
+            console.error('Failed to load turn sim state', e);
+        }
+        return 'default';
+    });
+
     // 2. Persistence Effect
     useEffect(() => {
-        const state = { party, maxRounds };
+        const state = { party, maxRounds, selectedBossId };
         localStorage.setItem('hazreverb_turn_sim_state', JSON.stringify(state));
-    }, [party, maxRounds]);
+    }, [party, maxRounds, selectedBossId]);
 
     // 3. Data Synchronization (Sync with Wiki Data)
     // We check this on every render and update if necessary.
@@ -147,6 +164,8 @@ export const useTurnSimulationState = (
         setParty,
         maxRounds,
         setMaxRounds,
+        selectedBossId,
+        setSelectedBossId,
         addMember,
         removeMember,
         clearParty

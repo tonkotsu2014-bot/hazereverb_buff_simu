@@ -9,7 +9,11 @@ import {
     CardContent,
     IconButton,
     TextField,
-    Chip
+    Chip,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
@@ -32,6 +36,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { ParsedCharacterData } from '../../../logic/wikiParser';
+import { DEFAULT_BOSS, ICARUS } from '../../../logic/bossData';
 import { CharacterSettingsDialog } from '../CharacterSettingsDialog';
 
 // Extended type for party members to include UI status
@@ -204,6 +209,8 @@ interface PartyConfigurationPanelProps {
     onStartSimulation: () => void;
     onClearParty: () => void;
     onRemoveMember: (id: string) => void;
+    selectedBossId: string;
+    onBossChange: (id: string) => void;
 }
 
 export const PartyConfigurationPanel: React.FC<PartyConfigurationPanelProps> = ({
@@ -214,6 +221,8 @@ export const PartyConfigurationPanel: React.FC<PartyConfigurationPanelProps> = (
     onStartSimulation,
     onClearParty,
     onRemoveMember,
+    selectedBossId,
+    onBossChange
 }) => {
     // Config Dialog State (Internalized)
     const [configMemberId, setConfigMemberId] = useState<string | null>(null);
@@ -244,34 +253,73 @@ export const PartyConfigurationPanel: React.FC<PartyConfigurationPanelProps> = (
 
     return (
         <Paper sx={{ p: 2, minHeight: '200px', display: 'flex', flexDirection: 'column' }}>
+            {/* Simulation Configuration Section */}
+            <Paper variant="outlined" sx={{ p: 2, mb: 3, bgcolor: 'background.default' }}>
+                <Grid container spacing={2} alignItems="center">
+                    <Grid size={{ xs: 12, sm: 5 }}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel>ボス選択</InputLabel>
+                            <Select
+                                value={selectedBossId}
+                                label="ボス選択"
+                                onChange={(e) => onBossChange(e.target.value)}
+                            >
+                                <MenuItem value="default">
+                                    <Box>
+                                        <Typography variant="body2">{DEFAULT_BOSS.name}</Typography>
+                                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontSize: '0.7rem' }}>
+                                            {DEFAULT_BOSS.description}
+                                        </Typography>
+                                    </Box>
+                                </MenuItem>
+                                <MenuItem value="icarus">
+                                    <Box>
+                                        <Typography variant="body2">{ICARUS.name}</Typography>
+                                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontSize: '0.7rem' }}>
+                                            {ICARUS.description}
+                                        </Typography>
+                                    </Box>
+                                </MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid size={{ xs: 6, sm: 3 }}>
+                        <TextField
+                            label="ラウンド数"
+                            type="number"
+                            size="small"
+                            fullWidth
+                            value={maxRounds}
+                            onChange={(e) => onMaxRoundsChange(Math.max(1, parseInt(e.target.value) || 1))}
+                            slotProps={{ htmlInput: { min: 1, max: 20 } }}
+                        />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 4 }} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <Button
+                            variant="contained"
+                            startIcon={<PlayArrowIcon />}
+                            onClick={onStartSimulation}
+                            disabled={party.length === 0}
+                            fullWidth
+                            sx={{ height: 40 }}
+                        >
+                            実行
+                        </Button>
+                    </Grid>
+                </Grid>
+            </Paper>
+
+            {/* Party Management Header */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Typography variant="subtitle1" fontWeight={600}>
-                        パーティー {party.length}/9
-                    </Typography>
-                    <TextField
-                        label="ラウンド数"
-                        type="number"
-                        size="small"
-                        value={maxRounds}
-                        onChange={(e) => onMaxRoundsChange(Math.max(1, parseInt(e.target.value) || 1))}
-                        sx={{ width: 100 }}
-                        slotProps={{ htmlInput: { min: 1, max: 20 } }}
-                    />
-                    <Button
-                        variant="contained"
-                        startIcon={<PlayArrowIcon />}
-                        onClick={onStartSimulation}
-                        disabled={party.length === 0}
-                    >
-                        シミュレーション開始
-                    </Button>
-                </Box>
+                <Typography variant="subtitle1" fontWeight={600}>
+                    パーティー構成 ({party.length}/9)
+                </Typography>
                 <Button
                     size="small"
                     color="error"
                     onClick={onClearParty}
                     disabled={party.length === 0}
+                    startIcon={<DeleteIcon />}
                 >
                     一括解除
                 </Button>
@@ -291,7 +339,7 @@ export const PartyConfigurationPanel: React.FC<PartyConfigurationPanelProps> = (
                         items={party.map(p => p.id)}
                         strategy={verticalListSortingStrategy}
                     >
-                        <Grid container spacing={1}>
+                        <Grid spacing={1}>
                             {party.map((member, index) => (
                                 <SortableItem
                                     key={member.id}
