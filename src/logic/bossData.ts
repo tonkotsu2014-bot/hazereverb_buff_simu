@@ -25,19 +25,24 @@ export const ICARUS: BossCharacter = {
     skills: [], // No data-driven skills
     onAction: (context) => {
         // Clear Buffs Logic
-        // Remove all buffs from all party members (Enemies of the Boss)
+        // Remove all effects (Buff/Debuff) from Support Skills (Source is Supporter)
+        // unless they are Undispellable.
         context.accumulatedSkills.forEach((skills, pIdx) => {
             const filtered = skills.map(skill => {
-                const newEffects = skill.effects.filter(e => e.type !== 'Buff' || e.isUndispellable);
+                // Find source character
+                const sourceChar = context.party.find(p => p?.name === skill.source);
+                const isSupporter = sourceChar?.role === 'Supporter' || sourceChar?.type?.includes('支援');
 
-                // If a skill has no effects left (and wasn't just empty to begin with? No, remove if empty?)
-                // If a ReceivedSkill loses all effects, it essentially does nothing. Keep it or remove it?
-                // Logic in turnSimulator usually filters out skills with no active effects for snapshot, 
-                // but here we modify the state directly.
-                // Let's filter out the skill entirely if no effects remain, to be clean.
-                if (newEffects.length === 0) return null;
+                if (isSupporter) {
+                    // Filter effects: Keep if Undispellable
+                    const newEffects = skill.effects.filter(e => e.isUndispellable);
 
-                return { ...skill, effects: newEffects };
+                    if (newEffects.length === 0) return null;
+                    return { ...skill, effects: newEffects };
+                }
+
+                // If not a supporter skill, keep as is
+                return skill;
             }).filter(s => s !== null) as ReceivedSkill[];
 
             // Mutate the array in place
