@@ -1,5 +1,5 @@
 {
-  "hash": "e7d983f6e0577ce6cc9036d458f2a1ce93f3e9a049ca968ac2ef0f72cd2b3e10",
+  "hash": "a4c28af26468efdc86f36c6ecac2e414ac5af408c6caa2154142a0d2c80366bd",
   "data": [
     {
       "skills": [
@@ -622,7 +622,8 @@
                   "value": 30,
                   "duration": -1,
                   "target": "Default",
-                  "isStackable": true
+                  "isStackable": true,
+                  "isUndispellable": true
                 },
                 {
                   "type": "Buff",
@@ -645,7 +646,8 @@
                   "value": 30,
                   "duration": -1,
                   "target": "Default",
-                  "isStackable": true
+                  "isStackable": true,
+                  "isUndispellable": true
                 },
                 {
                   "calculationType": "SupportScaling",
@@ -676,7 +678,8 @@
                   "value": 30,
                   "duration": -1,
                   "target": "Default",
-                  "isStackable": true
+                  "isStackable": true,
+                  "isUndispellable": true
                 },
                 {
                   "calculationType": "SupportScaling",
@@ -738,7 +741,8 @@
                   "value": 15,
                   "target": "Self",
                   "duration": -1,
-                  "isStackable": true
+                  "isStackable": true,
+                  "isUndispellable": false
                 },
                 {
                   "type": "Buff",
@@ -747,7 +751,8 @@
                   "duration": -1,
                   "calculationType": "Fixed",
                   "target": "Self",
-                  "isStackable": true
+                  "isStackable": true,
+                  "isUndispellable": true
                 }
               ]
             },
@@ -771,7 +776,8 @@
                   "duration": -1,
                   "calculationType": "Fixed",
                   "target": "Self",
-                  "isStackable": true
+                  "isStackable": true,
+                  "isUndispellable": true
                 }
               ]
             }
@@ -1367,7 +1373,8 @@
                   "attribute": "Attack",
                   "value": 100,
                   "duration": -1,
-                  "target": "Self"
+                  "target": "Self",
+                  "isUndispellable": true
                 }
               ]
             },
@@ -1381,7 +1388,8 @@
                   "attribute": "Attack",
                   "value": 90,
                   "duration": -1,
-                  "target": "Self"
+                  "target": "Self",
+                  "isUndispellable": true
                 }
               ]
             },
@@ -1395,7 +1403,8 @@
                   "attribute": "Attack",
                   "value": 80,
                   "duration": -1,
-                  "target": "Self"
+                  "target": "Self",
+                  "isUndispellable": true
                 }
               ]
             },
@@ -1409,7 +1418,8 @@
                   "attribute": "Attack",
                   "value": 70,
                   "duration": -1,
-                  "target": "Self"
+                  "target": "Self",
+                  "isUndispellable": true
                 }
               ]
             }
@@ -1538,7 +1548,8 @@
                   "attribute": "Attack",
                   "value": 40,
                   "duration": -1,
-                  "target": "Self"
+                  "target": "Self",
+                  "isUndispellable": true
                 }
               ]
             },
@@ -1552,7 +1563,8 @@
                   "attribute": "Attack",
                   "value": 60,
                   "duration": -1,
-                  "target": "Self"
+                  "target": "Self",
+                  "isUndispellable": true
                 }
               ]
             },
@@ -1566,7 +1578,8 @@
                   "attribute": "Attack",
                   "value": 80,
                   "duration": -1,
-                  "target": "Self"
+                  "target": "Self",
+                  "isUndispellable": true
                 }
               ]
             },
@@ -1580,11 +1593,13 @@
                   "attribute": "Attack",
                   "value": 100,
                   "duration": -1,
-                  "target": "Self"
+                  "target": "Self",
+                  "isUndispellable": true
                 }
               ]
             }
-          ]
+          ],
+          "activeLevel": "9"
         }
       ],
       "stats": {
@@ -2107,7 +2122,8 @@
                   "value": 10,
                   "duration": -1,
                   "target": "Default",
-                  "isStackable": true
+                  "isStackable": true,
+                  "isUndispellable": true
                 },
                 {
                   "type": "Buff",
@@ -2131,7 +2147,8 @@
                   "value": 10,
                   "duration": -1,
                   "target": "Default",
-                  "isStackable": true
+                  "isStackable": true,
+                  "isUndispellable": true
                 },
                 {
                   "type": "Buff",
@@ -2155,7 +2172,8 @@
                   "value": 10,
                   "duration": -1,
                   "target": "Default",
-                  "isStackable": true
+                  "isStackable": true,
+                  "isUndispellable": true
                 },
                 {
                   "type": "Buff",
@@ -2249,7 +2267,8 @@
                   "value": 50,
                   "duration": -1,
                   "target": "Default",
-                  "isStackable": true
+                  "isStackable": true,
+                  "isUndispellable": true
                 },
                 {
                   "type": "Buff",
@@ -2273,7 +2292,8 @@
                   "value": 40,
                   "duration": -1,
                   "target": "Default",
-                  "isStackable": true
+                  "isStackable": true,
+                  "isUndispellable": true
                 },
                 {
                   "type": "Buff",
@@ -2297,7 +2317,8 @@
                   "value": 30,
                   "duration": -1,
                   "target": "Default",
-                  "isStackable": true
+                  "isStackable": true,
+                  "isUndispellable": true
                 },
                 {
                   "calculationType": "SupportScaling",
@@ -2330,7 +2351,8 @@
                   "value": 30,
                   "duration": -1,
                   "target": "Default",
-                  "isStackable": true
+                  "isStackable": true,
+                  "isUndispellable": true
                 },
                 {
                   "calculationType": "SupportScaling",
@@ -2353,7 +2375,7 @@
               ]
             }
           ],
-          "activeLevel": "10"
+          "activeLevel": "4"
         }
       ],
       "stats": {
