@@ -212,7 +212,7 @@ export const CharacterDetailForm: React.FC<Props> = ({ character, onUpdate }) =>
         const newSkills = [...formData.skills];
         const currentLevels = [...newSkills[skillIndex].levels];
 
-        if (field === 'isStackable') {
+        if (field === 'isStackable' || field === 'isUndispellable') {
             // Apply to all levels
             newSkills[skillIndex].levels = currentLevels.map(lvl => {
                 const newEffects = [...lvl.effects];
