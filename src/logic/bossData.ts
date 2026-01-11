@@ -25,24 +25,14 @@ export const ICARUS: BossCharacter = {
     skills: [], // No data-driven skills
     onAction: (context) => {
         // Clear Buffs Logic
-        // Remove all effects (Buff/Debuff) from Support Skills (Source is Supporter)
-        // unless they are Undispellable.
+        // Remove all effects (Buff/Debuff) from ALL Skills unless they are Undispellable.
         context.accumulatedSkills.forEach((skills, pIdx) => {
             const filtered = skills.map(skill => {
-                // Find source character
-                const sourceChar = context.party.find(p => p?.name === skill.source);
-                const isSupporter = sourceChar?.role === 'Supporter' || sourceChar?.type?.includes('支援');
+                // Filter effects: Keep only if Undispellable
+                const newEffects = skill.effects.filter(e => e.isUndispellable);
 
-                if (isSupporter) {
-                    // Filter effects: Keep if Undispellable
-                    const newEffects = skill.effects.filter(e => e.isUndispellable);
-
-                    if (newEffects.length === 0) return null;
-                    return { ...skill, effects: newEffects };
-                }
-
-                // If not a supporter skill, keep as is
-                return skill;
+                if (newEffects.length === 0) return null;
+                return { ...skill, effects: newEffects };
             }).filter(s => s !== null) as ReceivedSkill[];
 
             // Mutate the array in place

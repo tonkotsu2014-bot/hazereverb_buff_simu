@@ -73,7 +73,7 @@ describe('Turn Simulator - Undispellable Buffs & Icarus Dispel Logic', () => {
         expect(hasDebuff).toBe(false);
     });
 
-    test('Icarus should NOT remove Attacker Buffs', () => {
+    test('Icarus should remove Attacker Buffs (all skills logic)', () => {
         const character = createTestCharacter('AtkBuff', 'Attacker', 'Buff', false);
         const party = [character];
         const maxRounds = 2;
@@ -85,7 +85,7 @@ describe('Turn Simulator - Undispellable Buffs & Icarus Dispel Logic', () => {
         const charState = actionAfterBoss.characterStates.find(c => c.name === 'AtkBuff');
         const hasBuff = charState?.receivedSkills.some(s => s.name === 'TestSkill');
 
-        expect(hasBuff).toBe(true);
+        expect(hasBuff).toBe(false);
     });
 
     test('Icarus should NOT remove Undispellable Supporter Buffs', () => {
@@ -101,5 +101,37 @@ describe('Turn Simulator - Undispellable Buffs & Icarus Dispel Logic', () => {
         const hasBuff = charState?.receivedSkills.some(s => s.name === 'TestSkill');
 
         expect(hasBuff).toBe(true);
+    });
+
+    test('Icarus should remove Supporter Battle Start Buffs', () => {
+        const character = createTestCharacter('SupBattleStart', 'Supporter', 'Buff', false);
+        // Override the skill timing
+        character.skills[0].levels[0].effects[0].timing = 'BattleStart';
+        const party = [character];
+        const maxRounds = 1;
+
+        const actions = simulateTurns(party, maxRounds, ICARUS);
+
+        const bossActionIndex = actions.findIndex(a => a.round === 1 && a.actorName === 'イカロス');
+        const actionAfterBoss = actions[bossActionIndex];
+        const charState = actionAfterBoss.characterStates.find(c => c.name === 'SupBattleStart');
+        const hasBuff = charState?.receivedSkills.some(s => s.name === 'TestSkill');
+
+        expect(hasBuff).toBe(false);
+    });
+
+    test('Icarus should remove Supporter Self Buffs', () => {
+        const character = createTestCharacter('SupSelf', 'Supporter', 'Buff', false, 'Self');
+        const party = [character];
+        const maxRounds = 1;
+
+        const actions = simulateTurns(party, maxRounds, ICARUS);
+
+        const bossActionIndex = actions.findIndex(a => a.round === 1 && a.actorName === 'イカロス');
+        const actionAfterBoss = actions[bossActionIndex];
+        const charState = actionAfterBoss.characterStates.find(c => c.name === 'SupSelf');
+        const hasBuff = charState?.receivedSkills.some(s => s.name === 'TestSkill');
+
+        expect(hasBuff).toBe(false);
     });
 });
