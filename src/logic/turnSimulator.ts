@@ -1,5 +1,6 @@
 
 import type { ParsedCharacterData, SkillEffect, SkillLevel } from './wikiParser';
+import { DEFAULT_BOSS } from './bossData';
 
 export interface ReceivedSkillEffect {
     attribute: string;
@@ -37,11 +38,21 @@ export interface Action {
     characterStates: CharacterState[];
 }
 
+export interface BossContext {
+    party: (SimulationCharacter | null)[];
+    accumulatedSkills: ReceivedSkill[][];
+    round: number;
+    globalTurn: number;
+    actions: Action[];
+}
+
 export interface SimulationCharacter extends ParsedCharacterData {
     id?: string;
     deathRound?: number;
     supportTargetIndices?: number[];
     exSkillRounds?: number[];
+    // Boss specific: function to execute custom logic during boss turn
+    onAction?: (context: BossContext) => void;
 }
 
 /**
@@ -51,12 +62,16 @@ export interface SimulationCharacter extends ParsedCharacterData {
  * @param maxRounds The number of rounds to simulate.
  * @returns An array of Actions representing the turn order.
  */
+
 export const simulateTurns = (
     party: (SimulationCharacter | null)[],
-    maxRounds: number
+    maxRounds: number,
+    boss?: SimulationCharacter | null
 ): Action[] => {
     const actions: Action[] = [];
     let globalTurn = 1;
+
+    const currentBoss = boss ?? DEFAULT_BOSS;
 
     // Track accumulated skills for each character index
     const accumulatedSkills: ReceivedSkill[][] = party.map(() => []);
@@ -196,6 +211,55 @@ export const simulateTurns = (
         return skillsToApply;
     };
 
+    const addSkill = (targetIndex: number, skillName: string, source: string, round: number, effects: {
+        attribute: string;
+        value: number;
+        type: string;
+        scalingFactor?: string;
+        actuatorSupportPower?: number;
+        duration?: number;
+        isStackable?: boolean;
+    }[]) => {
+        const MAX_STACK_COUNT = 5;
+
+        // 1. Process existing skills of the same name
+        for (let i = accumulatedSkills[targetIndex].length - 1; i >= 0; i--) {
+            const skill = accumulatedSkills[targetIndex][i];
+            if (skill.name === skillName) {
+                skill.effects = skill.effects.filter(e => e.isStackable);
+
+                if (skill.effects.length === 0) {
+                    accumulatedSkills[targetIndex].splice(i, 1);
+                }
+            }
+        }
+
+        const newSkill: ReceivedSkill = {
+            name: skillName,
+            source: source,
+            startRound: round,
+            startGlobalTurn: globalTurn,
+            effects: effects.map(e => ({
+                attribute: e.attribute,
+                value: e.value,
+                type: e.type,
+                scalingFactor: e.scalingFactor,
+                actuatorSupportPower: e.actuatorSupportPower,
+                duration: e.duration,
+                isStackable: e.isStackable
+            }))
+        };
+
+        const existingStacksCount = accumulatedSkills[targetIndex].filter(s => s.name === skillName).length;
+        if (existingStacksCount >= MAX_STACK_COUNT) {
+            const oldestIndex = accumulatedSkills[targetIndex].findIndex(s => s.name === skillName);
+            if (oldestIndex !== -1) {
+                accumulatedSkills[targetIndex].splice(oldestIndex, 1);
+            }
+        }
+        accumulatedSkills[targetIndex].push(newSkill);
+    };
+
     const processEffects = (
         index: number,
         round: number,
@@ -209,55 +273,6 @@ export const simulateTurns = (
         if (character.supportTargetIndices && character.supportTargetIndices.length > 0) {
             // supportTargetNames unused
         }
-
-        const addSkill = (targetIndex: number, skillName: string, source: string, effects: {
-            attribute: string;
-            value: number;
-            type: string;
-            scalingFactor?: string;
-            actuatorSupportPower?: number;
-            duration?: number;
-            isStackable?: boolean;
-        }[]) => {
-            const MAX_STACK_COUNT = 5;
-
-            // 1. Process existing skills of the same name
-            for (let i = accumulatedSkills[targetIndex].length - 1; i >= 0; i--) {
-                const skill = accumulatedSkills[targetIndex][i];
-                if (skill.name === skillName) {
-                    skill.effects = skill.effects.filter(e => e.isStackable);
-
-                    if (skill.effects.length === 0) {
-                        accumulatedSkills[targetIndex].splice(i, 1);
-                    }
-                }
-            }
-
-            const newSkill: ReceivedSkill = {
-                name: skillName,
-                source: source,
-                startRound: round,
-                startGlobalTurn: globalTurn,
-                effects: effects.map(e => ({
-                    attribute: e.attribute,
-                    value: e.value,
-                    type: e.type,
-                    scalingFactor: e.scalingFactor,
-                    actuatorSupportPower: e.actuatorSupportPower,
-                    duration: e.duration,
-                    isStackable: e.isStackable
-                }))
-            };
-
-            const existingStacksCount = accumulatedSkills[targetIndex].filter(s => s.name === skillName).length;
-            if (existingStacksCount >= MAX_STACK_COUNT) {
-                const oldestIndex = accumulatedSkills[targetIndex].findIndex(s => s.name === skillName);
-                if (oldestIndex !== -1) {
-                    accumulatedSkills[targetIndex].splice(oldestIndex, 1);
-                }
-            }
-            accumulatedSkills[targetIndex].push(newSkill);
-        };
 
         skillsToApply.forEach(({ skillName, level: currentLevel }) => {
             // Filter effects based on timing
@@ -412,7 +427,7 @@ export const simulateTurns = (
             effectsByTargetIndex.forEach((effects, tIdx) => {
                 const targetChar = party[tIdx];
                 if (targetChar) {
-                    addSkill(tIdx, skillName, character.name || 'Unknown', effects);
+                    addSkill(tIdx, skillName, character.name || 'Unknown', round, effects);
                 }
             });
         });
@@ -498,12 +513,25 @@ export const simulateTurns = (
     };
 
     const pushBossAction = (round: number) => {
+        const actorName = currentBoss.name || 'Boss';
+
+        // Execute function-based boss logic
+        if (currentBoss.onAction) {
+            currentBoss.onAction({
+                party,
+                accumulatedSkills,
+                round,
+                globalTurn,
+                actions
+            });
+        }
+
         const currentGlobalTurn = globalTurn++;
         actions.push({
             round,
             globalTurn: currentGlobalTurn,
             actorIndex: -1,
-            actorName: 'Boss',
+            actorName: actorName,
             actorRole: 'Boss',
             actorType: 'Boss',
             characterStates: getSnapshot(round, currentGlobalTurn)
